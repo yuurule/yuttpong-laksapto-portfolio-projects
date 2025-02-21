@@ -1,0 +1,40 @@
+.heroSlide {
+
+  .box {
+    background: #353535;
+    color: #FFF;
+    height: 100%;
+  }
+
+  .firstRow {
+    height: 420px;
+    display: flex;
+    justify-content: space-around;
+
+    .box.left {
+      width: 64%;
+      border-right: 5px solid #FFF;
+      display: flex;
+      align-items: center;
+      padding-left: 7%;
+    }
+    .box.right {
+      width: 36%;
+      display: flex;
+      justify-content: center;
+      text-align: center;
+      align-items: center;
+    }
+  }
+
+  .secondRow {
+    height: 200px;
+    margin-top: 5px;
+    .box {
+      display: flex;
+      align-items: center;
+      padding-left: 20%;
+    }
+  }
+
+}

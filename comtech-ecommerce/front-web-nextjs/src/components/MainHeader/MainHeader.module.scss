@@ -1,0 +1,25 @@
+.mainHeader {
+
+  .contentPaddingX {
+    padding: 0 2.5%;
+  }
+
+  .utilsMenu {
+    min-height: 36px;
+    background: var(--primary-gradient);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #FFF;
+    font-size: 0.8rem;
+     
+    a {
+      color: #FFF;
+    }
+  }
+
+  // .mainHeaderContent {
+    
+  // }
+
+}
