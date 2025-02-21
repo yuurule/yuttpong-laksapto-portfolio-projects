@@ -1,0 +1,61 @@
+model Category {
+  id              Int @id @default(autoincrement())
+  name            String
+  description     String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  products        CategoryProduct[]
+
+  @@map("categories")
+}
+
+model CategoryProduct {
+  categoryId      Int
+  productId       Int
+  createdAt       DateTime @default(now())
+  createdById     Int
+
+  category        Category @relation(fields: [categoryId], references: [id])
+  product         Product @relation(fields: [productId], references: [id])
+  createBy        User @relation(fields: [createdById], references: [id])
+
+  @@id([categoryId, productId])
+  @@map("categorie_products")
+}
+
+model Tag {
+  id              Int @id @default(autoincrement())
+  name            String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  products        TagProduct[]
+
+  @@map("tags")
+}
+
+model TagProduct {
+  tagId           Int
+  productId       Int
+  createdAt       DateTime @default(now())
+  createdById     Int
+
+  tag             Tag @relation(fields: [tagId], references: [id])
+  product         Product @relation(fields: [productId], references: [id])
+  createBy        User @relation(fields: [createdById], references: [id])
+
+  @@id([tagId, productId])
+  @@map("tag_products")
+}
+
+model Brand {
+  id              Int @id @default(autoincrement())
+  name            String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  products        Product[]
+
+  @@map("brands")
+}

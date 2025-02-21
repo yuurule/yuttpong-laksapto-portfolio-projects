@@ -1,0 +1,47 @@
+model Product {
+  id              Int @id @default(autoincrement())
+  name            String
+  description     String @db.Text
+  brandId         Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deleteAt        DateTime?
+
+  brand               Brand @relation(fields: [brandId], references: [id])
+  images              ProductImage[]
+  reviews             Review[]
+  categories          CategoryProduct[]
+  tags                TagProduct[]
+
+  @@map("products")
+}
+
+model ProductImage {
+  id              Int @id @default(autoincrement())
+  url_path        String
+  productId       Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deleteAt        DateTime?
+
+  product         Product @relation(fields: [productId], references: [id])
+
+  @@map("product_images")
+}
+
+model Review {
+  id              Int @id @default(autoincrement())
+  customerId      Int
+  productId       Int
+  review          String @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deleteAt        DateTime?
+  deleteById      Int
+
+  customer        Customer @relation(fields: [customerId], references: [id])
+  product         Product @relation(fields: [productId], references: [id])
+
+  @@map("reviews")
+}
+

@@ -1,0 +1,73 @@
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  password      String
+  role          Role     @default(USER)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  refreshTokens             RefreshToken[]
+  categoryProductCreate     CategoryProduct[]
+  tagProductCreate          TagProduct[]
+
+  @@map("users")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @db.Text
+  userId    Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("refresh_tokens")
+}
+
+model Customer {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  password      String
+  lastActive    DateTime
+  onDelete      DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  customerRefreshTokens   CustomerRefreshToken[]
+  customerDetail          CustomerDetail?
+  reviews                 Review[]
+
+  @@map("customers")
+}
+
+model CustomerRefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @db.Text
+  customerId    Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  cutomer      Customer     @relation(fields: [customerId], references: [id])
+
+  @@map("customer_refresh_tokens")
+}
+
+model CustomerDetail {
+  id            Int @id @default(autoincrement())
+  customerId    Int @unique
+  nameTitle     String?
+  firstName     String?
+  lastName      String?
+  phone         String?
+  lineId        String?
+
+  customer      Customer @relation(fields: [customerId], references: [id])
+  
+  @@map("customer_details")
+}
