@@ -1,0 +1,14 @@
+.ourServices {
+
+  .container {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+
+    .serviceItem {
+      display: flex;
+      width: 18%;
+    }
+  }
+
+}

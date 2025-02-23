@@ -1,3 +1,5 @@
+"use client";
+import { useEffect } from 'react';
 import styles from './MainHeader.module.scss';
 import Link from 'next/link';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -5,6 +7,9 @@ import { faBoltLightning, faSearch, faHeadphones, faUser, faShoppingCart, faBars
 
 export default function MainHeader() {
 
+  useEffect(() => {
+    require('bootstrap/dist/js/bootstrap.bundle.min.js');
+  }, []);
 
   return (
     <div className={`${styles.mainHeader}`}>
