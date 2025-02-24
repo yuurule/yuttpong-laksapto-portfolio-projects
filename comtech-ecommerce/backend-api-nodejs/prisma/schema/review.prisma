@@ -1,0 +1,15 @@
+model Review {
+  id              Int @id @default(autoincrement())
+  customerId      Int
+  productId       Int
+  message         String @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deleteAt        DateTime?
+  deleteById      Int
+
+  customer        Customer @relation(fields: [customerId], references: [id])
+  product         Product @relation(fields: [productId], references: [id])
+
+  @@map("reviews")
+}

@@ -1,0 +1,28 @@
+model Order {
+  id              Int @id @default(autoincrement())
+  status          String @default("PENDING") // PENDING, CONFIRMED, PREPARING, DELIVERING, COMPLETED, CANCELLED
+  paymentStatus   String @default("PENDING") // PENDING, PAID, FAILED
+  paymentIntent   String? // Stripe payment intent ID
+  customerId      Int
+  orderItems      OrderItem[]
+  address         String @db.Text
+  totalAmount     Decimal @db.Decimal(18, 2)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  customer        Customer @relation(fields: [customerId], references: [id])
+
+  @@map("orders") 
+}
+
+model OrderItem {
+  id                Int  @id @default(autoincrement())
+  quantity          Int
+  productId         Int
+  orderId           Int
+
+  product           Product @relation(fields: [productId], references: [id])
+  order             Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@map("order_items")
+}

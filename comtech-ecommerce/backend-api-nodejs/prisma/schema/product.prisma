@@ -3,17 +3,44 @@ model Product {
   name            String
   description     String @db.Text
   brandId         Int
+  price           Decimal @db.Decimal(10, 2) 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   deleteAt        DateTime?
 
   brand               Brand @relation(fields: [brandId], references: [id])
+  specs               ProductSpecs?
   images              ProductImage[]
   reviews             Review[]
   categories          CategoryProduct[]
   tags                TagProduct[]
+  orderItems          OrderItem[]
+  onSales             OnSalesProduct?
 
   @@map("products")
+}
+
+model ProductSpecs {
+  id                Int @id @default(autoincrement())
+  productId         Int @unique
+  mainboard         String
+  mainboardFeature  String @db.Text
+  cpu               String
+  gpu               String
+  ram               Int
+  harddisk          String
+  soundCard         String
+  powerSupply       String
+  screenSize        Decimal @db.Decimal(10, 2)
+  screenType        String
+  refreshRate       Int
+  dimension         String
+  weight            Decimal @db.Decimal(10, 2)
+  freeGift          String // ของแถม
+
+  product           Product @relation(fields: [productId], references: [id])
+
+  @@map("product_specs")
 }
 
 model ProductImage {
@@ -29,19 +56,15 @@ model ProductImage {
   @@map("product_images")
 }
 
-model Review {
+model OnSalesProduct {
   id              Int @id @default(autoincrement())
-  customerId      Int
-  productId       Int
-  review          String @db.Text
+  productId       Int @unique
+  discountRate    Int // %
+  finishDate      DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  deleteAt        DateTime?
-  deleteById      Int
 
-  customer        Customer @relation(fields: [customerId], references: [id])
   product         Product @relation(fields: [productId], references: [id])
 
-  @@map("reviews")
+  @@map("on_sales_products")
 }
-
