@@ -11,6 +11,9 @@ router.post('/auth/login', authController.login);
 router.post('/auth/refreshToken', authController.refresh);
 router.post('/auth/logout',authenticate, authController.logout);
 
+// Products
+
+
 // Protected route example
 // router.get(
 //   '/admin',

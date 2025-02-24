@@ -2,17 +2,11 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { AUTH_CONFIG } from '../config/auth.config';
-import { AuthTokens, TokenPayload } from '../types/auth.types';
+import { AuthTokens, TokenPayload, User } from '../types/auth.types';
 import * as metrics from '../config/metrics.config';
 import ms from 'ms';
 
 const prisma = new PrismaClient();
-
-interface User {
-  id: number;
-  email: string;
-  role: string;
-}
 
 export class AuthService {
   async register(email: string, password: string) {

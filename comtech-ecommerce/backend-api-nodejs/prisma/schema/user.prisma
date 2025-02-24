@@ -62,7 +62,6 @@ model CustomerRefreshToken {
 model CustomerDetail {
   id            Int @id @default(autoincrement())
   customerId    Int @unique
-  nameTitle     String?
   firstName     String?
   lastName      String?
   phone         String?
