@@ -16,6 +16,7 @@ model Product {
   tags                TagProduct[]
   orderItems          OrderItem[]
   onSales             OnSalesProduct?
+  cartItems           CartItem[]
 
   @@map("products")
 }

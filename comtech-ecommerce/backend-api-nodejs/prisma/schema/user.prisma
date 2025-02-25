@@ -42,7 +42,8 @@ model Customer {
   customerRefreshTokens   CustomerRefreshToken[]
   customerDetail          CustomerDetail?
   reviews                 Review[]
-  orders       Order[]
+  orders                  Order[]
+  cartItems               CartItem[]
 
   @@map("customers")
 }
