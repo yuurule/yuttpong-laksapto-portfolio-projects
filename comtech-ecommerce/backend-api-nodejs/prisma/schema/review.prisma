@@ -1,15 +1,18 @@
 model Review {
   id              Int @id @default(autoincrement())
-  customerId      Int
   productId       Int
   message         String @db.Text
   createdAt       DateTime @default(now())
+  createdById     Int
   updatedAt       DateTime @updatedAt
+  updatedById     Int
   deleteAt        DateTime?
   deleteById      Int
 
-  customer        Customer @relation(fields: [customerId], references: [id])
-  product         Product @relation(fields: [productId], references: [id])
+  product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdBy       Customer @relation("CustomerCreatedReview", fields: [createdById], references: [id])
+  updatedBy       Customer @relation("CustomerUpdatedReview", fields: [updatedById], references: [id])
+  deletedBy       Customer @relation("CustomerDeletedReview", fields: [deleteById], references: [id])
 
   @@map("reviews")
 }

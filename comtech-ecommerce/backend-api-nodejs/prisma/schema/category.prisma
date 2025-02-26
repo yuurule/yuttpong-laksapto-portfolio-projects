@@ -3,22 +3,26 @@ model Category {
   name            String
   description     String
   createdAt       DateTime @default(now())
+  createdById     Int
   updatedAt       DateTime @updatedAt
+  updatedById     Int?
 
   products        CategoryProduct[]
+  createdBy       User @relation("UserCreatedCategory", fields: [createdById], references: [id])
+  updatedBy       User? @relation("UserUpdatedCategory", fields: [updatedById], references: [id])  
 
   @@map("categories")
 }
 
 model CategoryProduct {
-  categoryId      Int
   productId       Int
-  createdAt       DateTime @default(now())
-  createdById     Int
+  categoryId      Int
+  assignedAt      DateTime @default(now())
+  assignedById    Int
 
-  category        Category @relation(fields: [categoryId], references: [id])
-  product         Product @relation(fields: [productId], references: [id])
-  createBy        User @relation(fields: [createdById], references: [id])
+  product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category        Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  assignedBy      User @relation(fields: [assignedById], references: [id])
 
   @@id([categoryId, productId])
   @@map("categorie_products")
@@ -28,9 +32,13 @@ model Tag {
   id              Int @id @default(autoincrement())
   name            String
   createdAt       DateTime @default(now())
+  createdById     Int
   updatedAt       DateTime @updatedAt
+  updatedById     Int?
 
   products        TagProduct[]
+  createdBy       User @relation("UserCreatedTag", fields: [createdById], references: [id])
+  updatedBy       User? @relation("UserUpdatedTag", fields: [updatedById], references: [id])
 
   @@map("tags")
 }
@@ -38,12 +46,12 @@ model Tag {
 model TagProduct {
   tagId           Int
   productId       Int
-  createdAt       DateTime @default(now())
-  createdById     Int
+  assignedAt      DateTime @default(now())
+  assignedById    Int
 
   tag             Tag @relation(fields: [tagId], references: [id])
   product         Product @relation(fields: [productId], references: [id])
-  createBy        User @relation(fields: [createdById], references: [id])
+  assignedBy      User @relation(fields: [assignedById], references: [id])
 
   @@id([tagId, productId])
   @@map("tag_products")
@@ -53,9 +61,16 @@ model Brand {
   id              Int @id @default(autoincrement())
   name            String
   createdAt       DateTime @default(now())
+  createdById     Int
   updatedAt       DateTime @updatedAt
+  updatedById     Int?
+  deletedAt       DateTime? @updatedAt
+  deletedById     Int
 
   products        Product[]
+  createdBy       User @relation("UserCreatedBrand", fields: [createdById], references: [id])
+  updatedBy       User? @relation("UserUpdatedBrand", fields: [updatedById], references: [id]) 
+  deletedBy       User? @relation("UserDeletedBrand", fields: [deletedById], references: [id])
 
   @@map("brands")
 }

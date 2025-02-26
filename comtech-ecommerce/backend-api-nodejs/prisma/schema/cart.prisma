@@ -6,8 +6,8 @@ model CartItem {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  product       Product @relation(fields: [productId], references: [id])
-  customer      Customer @relation(fields: [customerId], references: [id])
+  product       Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@map("cart_items")
 }

@@ -2,20 +2,39 @@ model User {
   id            Int      @id @default(autoincrement())
   email         String   @unique
   password      String
-  role          Role     @default(USER)
+  role          Role     @default(EDITOR)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   refreshTokens             RefreshToken[]
-  categoryProductCreate     CategoryProduct[]
-  tagProductCreate          TagProduct[]
+  // Product
+  createdProducts           Product[] @relation("UserCreatedProduct")
+  updatedProducts           Product[] @relation("UserUpdatedProduct")
+  deletedProducts           Product[] @relation("UserDeletedProduct") // soft delete
+  assignedProductImages     ProductImage[] @relation("UserAssignedProductImage")
+  updatedProductImages      ProductImage[] @relation("UserUpdatedProductImage")
+  assignedProductSales      OnSalesProduct[] @relation("UserAssignedProductSales")
+  updatedProductSales       OnSalesProduct[] @relation("UserUpdatedProductSales")
+  // Category
+  createdCategories         Category[] @relation("UserCreatedCategory")
+  updatedCategories         Category[] @relation("UserUpdatedCategory")
+  assignedCategoryProducts  CategoryProduct[]
+  // Tag
+  createdTags               Tag[] @relation("UserCreatedTag")
+  updatedTags               Tag[] @relation("UserUpdatedTag")
+  assignedTagProducts       TagProduct[]
+  // Brand
+  createdBrands             Brand[] @relation("UserCreatedBrand")
+  updatedBrands             Brand[] @relation("UserUpdatedBrand")
+  deletedBrands             Brand[] @relation("UserDeletedBrand") // soft delete
 
   @@map("users")
 }
 
 enum Role {
-  USER
   ADMIN
+  AUTHOR
+  EDITOR
 }
 
 model RefreshToken {
@@ -41,9 +60,11 @@ model Customer {
 
   customerRefreshTokens   CustomerRefreshToken[]
   customerDetail          CustomerDetail?
-  reviews                 Review[]
   orders                  Order[]
   cartItems               CartItem[]
+  createdReviews          Review[] @relation("CustomerCreatedReview")
+  updatedReviews          Review[] @relation("CustomerUpdatedReview")
+  deletedReviews          Review[] @relation("CustomerDeletedReview")
 
   @@map("customers")
 }
