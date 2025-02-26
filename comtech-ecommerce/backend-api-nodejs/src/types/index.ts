@@ -9,6 +9,7 @@ export interface createProductDto {
   description: string,
   brandId: number,
   price: number,
+  inStock: number,
   categories: {
     categoryId: number,
   }[],
@@ -35,6 +36,7 @@ export interface createProductDto {
     url_path: string, 
   }[]
 }
+
 export interface updateProductDto {
   name?: string;
   description?: string;
@@ -68,21 +70,18 @@ export interface updateProductDto {
     create?: { url_path: string }[];
     delete?: { id: number }[];
   };
+  inStock?: number;
 }
 
 // Review
-export interface createProductReviewDto {
+export interface createReviewDto {
 
 }
 
 // Category
 export interface createCategoryDto {
-
-}
-
-// Tag
-export interface createTagDto {
-  
+  name: string,
+  description: string,
 }
 
 // Cart

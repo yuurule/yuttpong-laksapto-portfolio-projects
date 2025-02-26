@@ -23,6 +23,9 @@ router.post('/product/create', authenticate, productController.createNewProduct)
 router.put('/product/:id', authenticate, productController.updateProduct);
 router.put('/product/move-to-trash', authenticate, productController.moveProductToTrash);
 
+// Stock
+
+
 // Category
 
 

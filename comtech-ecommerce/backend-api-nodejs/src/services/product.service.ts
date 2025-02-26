@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient, Prisma, StockAction } from '@prisma/client';
 import * as exception from '../libs/errorException';
 import { createProductDto, updateProductDto } from '../types';
 import { generateUuidBasedSku } from '../libs/utility';
@@ -37,6 +37,10 @@ export class ProductService {
 
   async create(dto: createProductDto, userId: number) {
     try {
+      // ตรวจสอบ user มีอยู่จริง
+      const findUser = await prisma.user.findUnique({ where: { id: userId } });
+      if(!findUser) throw new exception.NotFoundException(`Not found user with id ${userId}`);
+
       // check sku later...
 
       const newProduct = await prisma.product.create({
@@ -51,6 +55,19 @@ export class ProductService {
             connect: { id: dto.brandId }
           },
           price: dto.price,
+          inStock: {
+            create: {
+              inStock: dto.inStock
+            }
+          },
+          stockEvents: {
+            create: {
+              action: StockAction.ADD,
+              quantity: dto.inStock,
+              assignedAt: new Date(),
+              assignedBy: { connect: { id: userId } }
+            }
+          },
           categories: {
             create: dto.categories.map(category => ({
               category: {
@@ -58,7 +75,7 @@ export class ProductService {
                   id: category.categoryId,
                 },
               },
-              createBy: {
+              assignedBy: {
                 connect: { id: userId }
               }
             }))
@@ -70,7 +87,7 @@ export class ProductService {
                   id: tag.tagId
                 }
               },
-              createBy: {
+              assignedBy: {
                 connect: { id: userId }
               }
             }))
@@ -122,6 +139,7 @@ export class ProductService {
       return newProduct;
     }
     catch(error: any) {
+      if(error instanceof exception.NotFoundException) throw error;
       if(error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new exception.DatabaseException(`Error create new product due to: ${error.message}`);
       }
@@ -259,6 +277,10 @@ export class ProductService {
   /* รองรับทั้งแบบทำตัวเดียวและหลายตัว */
   async softDelete(productId: number[], userId: number) {
     try {
+      // ตรวจสอบ user มีอยู่จริง
+      const findUser = await prisma.user.findUnique({ where: { id: userId } });
+      if(!findUser) throw new exception.NotFoundException(`Not found user with id ${userId}`);
+
       const existingProducts = await prisma.product.findMany({
         where: { 
           id: { in: productId },

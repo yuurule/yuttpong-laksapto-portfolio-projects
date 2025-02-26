@@ -12,6 +12,8 @@ model Product {
   deletedAt       DateTime?
   deletedById     Int?
 
+  inStock         InStock?
+  stockEvents     StockEvent[]
   brand           Brand? @relation(fields: [brandId], references: [id], onDelete: SetNull)
   specs           ProductSpecs?
   images          ProductImage[]

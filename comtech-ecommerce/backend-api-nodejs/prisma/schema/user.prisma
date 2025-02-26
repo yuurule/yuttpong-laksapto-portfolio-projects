@@ -27,6 +27,8 @@ model User {
   createdBrands             Brand[] @relation("UserCreatedBrand")
   updatedBrands             Brand[] @relation("UserUpdatedBrand")
   deletedBrands             Brand[] @relation("UserDeletedBrand") // soft delete
+  // Stock event
+  assigned_stock_event      StockEvent[]
 
   @@map("users")
 }

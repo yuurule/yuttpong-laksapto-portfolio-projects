@@ -8,30 +8,33 @@ export class CategoryService {
 
   async findAll() {
     try {
-
+      const categories = await prisma.category.findMany();
+      return categories;
     }
     catch(error: any) {
       if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error find all ___ due to: ${error.message}`);
+        throw new exception.DatabaseException(`Error find all category due to: ${error.message}`);
       }
       throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }
   }
 
-  async findOne(id: number) {
+  async findOne(categoryId: number) {
     try {
-
+      const category = await prisma.product.findUnique({ where: { id: categoryId } });
+      if(!category) throw new exception.NotFoundException(`Not found category with id ${categoryId}`)
+      return category;
     }
     catch(error: any) {
       if(error instanceof exception.NotFoundException) throw error;
       if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error find one ___ due to: ${error.message}`);
+        throw new exception.DatabaseException(`Error find one category due to: ${error.message}`);
       }
       throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }
   }
 
-  async create(newCategory: createCategoryDto) {
+  async create(newCategory: createCategoryDto, userId: number) {
     try {
 
     }
@@ -43,7 +46,7 @@ export class CategoryService {
     }
   }
 
-  async updateOne(id: number, category: createCategoryDto) {
+  async update(categoryId: number, category: createCategoryDto, userId: number) {
     try {
 
     }
@@ -56,33 +59,7 @@ export class CategoryService {
     }
   }
 
-  async softDeleteOne(id: number) {
-    try {
-
-    }
-    catch(error: any) {
-      if(error instanceof exception.NotFoundException) throw error;
-      if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error soft delete one ___ due to: ${error.message}`);
-      }
-      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
-    }
-  }
-
-  async softDeleteMany(id: number[]) {
-    try {
-
-    }
-    catch(error: any) {
-      if(error instanceof exception.NotFoundException) throw error;
-      if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error soft delete one ___ due to: ${error.message}`);
-      }
-      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
-    }
-  }
-
-  async deleteOne(id: number) {
+  async delete(categoryId: number[], userId: number) {
     try {
 
     }
@@ -95,21 +72,4 @@ export class CategoryService {
     }
   }
 
-  async deleteMany(id: number[]) {
-    try {
-
-    }
-    catch(error: any) {
-      if(error instanceof exception.NotFoundException) throw error;
-      if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error delete one ___ due to: ${error.message}`);
-      }
-      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
-    }
-  }
-
-  // Add categories to product
-
-  // Remove categories from product
-  
 }
