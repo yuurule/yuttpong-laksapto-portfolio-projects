@@ -28,7 +28,7 @@ model User {
   updatedBrands             Brand[] @relation("UserUpdatedBrand")
   deletedBrands             Brand[] @relation("UserDeletedBrand") // soft delete
   // Stock event
-  assigned_stock_event      StockEvent[]
+  actionedStockEvent        StockEvent[]
 
   @@map("users")
 }
@@ -63,7 +63,7 @@ model Customer {
   customerRefreshTokens   CustomerRefreshToken[]
   customerDetail          CustomerDetail?
   orders                  Order[]
-  cartItems               CartItem[]
+  cart                    Cart?
   createdReviews          Review[] @relation("CustomerCreatedReview")
   updatedReviews          Review[] @relation("CustomerUpdatedReview")
   deletedReviews          Review[] @relation("CustomerDeletedReview")

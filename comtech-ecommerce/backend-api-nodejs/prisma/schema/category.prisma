@@ -49,8 +49,8 @@ model TagProduct {
   assignedAt      DateTime @default(now())
   assignedById    Int
 
-  tag             Tag @relation(fields: [tagId], references: [id])
-  product         Product @relation(fields: [productId], references: [id])
+  tag             Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   assignedBy      User @relation(fields: [assignedById], references: [id])
 
   @@id([tagId, productId])
@@ -65,7 +65,7 @@ model Brand {
   updatedAt       DateTime @updatedAt
   updatedById     Int?
   deletedAt       DateTime? @updatedAt
-  deletedById     Int
+  deletedById     Int?
 
   products        Product[]
   createdBy       User @relation("UserCreatedBrand", fields: [createdById], references: [id])

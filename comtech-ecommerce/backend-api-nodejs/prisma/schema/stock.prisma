@@ -16,17 +16,19 @@ model StockEvent {
   action          StockAction
   quantity        Int
   productId       Int
-  assignedById    Int
-  assignedAt      DateTime @default(now())
+  description     String? @db.Text
+  actionedById    Int
+  actionedAt      DateTime @default(now())
 
   product         Product @relation(fields: [productId], references: [id])
-  assignedBy      User @relation(fields: [assignedById], references: [id])
+  actionedBy      User @relation(fields: [actionedById], references: [id])
 
   @@map("stock_events")
 }
 
 enum StockAction {
-  ADD
-  SELL
-  RESERVE
+  ADD // เพิ่มจำนวนของ
+  SELL  // จำหน่ายออก
+  RESERVE // จองไว้สำหรับออเดอร์รอจ่าย
+  REMOVE // รองรับกรณีพนักงานลงข้อมูลเกิน, ของสูญหาย เสียหาย, เหตุสุดวิสัยอื่นๆ
 }

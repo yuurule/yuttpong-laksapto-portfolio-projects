@@ -6,7 +6,20 @@ const prisma = new PrismaClient();
 
 export class CartService {
 
-  async findAllByCustomer(customerId: number) {
+  async findAll() {
+    try {
+
+    }
+    catch(error: any) {
+      if(error instanceof exception.NotFoundException) throw error;
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error find one ___ due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
+
+  async findOne(userId: number) {
     try {
 
     }

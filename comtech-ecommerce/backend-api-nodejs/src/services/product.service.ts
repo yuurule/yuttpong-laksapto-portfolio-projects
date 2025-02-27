@@ -57,17 +57,17 @@ export class ProductService {
           price: dto.price,
           inStock: {
             create: {
-              inStock: dto.inStock
+              inStock: 0
             }
           },
-          stockEvents: {
-            create: {
-              action: StockAction.ADD,
-              quantity: dto.inStock,
-              assignedAt: new Date(),
-              assignedBy: { connect: { id: userId } }
-            }
-          },
+          // stockEvents: {
+          //   create: {
+          //     action: StockAction.ADD,
+          //     quantity: dto.inStock,
+          //     assignedAt: new Date(),
+          //     assignedBy: { connect: { id: userId } }
+          //   }
+          // },
           categories: {
             create: dto.categories.map(category => ({
               category: {
@@ -274,7 +274,7 @@ export class ProductService {
     }
   }
 
-  /* รองรับทั้งแบบทำตัวเดียวและหลายตัว */
+  /* soft delete รองรับทั้งแบบทำตัวเดียวและหลายตัว */
   async softDelete(productId: number[], userId: number) {
     try {
       // ตรวจสอบ user มีอยู่จริง

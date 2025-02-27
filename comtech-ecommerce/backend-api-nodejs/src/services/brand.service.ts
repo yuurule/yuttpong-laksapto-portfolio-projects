@@ -3,114 +3,138 @@ import * as exception from '../libs/errorException';
 
 const prisma = new PrismaClient();
 
-export class TagService {
+export class BrandService {
 
   async findAll() {
     try {
-      const tags = await prisma.tag.findMany();
-      return tags;
+      const brands = await prisma.brand.findMany();
+      return brands;
     }
     catch(error: any) {
       if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error find all tag due to: ${error.message}`);
+        throw new exception.DatabaseException(`Error find all brand due to: ${error.message}`);
       }
       throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }
   }
 
-  async findOne(tagId: number) {
+  async findOne(brandId: number) {
     try {
-      const tag = await prisma.tag.findUnique({ where: { id: tagId } });
-      if(!tag) throw new exception.NotFoundException(`Not found tag with id ${tagId}`)
-      return tag;
+      const brand = await prisma.brand.findUnique({ where: { id: brandId } });
+      if(!brand) throw new exception.NotFoundException(`Not found brand with id ${brandId}`)
+      return brand;
     }
     catch(error: any) {
       if(error instanceof exception.NotFoundException) throw error;
       if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error find one tag due to: ${error.message}`);
+        throw new exception.DatabaseException(`Error find one brand due to: ${error.message}`);
       }
       throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }
   }
 
-  async create(tagName: string, userId: number) {
+  async create(brandName: string, userId: number) {
     try {
       // ตรวจสอบ user มีอยู่จริง
       const findUser = await prisma.user.findUnique({ where: { id: userId } });
       if(!findUser) throw new exception.NotFoundException(`Not found user with id ${userId}`);
 
-      const newTag = await prisma.tag.create({
+      const newBrand = await prisma.brand.create({
         data: {
-          name: tagName,
+          name: brandName,
           createdBy: {
             connect: { id: userId }
           }
         }
       });
 
-      return newTag;
+      return newBrand;
     }
     catch(error: any) {
       if(error instanceof exception.NotFoundException) throw error;
       if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error creating tag due to: ${error.message}`);
+        throw new exception.DatabaseException(`Error creating brand due to: ${error.message}`);
       }
       throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }
   }
 
-  async update(tagId: number, tagName: string, userId: number) {
+  async update(brandId: number, brandName: string, userId: number) {
     try {
       // ตรวจสอบ user มีอยู่จริง
       const findUser = await prisma.user.findUnique({ where: { id: userId } });
       if(!findUser) throw new exception.NotFoundException(`Not found user with id ${userId}`);
 
       // ตรวจสอบ tag มีอยู่จริง
-      const findTag = await prisma.tag.findUnique({ where: { id: tagId } });
-      if(!findTag) throw new exception.NotFoundException(`Not found tag with id ${tagId}`);
+      const findBrand = await prisma.brand.findUnique({ where: { id: brandId } });
+      if(!findBrand) throw new exception.NotFoundException(`Not found brand with id ${brandId}`);
 
-      const updateTag = await prisma.tag.update({
-        where: { id: tagId },
+      const updateBrand = await prisma.brand.update({
+        where: { id: brandId },
         data: {
-          name: tagName,
+          name: brandName,
           updatedBy: {
             connect: { id: userId }
           }
         }
       });
 
-      return updateTag;
-
+      return updateBrand;
     }
     catch(error: any) {
       if(error instanceof exception.NotFoundException) throw error;
       if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error update one tag due to: ${error.message}`);
+        throw new exception.DatabaseException(`Error update one brand due to: ${error.message}`);
       }
       throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }
   }
 
-  async delete(tagId: number[], userId: number) {
+  // soft delete
+  async delete(brandId: number[], userId: number) {
     try {
       // ตรวจสอบ user มีอยู่จริง
       const findUser = await prisma.user.findUnique({ where: { id: userId } });
       if(!findUser) throw new exception.NotFoundException(`Not found user with id ${userId}`);
 
-      // ตรวจสอบ tag มีอยู่จริง
-      const findTags = await prisma.tag.findMany({ where: { id: { in: tagId } } });
-      if(!findTags) throw new exception.NotFoundException(`Some tag not found`);
+      // ตรวจสอบ brand มีอยู่จริง
+      const findBrands = await prisma.brand.findMany({ where: { id: { in: brandId } } });
+      if(!findBrands) throw new exception.NotFoundException(`Some brand not found`);
 
-      const deleteTags = await prisma.tag.deleteMany({
-        where: { id: { in: tagId } },
+      const transaction = await prisma.$transaction(async (tx) => {
+        const softDeleteBrands = [];
+
+        for(const id of brandId) {
+          const action = await tx.brand.update({
+            where: { id: id },
+            data: {
+              deletedAt: new Date(),
+              deletedBy: {
+                connect: { id: userId }
+              },
+              updatedBy: {
+                connect: { id: userId }
+              }
+            },
+            select: {
+              id: true,
+              name: true,
+              deletedAt: true,
+            }
+          });
+
+          softDeleteBrands.push(action);
+        }
+
+        return softDeleteBrands;
       });
 
-      return deleteTags;
+      return transaction;
     }
     catch(error: any) {
       if(error instanceof exception.NotFoundException) throw error;
       if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error delete tags due to: ${error.message}`);
+        throw new exception.DatabaseException(`Error delete brands due to: ${error.message}`);
       }
       throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }
