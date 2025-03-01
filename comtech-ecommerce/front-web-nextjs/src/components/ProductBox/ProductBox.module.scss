@@ -1,0 +1,43 @@
+.productBox {
+
+  border: 1px solid var(--very-soft-gray);
+
+  &.horizontal {
+    display: flex;
+    padding: 15px 0 0 15px;
+  }
+
+  .content {
+    padding: 0 15px 20px;
+
+    .productName {
+      display: block;
+      margin-bottom: 5px;
+
+      a {
+        font-size: 0.95rem;
+        color: var(--foreground);
+        line-height: 1rem;
+      }
+      
+    }
+
+    .price {
+      display: flex;
+      align-items: center;
+
+      p {
+        margin-bottom: 0;
+        margin-right: 8px;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: var(--main-blue);
+      }
+
+      small {
+        color: var(--main-gray);
+      }
+    }
+  }
+
+}

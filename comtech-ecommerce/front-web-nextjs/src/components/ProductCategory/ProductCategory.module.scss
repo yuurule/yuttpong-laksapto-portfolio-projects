@@ -1,0 +1,22 @@
+.productCategory {
+
+  margin-bottom: 3px;
+
+  a {
+    font-size: 0.75rem;
+    color: var(--main-gray);
+    transition: 0.2s all;
+
+    &:hover {
+      color: var(--main-blue);
+      font-weight: 500;
+    }
+  }
+
+  span {
+    font-size: 0.7rem;
+    color: var(--soft-gray);
+    margin: 0 10px;
+  }
+
+}

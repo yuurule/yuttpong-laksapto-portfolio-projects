@@ -1,7 +1,16 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --primary-gradient: linear-gradient(90deg, rgb(32, 44, 176) 0%, rgb(166, 35, 210) 100%);
+  --primary-gradient: linear-gradient(90deg, #4329e0 0%, #9b12db 100%);
+  --main-blue: #1b7bdd;
+  --main-yellow: #ffde00;
+  --main-red: #f11515;
+
+  --hover-blue: #0d5dad;
+
+  --main-gray: #999999;
+  --soft-gray: #cccccc;
+  --very-soft-gray: #e7e7e7;
 }
 
 html,
@@ -23,7 +32,27 @@ button {
   text-decoration: none;
 }
 
+/* Text */
+.text-yellow { color: var(--main-yellow); }
+.text-red { color: var(--main-red); }
+
+/* Button */
+.design-btn {
+  background-color: var(--main-blue);
+  color: #FFF;
+  border-radius: 0;
+
+  &:hover {
+    background-color: var(--hover-blue);
+    color: #FFF;
+  }
+}
+
 .demo-box {
   background: #353535;
   color: #FFF;
+}
+
+.gradient-box {
+  background: var(--primary-gradient);
 }

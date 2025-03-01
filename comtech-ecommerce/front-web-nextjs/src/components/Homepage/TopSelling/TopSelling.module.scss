@@ -1,4 +1,16 @@
 .topSelling {
+  
+  margin-bottom: 70px;
+
+  .rowHeader {
+    color: #FFF;
+    width: 200px;
+    margin-right: 15px;
+    padding: 15px 0 0 15px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
 
   .campaignBox {
     height: 180px;

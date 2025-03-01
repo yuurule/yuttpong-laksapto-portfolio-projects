@@ -24,21 +24,21 @@ export default function ProductsPage() {
           </header>
 
           {/* Show product options */}
-          <div className="col-sm-3">
+          <div className="col-sm-2">
             <ProductListOption title="price" options={brandsOptions} />
             <ProductListOption title="brands" options={brandsOptions} />
             <ProductListOption title="screen size" options={brandsOptions} />
           </div>
 
           {/* Product list */}
-          <div className="col-sm-9">
+          <div className="col-sm-10">
             <div className="row">
               <div className="col-12">
                 <ProductListSorting />
               </div>
               {
                 [...Array(10)].map((product, index) => (
-                  <div key={`product_list_item_${index + 1}`} className="col-sm-3">
+                  <div key={`product_list_item_${index + 1}`} className="col-sm-3 mb-3">
                     <ProductBox />
                   </div>
                 ))

@@ -1,0 +1,70 @@
+.dealOfTheDay {
+
+  border-width: 2px;
+  border-style: solid;
+  border-image: var(--primary-gradient) 1;
+  margin-bottom: 70px;
+
+  figure {
+    img {
+      width: 80%;
+    }
+  }
+
+  .content {
+    padding: 0 15px 20px;
+
+    .productName {
+      display: block;
+      margin-bottom: 5px;
+
+      a {
+        font-size: 0.95rem;
+        color: var(--foreground);
+        line-height: 1rem;
+      }
+      
+    }
+
+    .price {
+      display: flex;
+      align-items: center;
+
+      p {
+        margin-bottom: 0;
+        margin-right: 8px;
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: var(--main-blue);
+      }
+
+      small {
+        color: var(--main-gray);
+      }
+    }
+
+    .timeCountDown {
+
+      display: flex;
+      justify-content: center;
+      text-align: center;
+
+      .timeBox {
+        background-color: var(--main-blue);
+        color: #FFF;
+        padding: 12px;
+        margin: 30px 4px 10px;
+        line-height: 1.5rem;
+        font-size: 0.8rem;
+
+        .timeDigit {
+          display: block;
+          font-size: 1.4rem;
+        }
+      }
+
+      
+
+    }
+  }
+}

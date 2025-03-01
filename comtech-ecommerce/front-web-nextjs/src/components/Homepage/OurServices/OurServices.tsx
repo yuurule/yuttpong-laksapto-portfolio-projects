@@ -12,17 +12,17 @@ export default function OurServices() {
       description: "Free shipping on all order over $100",
     },
     {
-      icon: <FontAwesomeIcon icon={faTruck} />,
+      icon: <FontAwesomeIcon icon={faShoppingBag} />,
       title: "Free Delivery",
       description: "Free shipping on all order over $100",
     },
     {
-      icon: <FontAwesomeIcon icon={faTruck} />,
+      icon: <FontAwesomeIcon icon={faHeadphones} />,
       title: "Free Delivery",
       description: "Free shipping on all order over $100",
     },
     {
-      icon: <FontAwesomeIcon icon={faTruck} />,
+      icon: <FontAwesomeIcon icon={faWallet} />,
       title: "Free Delivery",
       description: "Free shipping on all order over $100",
     },
@@ -30,7 +30,7 @@ export default function OurServices() {
 
   return (
     <section id="services" className={`${styles.ourServices}`}>
-      <div className={`${styles.container}`}>
+      <div className={`container ${styles.container}`}>
         {
           services.map((service, index) => (
             <div key={`service_${index + 1}`} className={`${styles.serviceItem}`}>

@@ -10,11 +10,11 @@ export default function MainFooter() {
     <footer className={`${styles.mainFooter}`}>
       <div className='container'>
         <div className='row'>
-          <div className='col-sm-4'>
-            <strong>COMTECH</strong>
-            <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Harum corrupti amet, laboriosam nostrum, culpa consectetur perferendis nulla.</p>
-            <ul className="list-inline">
-            <li className="list-inline-item">
+          <div className='col-sm-5'>
+            <Link href="/" className={`${styles.logo}`}>COMTECH</Link>
+            <p className={`${styles.about}`}>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Harum corrupti amet, laboriosam nostrum, culpa consectetur perferendis nulla.</p>
+            <ul className={`${styles.socialLink} list-inline`}>
+              <li className="list-inline-item">
                 <Link href="/"><FontAwesomeIcon icon={faInstagram} /></Link>
               </li>
               <li className="list-inline-item">
@@ -31,10 +31,10 @@ export default function MainFooter() {
               </li>
             </ul>
           </div>
-          <div className='col-sm-8'>
+          <div className='col-sm-7'>
             <div className='row'>
               <div className='col-sm-3'>
-                <ul className='list-unstyled'>
+                <ul className={`${styles.footerMenu} list-unstyled`}>
                   <li><strong>Company</strong></li>
                   <li><Link href="/">About us</Link></li>
                   <li><Link href="/">Contact us</Link></li>
@@ -43,7 +43,7 @@ export default function MainFooter() {
                 </ul>
               </div>
               <div className='col-sm-3'>
-                <ul className='list-unstyled'>
+                <ul className={`${styles.footerMenu} list-unstyled`}>
                   <li><strong>Notebook</strong></li>
                   <li><Link href="/">Hi-end</Link></li>
                   <li><Link href="/">Working</Link></li>
@@ -52,7 +52,7 @@ export default function MainFooter() {
                 </ul>
               </div>
               <div className='col-sm-3'>
-                <ul className='list-unstyled'>
+                <ul className={`${styles.footerMenu} list-unstyled`}>
                   <li><strong>Services</strong></li>
                   <li><Link href="/">Delivery</Link></li>
                   <li><Link href="/">Warranty</Link></li>
@@ -60,7 +60,7 @@ export default function MainFooter() {
                 </ul>
               </div>
               <div className='col-sm-3'>
-                <ul className='list-unstyled'>
+                <ul className={`${styles.footerMenu} list-unstyled`}>
                   <li><strong>Order</strong></li>
                   <li><Link href="/">Track order</Link></li>
                   <li><Link href="/">Delivery & Pickup</Link></li>
@@ -70,19 +70,23 @@ export default function MainFooter() {
               </div>
             </div>
           </div>
-          <div className='col-12 d-flex justify-content-between align-items-center'>
-            <div>
-              <p>&copy; COMTECH All Right Reserved 2025.</p>
-            </div>
-            <div>
-              <ul className='list-inline'>
-                <li className='list-inline-item'><Link href="/">Privacy policy</Link></li>
-                <li className='list-inline-item'><Link href="/">Term of use</Link></li>
-              </ul>
-            </div>
+        </div>
+      </div>
+
+      <div className={`${styles.footer}`}>
+        <div className='container d-flex justify-content-between align-item-center'>
+          <div>
+            <p className={`${styles.copyright}`}>&copy; COMTECH All Right Reserved 2025.</p>
+          </div>
+          <div>
+            <ul className={`${styles.policyMenu} list-inline mb-0`}>
+              <li className='list-inline-item'><Link href="/">Privacy policy</Link></li>
+              <li className='list-inline-item'><Link href="/">Term of use</Link></li>
+            </ul>
           </div>
         </div>
       </div>
+      
     </footer>
   )
 }

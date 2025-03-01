@@ -1,25 +1,243 @@
 .mainHeader {
 
-  .contentPaddingX {
-    padding: 0 2.5%;
-  }
-
   .utilsMenu {
-    min-height: 36px;
+    height: 40px;
     background: var(--primary-gradient);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     color: #FFF;
-    font-size: 0.8rem;
-     
-    a {
-      color: #FFF;
+    font-size: 0.75rem;
+
+    .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 100%;
+
+      a {
+        color: #FFF;
+  
+        &.textYellow {
+          color: var(--main-yellow);
+          font-weight: 700;
+        }
+      }
+
+      .dropdownLanguage {
+        .btn {
+          padding: 0;
+          margin-right: 40px;
+          font-size: 0.75rem;
+          text-decoration: none;
+          color: #FFF;
+
+          &:hover {
+            background-color: transparent;
+          }
+        }
+        .menu {
+          a {
+            color: var(--foreground);
+          }
+        }
+      }
+
+      .mainUtilMenu {
+        li {
+          margin-left: 24px;
+        }
+      }
+      
     }
+     
   }
 
-  // .mainHeaderContent {
+  .mainHeaderContent {
+
+    border-bottom: 1px solid var(--very-soft-gray);
     
-  // }
+    .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 25px;
+      padding-bottom: 25px;
+
+      .logo {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--main-blue);
+      }
+
+      .searchBox {
+        display: flex;
+        border: 1px solid var(--main-blue);
+        width: 470px;
+        margin-left: 30px;
+
+        select, input, button {
+          border: none;
+          border-radius: 0;
+
+          &:focus {
+            box-shadow: none;
+          }
+        }
+        .inputSelect {
+          width: 35%;
+          padding-top: 7px;
+          padding-bottom: 7px;
+
+          .formSelect {
+            font-size: 0.8rem;
+            border-right: 1px solid var(--soft-gray);
+            height: 25px;
+            padding-top: 2px;
+            padding-bottom: 0;
+          }
+        }
+        
+        .inputGroup {
+          width: 65%;
+          input {
+            font-size: 0.9rem;
+          }
+          button {
+            background-color: var(--main-blue);
+            color: #FFF;
+            &:hover {
+              background-color: var(--hover-blue);
+            }
+          }
+        }
+      }
+
+      .otherMenu {
+        display: flex;
+
+        .infoWithIcon,
+        .infoWithIcon a {
+          display: flex;
+          align-items: center;
+          color: var(--foreground);
+        }
+
+        .infoWithIcon {
+
+          font-size: 0.9rem;
+          line-height: 1.2rem;
+          position: relative;
+
+          &:not(:first-of-type) {
+            padding-left: 30px;
+            margin-left: 30px;
+            border-left: 1px solid var(--soft-gray);
+          }
+
+          .title {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--main-gray);
+          }
+
+          i, svg {
+            font-size: 1.4rem;
+            color: var(--main-gray);
+            margin-right: 12px;
+          }
+        } 
+      }
+
+    }
+
+  }
+
+  .mainMenuRow {
+
+    padding-top: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--very-soft-gray);
+    font-size: 0.8rem;
+
+    .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      a {
+        color: Var(--foreground);
+      }
+
+      .dropdownBrands {
+        margin-right: 30px;
+
+        .btn {
+          text-decoration: none;
+          color: Var(--foreground);
+          font-size: 0.85rem;
+          &:hover,
+          &:visited {
+            background-color: transparent;
+          }
+          &::after {
+            content: none;
+          }
+        }
+      }
+
+      .mainMenu {
+        border-left: 1px solid var(--soft-gray);
+        padding-left: 30px;
+
+        li {
+          margin-right: 30px;
+
+          a {
+            text-transform: capitalize;
+            font-weight: 500;
+            transition: 0.2s all;
+
+            &:hover {
+              color: var(--main-blue);
+            }
+          }
+        }
+      }
+
+      .wishList {
+        .wishListBtn {
+          position: relative;
+          margin-right: 30px;
+          font-size: 1.2rem;
+
+          .digitSign {
+            right: -15px;
+            left: inherit;
+          }
+        }
+        .todayDeals {
+          border-right: 1px solid var(--main-gray);
+          border-left: 1px solid var(--main-gray);
+          padding: 0 15px;
+          border-radius: 0;
+          color: var(--main-red);
+        }
+      }
+    }
+
+  }
+
+  .digitSign {
+    background-color: #9b12db;
+    color: #FFF;
+    position: absolute;
+    top: -5px;
+    left: -8px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100%;
+    font-size: 0.7rem;
+  }
 
 }
