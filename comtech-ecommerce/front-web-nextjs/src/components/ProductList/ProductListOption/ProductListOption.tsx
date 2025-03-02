@@ -15,10 +15,10 @@ export default function ProductListOption({
 
   return (
     <div className={`${styles.productListOption}`}>
-      <h5>{title}</h5>
+      <h5 className={`${styles.title}`}>{title}</h5>
       {
         transformedOptions.map((option, index) => (
-          <div key={`product_list_option_${title}_${index + 1}`} className="form-check">
+          <div key={`product_list_option_${title}_${index + 1}`} className={`form-check ${styles.formCheck}`}>
             <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
             <label className="form-check-label" htmlFor="flexCheckDefault">
               {option.name}

@@ -8,21 +8,18 @@ export default function CartPage() {
 
 
   return (
-    <main className="">
+    <main>
       <Breadcrumbs />
       <div className='container'>
         <div className="row">
           <header className="col-12">
             <PageHeader pageTitle="Cart" />
           </header>
-          <div className="col-sm-9">
+          <div className="col-sm-9 mb-5">
             <CartTable />
-            <div className="d-flex justify-content-between">
-              <button className="btn btn-primary px-4">
-                Comtinue Shopping
-              </button>
-              <button className="btn btn-primary px-4">
-                Update Cart
+            <div className="d-flex justify-content-end">
+              <button className="btn design-btn px-4">
+                Continue Shopping
               </button>
             </div>
           </div>

@@ -76,7 +76,7 @@ export default function MainHeader() {
               </div>
             </div>
             <div className={`${styles.infoWithIcon}`}>
-              <Link href="/">
+              <Link href="/my-account">
                 <FontAwesomeIcon icon={faUser} />
                 <div>
                   <strong className={`${styles.title}`}>My Account</strong>
@@ -85,7 +85,7 @@ export default function MainHeader() {
               </Link>
             </div>
             <div className={`${styles.infoWithIcon}`}>
-              <Link href="/" className='position-relative'>
+              <Link href="/cart" className='position-relative'>
                 <span className={`${styles.digitSign}`}>0</span>
                 <FontAwesomeIcon icon={faShoppingCart} />
                 <div>

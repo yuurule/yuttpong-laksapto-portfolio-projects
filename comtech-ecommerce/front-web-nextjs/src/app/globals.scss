@@ -1,6 +1,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --start-gradient: #4329e0;
+  --end-gradient: #9b12db;
   --primary-gradient: linear-gradient(90deg, #4329e0 0%, #9b12db 100%);
   --main-blue: #1b7bdd;
   --main-yellow: #ffde00;
@@ -46,13 +48,98 @@ button {
     background-color: var(--hover-blue);
     color: #FFF;
   }
+
+  &.gradient-btn {
+    background-color: none;
+    background: var(--primary-gradient);
+  }
+
+  &.gradient-outline-btn {
+    background-color: transparent;
+    border-width: 1px;
+    border-style: solid;
+    border-image: var(--primary-gradient) 1;
+    color: var(--end-gradient);
+  }
 }
 
-.demo-box {
-  background: #353535;
-  color: #FFF;
+/* Tabs */
+.tab-design {
+  margin-bottom: 15px;
+
+  li {
+    .nav-link {
+      border-radius: 0;
+      padding-left: 30px;
+      padding-right: 30px;
+      border: 1px solid var(--soft-gray);
+      border-bottom: none;
+      color: var(--foreground);
+
+      &.active {
+        border: none;
+        background: var(--primary-gradient);
+        color: #FFF;
+      }
+    }
+  }
+}
+
+/* Form */
+.form-design {
+
+  .form-control {
+    border-radius: 0;
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
+
+  &.form-float-label {
+    .form-label {
+      position: absolute;
+      top: -14px;
+      left: 8px;
+      background-color: var(--background);
+      font-size: 0.75rem;
+      padding: 3px 8px;
+    }
+    .form-control {
+      margin-top: 20px;
+      height: 50px;
+    }
+  }
+
+}
+
+/* Table */
+.table-design {
+  font-size: 0.9rem;
+
+  th {
+    background-color: var(--very-soft-gray);
+    font-size: 0.8rem;
+    padding: 15px;
+  }
+
+  td {
+    padding: 15px;
+    vertical-align: middle;
+
+    .product-image {
+      width: 84px;
+      height: auto;
+      margin-right: 15px;
+    }
+  }
+}
+
+.col-product.col-sm-3 {
+  padding-left: 0;
 }
 
 .gradient-box {
   background: var(--primary-gradient);
+  color: #FFF;
 }

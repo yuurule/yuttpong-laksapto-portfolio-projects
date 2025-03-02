@@ -1,5 +1,45 @@
 .pagination {
 
+  border-top-width: 2px;
+  border-top-style: solid;
+  border-image: var(--primary-gradient) 1;
+  margin-top: 15px;
+  padding: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
 
-  
+  .customPagination {
+
+    .pageItem {
+      
+      &:not(:last-child) {
+        margin-right: 5px;
+      }
+
+      .pageLink {
+        background: var(--very-soft-gray);
+        border-radius: 0;
+        color: var(--foreground);
+        font-size: 0.8rem;
+        padding: 12px;
+      }
+
+      &.active {
+        .pageLink {
+        
+          background: var(--primary-gradient);
+          color: #FFF;
+          border: none;
+        
+        }
+      }
+
+
+      
+
+    }
+
+  }
 }

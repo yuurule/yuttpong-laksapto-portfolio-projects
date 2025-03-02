@@ -5,7 +5,7 @@ export default function ProductImageThumbnail() {
 
   return (
     <div className={`${styles.productImageThumbnail}`}>
-      <img src="/demo-product.png" />
+      <img src="/images/dummy-product.jpg" className='img-fluid' />
     </div>
   )
 }

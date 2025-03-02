@@ -9,14 +9,14 @@ export default function SignInPage() {
   return (
     <main className="">
       <Breadcrumbs />
-      <div className='container'>
+      <div className='container mt-5'>
         <div className="row">
-          <div className="col-sm-12 d-flex justify-content-around">
+          <div className="col-sm-12 d-flex justify-content-center mb-5">
             <div>
               <SignInForm />
             </div>
-            <div className="d-flex align-items-center">
-              <div>- Or -</div>
+            <div className="d-flex align-items-center mx-5">
+              <div>OR</div>
             </div>
             <div>
               <SignUpForm />

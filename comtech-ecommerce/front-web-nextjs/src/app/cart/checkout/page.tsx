@@ -17,11 +17,11 @@ export default function CheckoutPage() {
           <header className="col-12">
             <PageHeader pageTitle="Checkout" />
           </header>
-          <div className="col-sm-8">
+          <div className="col-sm-8 pe-5">
             <section className="mb-4">
               <h6>Billing Details</h6>
               <hr />
-              <div className="row">
+              <div className="row form-design form-float-label">
                 <div className="col-sm-6">
                   <TextInput
                     labelText={renderLabelInput("First Name", true)}
@@ -74,7 +74,7 @@ export default function CheckoutPage() {
             <section className="mb-4">
               <h6>Payment Details</h6>
               <hr />
-              <div className="row">
+              <div className="row form-design form-float-label">
                 <div className="col-sm-6">
                   <TextInput
                     labelText={renderLabelInput("Name on card", true)}

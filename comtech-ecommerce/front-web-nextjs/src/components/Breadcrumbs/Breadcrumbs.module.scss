@@ -1,11 +1,23 @@
 .breadcrumbs {
 
   background-color: rgb(233, 233, 233);
-  padding: 12px 0;
-  font-size: 0.85rem;
+  padding: 15px 0;
+  font-size: 0.8rem;
+
+  a {
+    color: var(--main-gray);
+  }
 
   .container {
     display: flex;
+
+    span {
+      margin: 0 12px;
+
+      &.divider {
+        color: var(--main-gray);
+      }
+    }
   }
 
 }

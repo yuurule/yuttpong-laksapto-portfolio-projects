@@ -15,7 +15,7 @@ export default function TextInput({
 
 
   return (
-    <Form.Group className="mb-3">
+    <Form.Group className="position-relative mb-3">
       { labelText !== "" && <Form.Label>{labelText}</Form.Label> }
       <Form.Control 
         required={isRequired}
