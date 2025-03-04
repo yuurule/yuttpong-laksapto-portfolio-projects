@@ -1,20 +1,20 @@
-import { Form, Pagination  } from 'react-bootstrap';
+import { Form, InputGroup, Button  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus } from '@fortawesome/free-solid-svg-icons';
+import MyPagination from '../components/MyPagination/MyPagination';
 
 export default function Tag() {
 
 
 
   return (
-    <div className={`page`}>
+    <div>
       
       <div className="row">
         <header className="col-12 d-flex justify-content-between align-items-center">
           <h1>Tag</h1>
           <div>
-            <button className='btn btn-danger me-3'>Delete</button>
-            <button className='btn btn-primary'>Create New</button>
+            <button className='btn btn-primary'>+ Create New Tag</button>
           </div>
         </header>
         <div className="col-12 mt-4">
@@ -22,19 +22,38 @@ export default function Tag() {
             <div className="col-sm-8">
               <div className='card mb-3'>
                 <div className='card-body'>
+                  <div className='d-flex justify-content-between align-items-center'>
+                    <div>
+                      <button className='btn btn-danger'>Delete</button>
+                    </div>
+                    <div>
+                      <InputGroup className="mb-3">
+                        <Form.Control
+                          placeholder="Search tag"
+                          aria-label="Recipient's username"
+                          aria-describedby="basic-addon2"
+                        />
+                        <Button variant="primary" id="button-addon2">
+                          <FontAwesomeIcon icon={faSearch} />
+                        </Button>
+                      </InputGroup>
+                    </div>
+                  </div>
                   <table className="table">
                     <thead>
                       <tr>
                         <th></th>
-                        <th>Tag Name</th>
-                        <th>Have Products On</th>
-                        <th>Created At</th>
-                        <th></th>
+                        <th>Tag Name <FontAwesomeIcon icon={faArrowUp} /></th>
+                        <th>Customer Click <FontAwesomeIcon icon={faArrowUp} /></th>
+                        <th>Have Products On <FontAwesomeIcon icon={faArrowDown} /></th>
+                        <th>Created At <FontAwesomeIcon icon={faMinus} /></th>
+                        <th>Last Updated <FontAwesomeIcon icon={faMinus} /></th>
+                        <th>Manage</th>
                       </tr>
                     </thead>
                     <tbody>
                       {
-                        [...Array(10)].map((i, index) => (
+                        [...Array(8)].map((i, index) => (
                           <tr key={`tag_row_${index + 1}`}>
                             <td>
                               <Form.Check
@@ -44,8 +63,10 @@ export default function Tag() {
                               />
                             </td>
                             <td>Working</td>
+                            <td>156</td>
                             <td>12</td>
-                            <td>12 Jan 2025</td>
+                            <td>12 Jan 2025<br /><small>By Webadmin</small></td>
+                            <td>12 Jan 2025<br /><small>By Webadmin</small></td>
                             <td>
                               <button className='btn btn-primary me-2'><FontAwesomeIcon icon={faEdit} /></button>
                               <button className='btn btn-danger'><FontAwesomeIcon icon={faTrash} /></button>
@@ -55,26 +76,10 @@ export default function Tag() {
                       }
                     </tbody>
                   </table>
+                  <div className='d-flex justify-content-center'>
+                    <MyPagination />
+                  </div>
                 </div>
-              </div>
-              <div className='d-flex justify-content-center'>
-                <Pagination>
-                  <Pagination.First />
-                  <Pagination.Prev />
-                  <Pagination.Item>{1}</Pagination.Item>
-                  <Pagination.Ellipsis />
-
-                  <Pagination.Item>{10}</Pagination.Item>
-                  <Pagination.Item>{11}</Pagination.Item>
-                  <Pagination.Item active>{12}</Pagination.Item>
-                  <Pagination.Item>{13}</Pagination.Item>
-                  <Pagination.Item disabled>{14}</Pagination.Item>
-
-                  <Pagination.Ellipsis />
-                  <Pagination.Item>{20}</Pagination.Item>
-                  <Pagination.Next />
-                  <Pagination.Last />
-                </Pagination>
               </div>
             </div>
             <div className="col-sm-4">

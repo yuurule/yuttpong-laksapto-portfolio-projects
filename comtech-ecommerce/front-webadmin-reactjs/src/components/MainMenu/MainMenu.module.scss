@@ -8,4 +8,24 @@
   left: 0;
   z-index: 100;
   background-color: #FFF;
+
+  ul {
+
+    margin: 40px 0 0 40px;
+
+    li {
+      margin-bottom: 22px;
+
+      a {
+        color: rgb(67, 67, 67);
+    
+        i, svg {
+          color: #c5c5c5;
+          width: 20px;
+        }
+      }
+    }
+  }
+
+ 
 }

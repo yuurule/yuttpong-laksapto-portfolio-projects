@@ -12,6 +12,7 @@ import Category from "./pages/Category";
 import Tag from "./pages/Tag";
 import Products from "./pages/Product/Products";
 import ProductDetail from "./pages/Product/ProductDetail";
+import Stock from "./pages/Stock";
 import Orders from "./pages/Order/Orders";
 import Customers from "./pages/Customer/Customers";
 import CustomerDetail from "./pages/Customer/CustomerDetail";
@@ -48,6 +49,7 @@ function App() {
               <Route path="tag" element={<Tag />}></Route>
               <Route path="product" element={<Products />}></Route>
               <Route path="product/:id" element={<ProductDetail />}></Route>
+              <Route path="stock" element={<Stock />}></Route>
               <Route path="order" element={<Orders />}></Route>
               <Route path="cutomer" element={<Customers />}></Route>
               <Route path="cutomer/:id" element={<CustomerDetail />}></Route>

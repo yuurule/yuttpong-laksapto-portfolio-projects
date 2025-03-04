@@ -1,5 +1,7 @@
 import styles from './MainMenu.module.scss';
 import { Link } from 'react-router';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChartPie, faChartLine, faBox, faBoxes, faTags, faUsers, faShoppingBag, faList } from '@fortawesome/free-solid-svg-icons';
 
 export default function MainMenu() {
 
@@ -12,14 +14,15 @@ export default function MainMenu() {
         <p className='h6 text-center mb-0'>WEBADMIN SYSTEM</p>
       </div>
       <hr />
-      <ul className='mt-5 ms-5 list-unstyled'>
-        <li className='mb-2'><Link to="/dashboard">Dashboard</Link></li>
-        <li className='mb-2'><Link to="/report">Report</Link></li>
-        <li className='mb-2'><Link to="/product">Product</Link></li>
-        <li className='mb-2'><Link to="/category">Category</Link></li>
-        <li className='mb-2'><Link to="/tag">Tag</Link></li>
-        <li className='mb-2'><Link to="/order">Order</Link></li>
-        <li className='mb-2'><Link to="/customer">Customer</Link></li> 
+      <ul className='list-unstyled'>
+        <li><Link to="/dashboard"><FontAwesomeIcon icon={faChartLine} className='me-2' />Dashboard</Link></li>
+        <li><Link to="/report"><FontAwesomeIcon icon={faChartPie} className='me-2' />Report</Link></li>
+        <li><Link to="/product"><FontAwesomeIcon icon={faBox} className='me-2' />Product</Link></li>
+        <li><Link to="/stock"><FontAwesomeIcon icon={faBoxes} className='me-2' />Stock</Link></li>
+        <li><Link to="/category"><FontAwesomeIcon icon={faList} className='me-2' />Category</Link></li>
+        <li><Link to="/tag"><FontAwesomeIcon icon={faTags} className='me-2' />Tag</Link></li>
+        <li><Link to="/order"><FontAwesomeIcon icon={faShoppingBag} className='me-2' />Order</Link></li>
+        <li><Link to="/customer"><FontAwesomeIcon icon={faUsers} className='me-2' />Customer</Link></li> 
       </ul>
     </div>
   )
