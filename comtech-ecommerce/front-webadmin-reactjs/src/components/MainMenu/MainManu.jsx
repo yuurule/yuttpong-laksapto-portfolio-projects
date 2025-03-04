@@ -7,9 +7,12 @@ export default function MainMenu() {
 
   return (
     <div className={`${styles.mainMenu}`}>
-      <p className='h4 text-center mb-0'>COMTECH</p><p className='h6 text-center'>WEBADMIN SYSTEM</p>
+      <div className='py-4'>
+        <p className='h4 text-center mb-0'>COMTECH</p>
+        <p className='h6 text-center mb-0'>WEBADMIN SYSTEM</p>
+      </div>
       <hr />
-      <ul className='ms-5 list-unstyled'>
+      <ul className='mt-5 ms-5 list-unstyled'>
         <li className='mb-2'><Link to="/dashboard">Dashboard</Link></li>
         <li className='mb-2'><Link to="/report">Report</Link></li>
         <li className='mb-2'><Link to="/product">Product</Link></li>

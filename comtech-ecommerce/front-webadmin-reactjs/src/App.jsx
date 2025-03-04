@@ -46,11 +46,11 @@ function App() {
               <Route path="report" element={<Report />}></Route>
               <Route path="category" element={<Category />}></Route>
               <Route path="tag" element={<Tag />}></Route>
-              <Route path="products" element={<Products />}></Route>
-              <Route path="products/:id" element={<ProductDetail />}></Route>
-              <Route path="orders" element={<Orders />}></Route>
-              <Route path="cutomers" element={<Customers />}></Route>
-              <Route path="cutomers/:id" element={<CustomerDetail />}></Route>
+              <Route path="product" element={<Products />}></Route>
+              <Route path="product/:id" element={<ProductDetail />}></Route>
+              <Route path="order" element={<Orders />}></Route>
+              <Route path="cutomer" element={<Customers />}></Route>
+              <Route path="cutomer/:id" element={<CustomerDetail />}></Route>
 
               <Route path="unauthorized" element={<UnAuthorized />}></Route>
               <Route path="*" element={<NotFound />}></Route>
