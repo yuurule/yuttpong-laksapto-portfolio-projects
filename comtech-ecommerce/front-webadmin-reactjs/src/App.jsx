@@ -13,7 +13,7 @@ import Tag from "./pages/Tag";
 import Products from "./pages/Product/Products";
 import ProductDetail from "./pages/Product/ProductDetail";
 import Stock from "./pages/Stock";
-import Orders from "./pages/Order/Orders";
+import Orders from "./pages/Orders";
 import Customers from "./pages/Customer/Customers";
 import CustomerDetail from "./pages/Customer/CustomerDetail";
 import UnAuthorized from "./pages/UnAuthorized";

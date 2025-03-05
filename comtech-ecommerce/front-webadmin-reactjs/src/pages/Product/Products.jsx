@@ -15,7 +15,7 @@ export default function Products() {
         <header className="col-12 d-flex justify-content-between align-items-center mb-4">
           <h1>Products</h1>
           <div>
-            <button className='btn btn-primary'>+ Add New Product</button>
+            <Link to="/product/create" className='btn btn-primary text-bg-primary'>+ Add New Product</Link>
           </div>
         </header>
 

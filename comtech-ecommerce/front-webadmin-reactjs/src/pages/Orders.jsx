@@ -1,7 +1,7 @@
 import { Form, InputGroup, Button  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faArrowUp, faAdd, faMinus, faTrash } from '@fortawesome/free-solid-svg-icons';
-import MyPagination from '../../components/MyPagination/MyPagination';
+import MyPagination from '../components/MyPagination/MyPagination';
 
 export default function Orders() {
 
