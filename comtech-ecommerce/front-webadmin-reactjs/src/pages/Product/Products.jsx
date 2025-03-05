@@ -21,12 +21,15 @@ export default function Products() {
         <div className='col-sm-9'>
           <div className="card">
             <div className="card-body">
-              <div className='d-flex justify-content-between align-items-center'>
-                <div>
-                  <button className='btn btn-danger'>Delete</button>
+              <div className='d-flex justify-content-between align-items-center mb-3'>
+                <div className='d-flex'>
+                  <button className='btn btn-danger me-2'>Delete</button>
+                  <button className='btn btn-danger'>
+                    <FontAwesomeIcon icon={faTrash} className='me-1' />(10)
+                  </button>
                 </div>
                 <div>
-                  <InputGroup className="mb-3">
+                  <InputGroup className="">
                     <Form.Control
                       placeholder="Search product"
                       aria-label="Recipient's username"
@@ -63,8 +66,15 @@ export default function Products() {
                             label={``}
                           />
                         </td>
-                        <td>4711387885406</td>
-                        <td style={{width: 250}}>Asus ROG Flow Z13 GZ302EA-RU087WA Off Black</td>
+                        <td>471138788</td>
+                        <td style={{width: 300}}>
+                          <div className="d-flex align-items-center">
+                            <figure className='me-2'>
+                              <img src="/images/dummy-product.jpg" style={{width: 60}} />
+                            </figure>
+                            Asus ROG Flow Z13 GZ302EA-RU087WA Off Black
+                          </div>
+                        </td>
                         <td>25</td>
                         <td>$127.99</td>
                         <td>56</td>

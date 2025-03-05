@@ -1,7 +1,7 @@
 import styles from './MainMenu.module.scss';
 import { Link } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChartPie, faChartLine, faBox, faBoxes, faTags, faUsers, faShoppingBag, faList } from '@fortawesome/free-solid-svg-icons';
+import { faChartPie, faChartLine, faBox, faBoxes, faTags, faUsers, faShoppingBag, faList, faGift } from '@fortawesome/free-solid-svg-icons';
 
 export default function MainMenu() {
 
@@ -19,10 +19,12 @@ export default function MainMenu() {
         <li><Link to="/report"><FontAwesomeIcon icon={faChartPie} className='me-2' />Report</Link></li>
         <li><Link to="/product"><FontAwesomeIcon icon={faBox} className='me-2' />Product</Link></li>
         <li><Link to="/stock"><FontAwesomeIcon icon={faBoxes} className='me-2' />Stock</Link></li>
+        <li><Link to="/order"><FontAwesomeIcon icon={faShoppingBag} className='me-2' />Order</Link></li>
+        <li><Link to="/campaign" onClick={(e) => { e.preventDefault(); alert("Comming soon..."); }}><FontAwesomeIcon icon={faGift} className='me-2' />Campaign</Link></li>
         <li><Link to="/category"><FontAwesomeIcon icon={faList} className='me-2' />Category</Link></li>
         <li><Link to="/tag"><FontAwesomeIcon icon={faTags} className='me-2' />Tag</Link></li>
-        <li><Link to="/order"><FontAwesomeIcon icon={faShoppingBag} className='me-2' />Order</Link></li>
         <li><Link to="/customer"><FontAwesomeIcon icon={faUsers} className='me-2' />Customer</Link></li> 
+        {/* <li><Link to="/user"><FontAwesomeIcon icon={faUsers} className='me-2' />Users</Link></li> */}
       </ul>
     </div>
   )

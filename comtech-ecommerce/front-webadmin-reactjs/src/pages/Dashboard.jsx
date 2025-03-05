@@ -1,3 +1,6 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+
 export default function Dashboard() {
 
   return (
@@ -11,7 +14,7 @@ export default function Dashboard() {
           <div className="row">
             {
               [...Array(4)].map((i, index) => (
-                <div key={`dashboard_card_item_${index + 1}`} className="col-sm-3">
+                <div key={`dashboard_card_item_${index + 1}`} className="col-sm-3 mb-3">
                   <div className="card">
                     <div className="card-body">
                       <strong className="h5">Card</strong>
@@ -21,6 +24,7 @@ export default function Dashboard() {
                 </div>
               ))
             }
+            
           </div>
         </div>
       </div>

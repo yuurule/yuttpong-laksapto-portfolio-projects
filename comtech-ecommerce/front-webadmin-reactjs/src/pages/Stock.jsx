@@ -14,7 +14,7 @@ export default function Stock() {
           <h1>Product Stock</h1>
         </header>
 
-        <div className='col-sm-7'>
+        <div className='col-sm-6'>
           <div className="card">
             <div className="card-body">
               <div className='d-flex justify-content-end align-items-center'>
@@ -34,7 +34,6 @@ export default function Stock() {
               <table className="table">
                 <thead>
                   <tr>
-                    <th>SKU</th>
                     <th>Product <FontAwesomeIcon icon={faArrowUp} /></th>
                     <th>In Stock <FontAwesomeIcon icon={faArrowUp} /></th>
                     <th>Last Updated</th>
@@ -45,8 +44,16 @@ export default function Stock() {
                   {
                     [...Array(8)].map((i, index) => (
                       <tr key={`product_stock_row_${index + 1}`}>
-                        <td>4711387885406</td>
-                        <td style={{width: 250}}>Asus ROG Flow Z13 GZ302EA-RU087WA Off Black</td>
+                        <td style={{width: 300}}>
+                          <div className="d-flex align-items-center">
+                            <figure className='me-2'>
+                              <img src="/images/dummy-product.jpg" style={{width: 60}} />
+                            </figure>
+                            <div>
+                              Asus ROG Flow Z13 GZ30...<br /><small>SKU:471138788</small>
+                            </div>
+                          </div>
+                        </td>
                         <td>25</td>
                         <td>12 Jan 2025<br /><small>By Webadmin</small></td>
                         <td>
@@ -67,12 +74,39 @@ export default function Stock() {
           </div>
         </div>
 
-        <div className='col-sm-5'>
+        <div className='col-sm-6'>
           <div className='card'>
             <div className='card-body'>
               <header>
-                <h5>Stock Action History</h5>
+              <h5>Stock Action History</h5>
               </header>
+              <table className='table'>
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Action</th>
+                    <th>Amount</th>
+                    <th>Date/Time <FontAwesomeIcon icon={faArrowUp} /></th>
+                    <th>By</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    [...Array(8)].map((i, index) => (
+                      <tr key={`stock_action_history_row_${index + 1}`}>
+                        <td>Asus ROG Flow Z13<br /><small>SKU:471138788</small></td>
+                        <td><span className='badge text-bg-success'>ADD</span></td>
+                        <td>20</td>
+                        <td>12 Jan 25<br /><small>13:30:55</small></td>
+                        <td>Webadmin</td>
+                      </tr>
+                    ))
+                  }
+                </tbody>
+              </table>
+              <div className='d-flex justify-content-center'>
+                <MyPagination />
+              </div>
             </div>
           </div>
         </div>
