@@ -22,12 +22,12 @@ export default function Tag() {
             <div className="col-sm-8">
               <div className='card mb-3'>
                 <div className='card-body'>
-                  <div className='d-flex justify-content-between align-items-center'>
+                  <div className='d-flex justify-content-between align-items-center mb-3'>
                     <div>
                       <button className='btn btn-danger'>Delete</button>
                     </div>
                     <div>
-                      <InputGroup className="mb-3">
+                      <InputGroup className="">
                         <Form.Control
                           placeholder="Search tag"
                           aria-label="Recipient's username"

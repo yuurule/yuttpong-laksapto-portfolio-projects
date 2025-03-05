@@ -18,6 +18,7 @@ import Customers from "./pages/Customer/Customers";
 import CustomerDetail from "./pages/Customer/CustomerDetail";
 import UnAuthorized from "./pages/UnAuthorized";
 import NotFound from "./pages/NotFound";
+import UpsertProduct from "./pages/Product/UpsertProduct";
 
 function App() {
   
@@ -44,15 +45,16 @@ function App() {
 
               {/* <Route index element={<PrivateRoute><IndexPage /></PrivateRoute>}></Route> */}
               <Route path="dashboard" element={<Dashboard />}></Route>
-              <Route path="report" element={<Report />}></Route>
+              {/* <Route path="report" element={<Report />}></Route> */}
               <Route path="category" element={<Category />}></Route>
               <Route path="tag" element={<Tag />}></Route>
               <Route path="product" element={<Products />}></Route>
               <Route path="product/:id" element={<ProductDetail />}></Route>
+              <Route path="product/create" element={<UpsertProduct />}></Route>
               <Route path="stock" element={<Stock />}></Route>
               <Route path="order" element={<Orders />}></Route>
-              <Route path="cutomer" element={<Customers />}></Route>
-              <Route path="cutomer/:id" element={<CustomerDetail />}></Route>
+              <Route path="customer" element={<Customers />}></Route>
+              <Route path="customer/:id" element={<CustomerDetail />}></Route>
 
               <Route path="unauthorized" element={<UnAuthorized />}></Route>
               <Route path="*" element={<NotFound />}></Route>

@@ -2,6 +2,7 @@ import { Form, InputGroup, Button  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../../components/MyPagination/MyPagination';
+import { Link } from 'react-router';
 
 export default function Products() {
 
@@ -68,12 +69,12 @@ export default function Products() {
                         </td>
                         <td>471138788</td>
                         <td style={{width: 300}}>
-                          <div className="d-flex align-items-center">
+                          <Link to="/product/1" className="d-flex align-items-center">
                             <figure className='me-2'>
                               <img src="/images/dummy-product.jpg" style={{width: 60}} />
                             </figure>
                             Asus ROG Flow Z13 GZ302EA-RU087WA Off Black
-                          </div>
+                          </Link>
                         </td>
                         <td>25</td>
                         <td>$127.99</td>
