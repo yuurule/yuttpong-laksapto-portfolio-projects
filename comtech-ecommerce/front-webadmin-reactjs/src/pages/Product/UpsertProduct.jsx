@@ -1,6 +1,6 @@
 import { Form  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faSave, faClose, faBars } from '@fortawesome/free-solid-svg-icons';
 
 export default function UpsertProduct() {
 
@@ -20,7 +20,7 @@ export default function UpsertProduct() {
 
         <div className='col-sm-12'>
           <div className='row'>
-            <div className='col-sm-4'>
+            <div className='col-sm-3'>
               <div className='card'>
                 <div className='card-body'>
                   <figure className='text-center'>
@@ -32,9 +32,10 @@ export default function UpsertProduct() {
                       <div 
                         key={`product_image_input_${index + 1}`} 
                         className='d-flex justify-content-between align-items-center mb-2 px-3 py-1'
-                        style={{border: '1px solid rgba(0,0,0,0.3)'}}
+                        style={{border: '1px solid rgba(0,0,0,0.3)', borderRadius: 6}}
                       >
                         <div className='d-flex align-items-center'>
+                          <FontAwesomeIcon icon={faBars} className='me-2' />
                           <figure className='mb-0 me-3'>
                             <img src="/images/dummy-product.jpg" style={{width: 75}} className='' />
                           </figure>
@@ -55,9 +56,9 @@ export default function UpsertProduct() {
                 </div>
               </div>
             </div>
-            <div className='col-sm-8'>
+            <div className='col-sm-6'>
               <div className='card'>
-                <div className='card-body px-5'>
+                <div className='card-body'>
                   <header>
                     <h5>Product Specifications</h5>
                     <hr />
@@ -145,29 +146,34 @@ export default function UpsertProduct() {
                 </div>
               </div>
             </div>
+            <div className='col-sm-3'>
+              <div className='card mb-3'>
+                <div className='card-body'>
+                  <header className='d-flex justify-content-between align-items-center mb-3'>
+                    <h5>Category</h5>
+                    <button className='btn btn-primary'><small>+ Add</small></button>
+                  </header>
+                  <div className='d-flex mb-2' style={{border: '1px solid rgba(0,0,0,0.3)', borderRadius: 4, padding: 15}}>
+                    <button className='btn btn-secondary me-2'><small>Working <FontAwesomeIcon icon={faClose} /></small></button>
+                    <button className='btn btn-secondary me-2'><small>Gaming <FontAwesomeIcon icon={faClose} /></small></button>
+                  </div>
+                </div>
+              </div>
+              <div className='card'>
+                <div className='card-body'>
+                  <header className='d-flex justify-content-between align-items-center mb-3'>
+                    <h5>Tag</h5>
+                    <button className='btn btn-primary'><small>+ Add</small></button>
+                  </header>
+                  <div className='d-flex mb-2' style={{border: '1px solid rgba(0,0,0,0.3)', borderRadius: 4, padding: 15}}>
+                    <button className='btn btn-secondary me-2'><small>Slim <FontAwesomeIcon icon={faClose} /></small></button>
+                    <button className='btn btn-secondary me-2'><small>Hi-end <FontAwesomeIcon icon={faClose} /></small></button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* const dummySpecs = [
-          { name: 'Name', value: 'Asus ROG Zephyrus G16 GU605MI-QR225WS Eclipse Gray' },
-          { name: 'Screen Size', value: '16.0 inch' },
-          { name: 'Processor', value: 'Intel Core Ultra 9 185H, 2.30GHz up to 5.10GHz, 16C(6P+8E+2PE)/22T, 24 MB Intel Smart Cache' },
-          { name: 'Display', value: 'WQXGA 2560x1600, 16:10 aspect ratio' },
-          { name: 'Memory', value: '32GB' },
-          { name: 'Storage', value: '1TB SSD M.2' },
-          { name: 'Graphics', value: 'NVIDIA GeForce RTX 4070 Laptop' },
-          { name: 'Operating System', value: 'Windows 11 Home' },
-          { name: 'Camera', value: 'FHD 1080p IR Camera for Windows Hello' },
-          { name: 'Optical Drive', value: 'No' },
-          { name: 'Connection Ports', value: '1x Thunderbolt 4 (DP, Power Delivery), 1x USB-C3.2 (DP, Power Delivery), 2x USB3.2, 1x card reader (SD) (UHS-II, 312MB/s)' },
-          { name: 'Wireless', value: 'Wi-Fi 6E(802.11ax) (Triple band) 2*2 + Bluetooth v5.3' },
-          { name: 'Battery', value: '90Wh, 4S1P, 4-Cell Li-ion' },
-          { name: 'Color', value: 'Eclipse Gray' },
-          { name: 'Dimemsion WxDxH', value: '35.40 x 24.60 x 1.64 cm' },
-          { name: 'Weight', value: '1.85 Kg' },
-          { name: 'Warranty', value: '3 Year Onsite Service / 1 Year Perfect Warranty' },
-          { name: 'Option', value: 'Keyboard TH/EN // Microsoft Office Home & Student' },
-        ] */}
 
       </div>
     </div>

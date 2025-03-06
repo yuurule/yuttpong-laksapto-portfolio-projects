@@ -1,3 +1,4 @@
+import { SERVER_API } from "../../services/serviceConfig";
 import axiosInstance from "../../utils/axiosInstance";
 
 export const login = (pbcmcd, pbuser, pbpass) => async (dispatch) => {
@@ -5,7 +6,7 @@ export const login = (pbcmcd, pbuser, pbpass) => async (dispatch) => {
     dispatch({ type: 'AUTH_START' });
 
     const response = await axiosInstance.post(
-      `${import.meta.env.VITE_API_URL}/api/auth/login`, 
+      `${SERVER_API}/api/auth/login`, 
       { pbcmcd, pbuser, pbpass }
     );
 
@@ -49,7 +50,7 @@ export const refreshTokenAction = () => async (dispatch, getState) => {
   try {
     const { refreshToken } = getState().auth;
     
-    const response = await axiosInstance.post(`${import.meta.env.VITE_API_URL}/api/auth/refresh-token`, { refreshToken });
+    const response = await axiosInstance.post(`${SERVER_API}/api/auth/refresh-token`, { refreshToken });
 
     const { accessToken: newToken, refreshToken: newRefreshToken } = response.data;
 

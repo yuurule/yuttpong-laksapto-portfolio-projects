@@ -66,8 +66,10 @@ export default function Category() {
                             <td>12 Jan 2025<br /><small>By Webadmin</small></td>
                             <td>12 Jan 2025<br /><small>By Webadmin</small></td>
                             <td>
-                              <button className='btn btn-primary me-2'><FontAwesomeIcon icon={faEdit} /></button>
-                              <button className='btn btn-danger'><FontAwesomeIcon icon={faTrash} /></button>
+                              <div className='d-flex'>
+                                <button className='btn btn-primary me-2'><FontAwesomeIcon icon={faEdit} /></button>
+                                <button className='btn btn-danger'><FontAwesomeIcon icon={faTrash} /></button>
+                              </div>
                             </td>
                           </tr>
                         ))

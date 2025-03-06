@@ -19,6 +19,7 @@ import CustomerDetail from "./pages/Customer/CustomerDetail";
 import UnAuthorized from "./pages/UnAuthorized";
 import NotFound from "./pages/NotFound";
 import UpsertProduct from "./pages/Product/UpsertProduct";
+import Campaign from "./pages/Campaign";
 
 function App() {
   
@@ -55,6 +56,7 @@ function App() {
               <Route path="order" element={<Orders />}></Route>
               <Route path="customer" element={<Customers />}></Route>
               <Route path="customer/:id" element={<CustomerDetail />}></Route>
+              <Route path="campaign" element={<Campaign />}></Route>
 
               <Route path="unauthorized" element={<UnAuthorized />}></Route>
               <Route path="*" element={<NotFound />}></Route>

@@ -20,7 +20,7 @@ export default function MainMenu() {
         <li><Link to="/product"><FontAwesomeIcon icon={faBox} className='me-2' />Product</Link></li>
         <li><Link to="/stock"><FontAwesomeIcon icon={faBoxes} className='me-2' />Stock</Link></li>
         <li><Link to="/order"><FontAwesomeIcon icon={faShoppingBag} className='me-2' />Order</Link></li>
-        <li><Link to="/campaign" onClick={(e) => { e.preventDefault(); alert("Comming soon..."); }}><FontAwesomeIcon icon={faGift} className='me-2' />Campaign</Link></li>
+        <li><Link to="/campaign"><FontAwesomeIcon icon={faGift} className='me-2' />Campaign</Link></li>
         <li><Link to="/category"><FontAwesomeIcon icon={faList} className='me-2' />Category</Link></li>
         <li><Link to="/tag"><FontAwesomeIcon icon={faTags} className='me-2' />Tag</Link></li>
         <li><Link to="/customer"><FontAwesomeIcon icon={faUsers} className='me-2' />Customer</Link></li> 

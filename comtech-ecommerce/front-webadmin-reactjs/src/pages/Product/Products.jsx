@@ -1,12 +1,13 @@
-import { Form, InputGroup, Button  } from 'react-bootstrap';
+import { useState } from 'react';
+import { Form, InputGroup, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faChevronLeft, faChevronRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../../components/MyPagination/MyPagination';
 import { Link } from 'react-router';
 
 export default function Products() {
 
-
+  const [showSoftDelete, setShowSoftDelete] = useState(false);
 
   return (
     <div className={`page`}>
@@ -22,79 +23,152 @@ export default function Products() {
         <div className='col-sm-9'>
           <div className="card">
             <div className="card-body">
-              <div className='d-flex justify-content-between align-items-center mb-3'>
-                <div className='d-flex'>
-                  <button className='btn btn-danger me-2'>Delete</button>
-                  <button className='btn btn-danger'>
-                    <FontAwesomeIcon icon={faTrash} className='me-1' />(10)
-                  </button>
-                </div>
+              {
+                !showSoftDelete
+                ?
                 <div>
-                  <InputGroup className="">
-                    <Form.Control
-                      placeholder="Search product"
-                      aria-label="Recipient's username"
-                      aria-describedby="basic-addon2"
-                    />
-                    <Button variant="primary" id="button-addon2">
-                      <FontAwesomeIcon icon={faSearch} />
-                    </Button>
-                  </InputGroup>
-                </div>
-              </div>
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>SKU</th>
-                    <th>Product <FontAwesomeIcon icon={faArrowUp} /></th>
-                    <th>In Stock <FontAwesomeIcon icon={faArrowUp} /></th>
-                    <th>Price <FontAwesomeIcon icon={faArrowUp} /></th>
-                    <th>Sale Amount <FontAwesomeIcon icon={faArrowUp} /></th>
-                    <th>Revenue <FontAwesomeIcon icon={faMinus} /></th>
-                    <th>Sales Off <FontAwesomeIcon icon={faMinus} /></th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    [...Array(8)].map((i, index) => (
-                      <tr key={`category_row_${index + 1}`}>
-                        <td>
-                          <Form.Check
-                            type={"checkbox"}
-                            id={`select-product`}
-                            label={``}
-                          />
-                        </td>
-                        <td>471138788</td>
-                        <td style={{width: 300}}>
-                          <Link to="/product/1" className="d-flex align-items-center">
-                            <figure className='me-2'>
-                              <img src="/images/dummy-product.jpg" style={{width: 60}} />
-                            </figure>
-                            Asus ROG Flow Z13 GZ302EA-RU087WA Off Black
-                          </Link>
-                        </td>
-                        <td>25</td>
-                        <td>$127.99</td>
-                        <td>56</td>
-                        <td>$5,480.00</td>
-                        <td>-$350.00</td>
-                        <td>
-                          <div className='d-flex'>
-                            <button className='btn btn-primary me-2'><FontAwesomeIcon icon={faEdit} /></button>
-                            <button className='btn btn-danger'><FontAwesomeIcon icon={faTrash} /></button>
-                          </div>
-                        </td>
+                  <div className='d-flex justify-content-between align-items-center mb-3'>
+                    <div className='d-flex'>
+                      <button className='btn btn-danger me-2'>Delete</button>
+                      <button className='btn btn-danger' onClick={() => setShowSoftDelete(true)}>
+                        <FontAwesomeIcon icon={faTrash} className='me-1' />(10)
+                      </button>
+                    </div>
+                    <div>
+                      <InputGroup className="">
+                        <Form.Control
+                          placeholder="Search product"
+                          aria-label="Recipient's username"
+                          aria-describedby="basic-addon2"
+                        />
+                        <Button variant="primary" id="button-addon2">
+                          <FontAwesomeIcon icon={faSearch} />
+                        </Button>
+                      </InputGroup>
+                    </div>
+                  </div>
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>SKU</th>
+                        <th>Product <FontAwesomeIcon icon={faArrowUp} /></th>
+                        <th>In Stock <FontAwesomeIcon icon={faArrowUp} /></th>
+                        <th>Price <FontAwesomeIcon icon={faArrowUp} /></th>
+                        <th>Sale Amount <FontAwesomeIcon icon={faArrowUp} /></th>
+                        <th>Revenue <FontAwesomeIcon icon={faMinus} /></th>
+                        <th></th>
                       </tr>
-                    ))
-                  }
-                </tbody>
-              </table>
-              <div className='d-flex justify-content-center'>
-                <MyPagination />
-              </div>
+                    </thead>
+                    <tbody>
+                      {
+                        [...Array(8)].map((i, index) => (
+                          <tr key={`category_row_${index + 1}`}>
+                            <td>
+                              <Form.Check
+                                type={"checkbox"}
+                                id={`select-product`}
+                                label={``}
+                              />
+                            </td>
+                            <td>471138788</td>
+                            <td style={{width: 300}}>
+                              <Link to="/product/1" className="d-flex align-items-center">
+                                <figure className='me-2'>
+                                  <img src="/images/dummy-product.jpg" style={{width: 60}} />
+                                </figure>
+                                Asus ROG Flow Z13 GZ302EA-RU087WA Off Black
+                              </Link>
+                            </td>
+                            <td>25</td>
+                            <td>$127.99</td>
+                            <td>56</td>
+                            <td>$5,480.00</td>
+                            <td>
+                              <div className='d-flex'>
+                                <button className='btn btn-primary me-2'><FontAwesomeIcon icon={faEdit} /></button>
+                                <button className='btn btn-danger'><FontAwesomeIcon icon={faTrash} /></button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      }
+                    </tbody>
+                  </table>
+                  <div className='d-flex justify-content-center'>
+                    <MyPagination />
+                  </div>
+                </div>
+                :
+                <div>
+                  <div className='d-flex justify-content-between align-items-center mb-3'>
+                    <div className='d-flex'>
+                      <button className='btn btn-primary me-2' onClick={() => setShowSoftDelete(false)}>
+                        <FontAwesomeIcon icon={faArrowLeft} className='me-1' /> Back
+                      </button>
+                      <button className='btn btn-danger'>Delete</button>
+                    </div>
+                    <div>
+                      <InputGroup className="">
+                        <Form.Control
+                          placeholder="Search product"
+                          aria-label="Recipient's username"
+                          aria-describedby="basic-addon2"
+                        />
+                        <Button variant="primary" id="button-addon2">
+                          <FontAwesomeIcon icon={faSearch} />
+                        </Button>
+                      </InputGroup>
+                    </div>
+                  </div>
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>SKU</th>
+                        <th>Product <FontAwesomeIcon icon={faArrowUp} /></th>
+                        <th>Deleted at</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {
+                        [...Array(8)].map((i, index) => (
+                          <tr key={`product_row_${index + 1}`}>
+                            <td>
+                              <Form.Check
+                                type={"checkbox"}
+                                id={`select-product`}
+                                label={``}
+                              />
+                            </td>
+                            <td>471138788</td>
+                            <td>
+                              <Link to="/product/1" className="d-flex align-items-center">
+                                <figure className='me-2'>
+                                  <img src="/images/dummy-product.jpg" style={{width: 60}} />
+                                </figure>
+                                Asus ROG Flow Z13 GZ302EA-RU087WA Off Black
+                              </Link>
+                            </td>
+                            <td>20 Jan 25</td>
+                            <td>
+                              <div className='d-flex'>
+                                <button className='btn btn-primary me-2'>Restore</button>
+                                <button className='btn btn-danger'>Delete</button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      }
+                    </tbody>
+                  </table>
+                  <div className='d-flex justify-content-center'>
+                    <MyPagination />
+                  </div>
+                </div>
+              }
+              
             </div>
           </div>
         </div>
