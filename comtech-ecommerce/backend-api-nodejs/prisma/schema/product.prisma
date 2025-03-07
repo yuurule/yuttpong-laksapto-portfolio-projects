@@ -33,20 +33,23 @@ model Product {
 model ProductSpecs {
   id                Int @id @default(autoincrement())
   productId         Int @unique
-  mainboard         String
-  mainboardFeature  String @db.Text
-  cpu               String
-  gpu               String
-  ram               Int
-  harddisk          String
-  soundCard         String
-  powerSupply       String
-  screenSize        Decimal @db.Decimal(10, 2)
-  screenType        String
-  refreshRate       Int
-  dimension         String
-  weight            Decimal @db.Decimal(10, 2)
-  freeGift          String // ของแถม
+  screen_size        String
+  processor         String
+  display           String
+  memory            String
+  storage           String
+  graphic           String
+  operating_system  String
+  camera            String
+  optical_drive     String
+  connection_ports  String
+  wireless          String
+  battery           String
+  color             String
+  dimemsion         String
+  weight            String
+  warranty          String
+  option            String
 
   product           Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 

@@ -60,14 +60,6 @@ export class ProductService {
               inStock: 0
             }
           },
-          // stockEvents: {
-          //   create: {
-          //     action: StockAction.ADD,
-          //     quantity: dto.inStock,
-          //     assignedAt: new Date(),
-          //     assignedBy: { connect: { id: userId } }
-          //   }
-          // },
           categories: {
             create: dto.categories.map(category => ({
               category: {
@@ -103,20 +95,23 @@ export class ProductService {
           } : undefined,
           specs: {
             create: {
-              mainboard: dto.specs.mainboard,
-              mainboardFeature: dto.specs.mainboardFeature,
-              cpu: dto.specs.cpu,
-              gpu: dto.specs.gpu,
-              ram: dto.specs.ram,
-              harddisk: dto.specs.harddisk,
-              soundCard: dto.specs.soundCard,
-              powerSupply: dto.specs.powerSupply,
-              screenSize: dto.specs.screenSize,
-              screenType: dto.specs.screenType,
-              refreshRate: dto.specs.refreshRate,
-              dimension: dto.specs.dimension,
+              screen_size: dto.specs.screen_size,
+              processor: dto.specs.processor,
+              display: dto.specs.display,
+              memory: dto.specs.memory,
+              storage: dto.specs.storage,
+              graphic: dto.specs.graphic,
+              operating_system: dto.specs.operating_system,
+              camera: dto.specs.camera,
+              optical_drive: dto.specs.optical_drive,
+              connection_ports: dto.specs.connection_ports,
+              wireless: dto.specs.wireless,
+              battery: dto.specs.battery,
+              color: dto.specs.color,
+              dimemsion: dto.specs.dimemsion,
               weight: dto.specs.weight,
-              freeGift: dto.specs.freeGift
+              warranty: dto.specs.warranty,
+              option: dto.specs.option,
             }
           }
         },

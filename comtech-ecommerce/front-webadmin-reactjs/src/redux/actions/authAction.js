@@ -1,63 +1,61 @@
 import { SERVER_API } from "../../services/serviceConfig";
 import axiosInstance from "../../utils/axiosInstance";
 
-export const login = (pbcmcd, pbuser, pbpass) => async (dispatch) => {
+export const login = (email, password) => async (dispatch) => {
   try {
     dispatch({ type: 'AUTH_START' });
 
     const response = await axiosInstance.post(
       `${SERVER_API}/api/auth/login`, 
-      { pbcmcd, pbuser, pbpass }
+      { email, password }
     );
+    const { userRole, accessToken, refreshToken } = response.data;
 
-    if(response.data.RESULT_CODE === "0") {
-      const resultData = response.data.RESULT_DATA;
-      const loginPayload = {
-        user: {
-          
-          expires: resultData.EXPIRES,
-        },
-        accessToken: resultData.ACCESSTOKEN,
-      };
-  
-      dispatch({
-        type: 'AUTH_SUCCESS',
-        payload: loginPayload
-      });
-    }
-    else {
-      dispatch({
-        type: 'AUTH_FAIL',
-        payload: 'Login failed'
-      });
-      throw new Error('Login failed due to: ' + response.data.RESULT_REASON);
-    }
+    dispatch({
+      type: 'AUTH_SUCCESS',
+      payload: { userRole, accessToken, refreshToken }
+    });
   }
   catch (error) {
     dispatch({
       type: 'AUTH_FAIL',
-      payload: error.response?.data?.message || 'Login failed'
+      payload: error.response?.data?.message || 'Log in failed'
     });
     throw error;
   }
 };
 
-export const logout = () => (dispatch) => {
-  dispatch({ type: 'LOGOUT' });
+export const logout = (refreshToken) => async (dispatch) => {
+
+  try {
+    await axiosInstance.post(
+      `${SERVER_API}/api/auth/logout`, 
+      { refreshToken }
+    );
+  
+    dispatch({ type: 'LOGOUT' });
+  }
+  catch (error) {
+    dispatch({
+      type: 'AUTH_FAIL',
+      payload: error.response?.data?.message || 'Log out failed'
+    });
+    throw error;
+  }
 };
 
 export const refreshTokenAction = () => async (dispatch, getState) => {
   try {
     const { refreshToken } = getState().auth;
     
-    const response = await axiosInstance.post(`${SERVER_API}/api/auth/refresh-token`, { refreshToken });
+    const response = await axiosInstance.post(`${SERVER_API}/api/auth/refresh`, { refreshToken });
 
     const { accessToken: newToken, refreshToken: newRefreshToken } = response.data;
 
     dispatch({
       type: 'AUTH_SUCCESS',
       payload: {
-        ...getState().auth.user,
+        ...getState().auth.userRole,
         accessToken: newToken,
         refreshToken: newRefreshToken
       }

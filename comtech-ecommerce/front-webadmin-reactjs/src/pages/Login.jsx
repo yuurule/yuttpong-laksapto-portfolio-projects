@@ -1,8 +1,10 @@
 import styles from '../css/Login.module.scss';
-import Form from 'react-bootstrap/Form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from '../redux/actions/authAction';
+import { useNavigate } from 'react-router-dom';
 
 // กำหนด schema สำหรับ validation ด้วย Zod
 const loginSchema = z.object({
@@ -13,10 +15,13 @@ const loginSchema = z.object({
   password: z
     .string()
     .min(1, { message: 'กรุณากรอกรหัสผ่าน' })
-    .min(8, { message: 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร' })
+    .min(4, { message: 'รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร' })
 });
 
 export default function Login() {
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const {
     register,
@@ -27,17 +32,26 @@ export default function Login() {
   });
 
   const onSubmit = async (data) => {
+    // try {
+    //   // จำลองการส่งข้อมูลไปยัง API (ในโปรเจคจริงควรเรียกใช้ API จริง)
+    //   console.log('ข้อมูลที่ส่ง:', data);
+      
+    //   // จำลองการรอการตอบกลับจาก API
+    //   // await new Promise(resolve => setTimeout(resolve, 1000));
+      
+    //   // alert('เข้าสู่ระบบสำเร็จ!');
+    // } catch (error) {
+    //   console.error('เกิดข้อผิดพลาดในการเข้าสู่ระบบ:', error);
+    //   alert('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
+    // }
+
+    const { email, password } = data;
+
     try {
-      // จำลองการส่งข้อมูลไปยัง API (ในโปรเจคจริงควรเรียกใช้ API จริง)
-      console.log('ข้อมูลที่ส่ง:', data);
-      
-      // จำลองการรอการตอบกลับจาก API
-      // await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // alert('เข้าสู่ระบบสำเร็จ!');
+      await dispatch(login(email, password));
+      navigate('/');
     } catch (error) {
       console.error('เกิดข้อผิดพลาดในการเข้าสู่ระบบ:', error);
-      alert('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
     }
   };
 

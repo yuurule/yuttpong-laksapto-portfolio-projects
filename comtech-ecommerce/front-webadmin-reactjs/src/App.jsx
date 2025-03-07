@@ -33,33 +33,23 @@ function App() {
 
             <Route path="/" element={<MainLayout />}>
 
-              {/* <Route index element={<PrivateRoute><IndexPage /></PrivateRoute>}></Route>
-              <Route path="dashboard" element={<PrivateRoute allowedRoles={[]}><Dashboard /></PrivateRoute>}></Route>
-              <Route path="report" element={<PrivateRoute allowedRoles={[]}><Report /></PrivateRoute>}></Route>
-              <Route path="category" element={<PrivateRoute allowedRoles={[]}><Category /></PrivateRoute>}></Route>
-              <Route path="tag" element={<PrivateRoute allowedRoles={[]}><Tag /></PrivateRoute>}></Route>
-              <Route path="products" element={<PrivateRoute allowedRoles={[]}><Products /></PrivateRoute>}></Route>
-              <Route path="products/:id" element={<PrivateRoute allowedRoles={[]}><ProductDetail /></PrivateRoute>}></Route>
-              <Route path="orders" element={<PrivateRoute allowedRoles={[]}><Orders /></PrivateRoute>}></Route>
-              <Route path="cutomers" element={<PrivateRoute allowedRoles={[]}><Customers /></PrivateRoute>}></Route>
-              <Route path="cutomers/:id" element={<PrivateRoute allowedRoles={[]}><CustomerDetail /></PrivateRoute>}></Route> */}
+              <Route index element={<PrivateRoute><IndexPage /></PrivateRoute>}></Route>
+              <Route path="dashboard" element={<PrivateRoute allowedRoles={['ADMIN']}><Dashboard /></PrivateRoute>}></Route>
+              {/* <Route path="report" element={<PrivateRoute allowedRoles={['ADMIN']}><Report /></PrivateRoute>}></Route> */}
+              <Route path="category" element={<PrivateRoute allowedRoles={['ADMIN']}><Category /></PrivateRoute>}></Route>
+              <Route path="tag" element={<PrivateRoute allowedRoles={['ADMIN']}><Tag /></PrivateRoute>}></Route>
+              <Route path="product" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR']}><Products /></PrivateRoute>}></Route>
+              <Route path="product/:id" element={<PrivateRoute allowedRoles={['ADMIN']}><ProductDetail /></PrivateRoute>}></Route>
+              <Route path="product/create" element={<PrivateRoute allowedRoles={['ADMIN']}><UpsertProduct /></PrivateRoute>}></Route>
+              <Route path="stock" element={<PrivateRoute allowedRoles={['ADMIN']}><Stock /></PrivateRoute>}></Route>
+              <Route path="order" element={<PrivateRoute allowedRoles={['ADMIN']}><Orders /></PrivateRoute>}></Route>
+              <Route path="customer" element={<PrivateRoute allowedRoles={['ADMIN']}><Customers /></PrivateRoute>}></Route>
+              <Route path="customer/:id" element={<PrivateRoute allowedRoles={['ADMIN']}><CustomerDetail /></PrivateRoute>}></Route>
+              <Route path="campaign" element={<PrivateRoute allowedRoles={['ADMIN', 'AUTHOR']}><Campaign /></PrivateRoute>}></Route>
 
-              {/* <Route index element={<PrivateRoute><IndexPage /></PrivateRoute>}></Route> */}
-              <Route path="dashboard" element={<Dashboard />}></Route>
-              {/* <Route path="report" element={<Report />}></Route> */}
-              <Route path="category" element={<Category />}></Route>
-              <Route path="tag" element={<Tag />}></Route>
-              <Route path="product" element={<Products />}></Route>
-              <Route path="product/:id" element={<ProductDetail />}></Route>
-              <Route path="product/create" element={<UpsertProduct />}></Route>
-              <Route path="stock" element={<Stock />}></Route>
-              <Route path="order" element={<Orders />}></Route>
-              <Route path="customer" element={<Customers />}></Route>
-              <Route path="customer/:id" element={<CustomerDetail />}></Route>
-              <Route path="campaign" element={<Campaign />}></Route>
+              <Route path="unauthorized" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'AUTHOR']}><UnAuthorized /></PrivateRoute>}></Route>
+              <Route path="*" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'AUTHOR']}><NotFound /></PrivateRoute>}></Route>
 
-              <Route path="unauthorized" element={<UnAuthorized />}></Route>
-              <Route path="*" element={<NotFound />}></Route>
             </Route>
           </Routes>
         </Router>

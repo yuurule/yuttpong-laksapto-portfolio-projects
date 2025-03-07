@@ -11,6 +11,7 @@ export interface TokenPayload {
 }
 
 export interface AuthTokens {
+  userRole: string,
   accessToken: string;
   refreshToken: string;
 }

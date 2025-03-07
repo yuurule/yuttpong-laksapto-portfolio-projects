@@ -21,7 +21,7 @@ export default function UpsertProduct() {
         <div className='col-sm-12'>
           <div className='row'>
             <div className='col-sm-3'>
-              <div className='card'>
+              <div className='card mb-3'>
                 <div className='card-body'>
                   <figure className='text-center'>
                     <img src="/images/dummy-product.jpg" style={{width: 300}} />
@@ -56,7 +56,7 @@ export default function UpsertProduct() {
                 </div>
               </div>
             </div>
-            <div className='col-sm-6'>
+            <div className='col-sm-5'>
               <div className='card'>
                 <div className='card-body'>
                   <header>
@@ -146,7 +146,15 @@ export default function UpsertProduct() {
                 </div>
               </div>
             </div>
-            <div className='col-sm-3'>
+            <div className='col-sm-4'>
+              <div className='card mb-3'>
+                <div className='card-body'>
+                  <Form.Group>
+                    <Form.Label>Product Detail</Form.Label>
+                    <Form.Control as="textarea" rows={12} />
+                  </Form.Group>
+                </div>
+              </div>
               <div className='card mb-3'>
                 <div className='card-body'>
                   <header className='d-flex justify-content-between align-items-center mb-3'>

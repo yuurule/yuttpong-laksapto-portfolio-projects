@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { AUTH_CONFIG } from '../config/auth.config';
@@ -9,7 +9,7 @@ import ms from 'ms';
 const prisma = new PrismaClient();
 
 export class AuthService {
-  async register(email: string, password: string) {
+  async register(email: string, password: string, role: string) {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
       const startTime = process.hrtime();
@@ -18,6 +18,7 @@ export class AuthService {
         data: {
           email,
           password: hashedPassword,
+          role: role as Role
         },
       });
 
@@ -27,7 +28,7 @@ export class AuthService {
       // Record request duration
       const [seconds, nanoseconds] = process.hrtime(startTime);
       metrics.httpRequestDurationMicroseconds
-        .labels('POST', '/auth/login', '200')
+        .labels('POST', '/auth/register', '200')
         .observe(seconds + nanoseconds / 1e9);
       
       return tokens;
@@ -36,7 +37,7 @@ export class AuthService {
       const startTime = process.hrtime();
       const [seconds, nanoseconds] = process.hrtime(startTime);
       metrics.httpRequestDurationMicroseconds
-        .labels('POST', '/auth/login', '400')
+        .labels('POST', '/auth/register', '400')
         .observe(seconds + nanoseconds / 1e9);
       throw error;
     }
@@ -119,6 +120,8 @@ export class AuthService {
   }
 
   private async generateTokens(user: User): Promise<AuthTokens> {
+    const userRole = user.role;
+
     const payload: TokenPayload = {
       userId: user.id,
       email: user.email,
@@ -147,6 +150,6 @@ export class AuthService {
       },
     });
 
-    return { accessToken, refreshToken };
+    return { userRole, accessToken, refreshToken };
   }
 }

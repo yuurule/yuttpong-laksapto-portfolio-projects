@@ -6,8 +6,8 @@ const authService = new AuthService();
 export class AuthController {
   async register(req: Request, res: Response) {
     try {
-      const { email, password } = req.body;
-      const tokens = await authService.register(email, password);
+      const { email, password, role } = req.body;
+      const tokens = await authService.register(email, password, role);
       res.json(tokens);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
