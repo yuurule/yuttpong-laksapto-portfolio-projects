@@ -8,45 +8,75 @@ export class CartService {
 
   async findAll() {
     try {
+      const cartItems = await prisma.cartItem.findMany();
+      return cartItems;
+    }
+    catch(error: any) {
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error find all cart item due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
 
+  async findAllByCustomerId(customerId: number) {
+    try {
+      const findCustomer = await prisma.customer.findUnique({ where: { id: customerId } });
+      if(!findCustomer) throw new exception.NotFoundException(`Not found customer with id ${customerId}`);
+
+      const cartItems = await prisma.cartItem.findMany({
+        where: { customerId: customerId }
+      });
+
+      return cartItems;
     }
     catch(error: any) {
       if(error instanceof exception.NotFoundException) throw error;
       if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error find one ___ due to: ${error.message}`);
+        throw new exception.DatabaseException(`Error find all cart item by customer due to: ${error.message}`);
       }
       throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }
   }
 
-  async findOne(userId: number) {
+  async create(dto: createCartItemDto) {
     try {
+      const findCustomer = await prisma.customer.findUnique({ where: { id: dto.customerId } });
+      if(!findCustomer) throw new exception.NotFoundException(`Not found customer with id ${dto.customerId}`);
 
+      const findProduct = await prisma.product.findUnique({ where: { id: dto.productId } });
+      if(!findProduct) throw new exception.NotFoundException(`Not found product with id ${dto.productId}`);
+
+      const newCartItem = await prisma.cartItem.create({
+        data: {
+          customer: { connect: { id: dto.customerId } },
+          product: { connect: { id: dto.productId } },
+          quantity: dto.quantity
+        }
+      });
+
+      return newCartItem;
     }
     catch(error: any) {
       if(error instanceof exception.NotFoundException) throw error;
       if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error find one ___ due to: ${error.message}`);
+        throw new exception.DatabaseException(`Error creating cart item due to: ${error.message}`);
       }
       throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }
   }
 
-  async create(newCartItem: createCartItemDto) {
+  async update(cartItemId: number, quantity: number) {
     try {
+      const findCartItem = await prisma.cartItem.findUnique({ where: { id: cartItemId } });
+      if(!findCartItem) throw new exception.NotFoundException(`Not found cart item with id ${cartItemId}`);
 
-    }
-    catch(error: any) {
-      if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error creating ___ due to: ${error.message}`);
-      }
-      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
-    }
-  }
+      const updateCartItem = await prisma.cartItem.update({
+        where: { id: cartItemId },
+        data: { quantity: quantity }
+      });
 
-  async updateOne(id: number, quantity: number) {
-    try {
-
+      return updateCartItem;
     }
     catch(error: any) {
       if(error instanceof exception.NotFoundException) throw error;
@@ -57,22 +87,14 @@ export class CartService {
     }
   }
 
-  async deleteOne(id: number) {
+  async delete(cartItemsId: number[]) {
     try {
+      const findCartItems = await prisma.cartItem.findMany({ where: { id: { in: cartItemsId } } });
+      if(!findCartItems) throw new exception.NotFoundException(`Some cart item not found`);
 
-    }
-    catch(error: any) {
-      if(error instanceof exception.NotFoundException) throw error;
-      if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error delete one ___ due to: ${error.message}`);
-      }
-      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
-    }
-  }
+      const deleteCartItems = await prisma.cartItem.deleteMany({ where: { id: { in: cartItemsId } } });
 
-  async deleteMany(id: number[]) {
-    try {
-
+      return deleteCartItems;
     }
     catch(error: any) {
       if(error instanceof exception.NotFoundException) throw error;

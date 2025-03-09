@@ -1,22 +1,12 @@
-model Cart {
-  id            Int @id @default(autoincrement())
-  customerId    Int @unique
-
-  customer      Customer @relation(fields: [customerId], references: [id])
-  cartItems     CartItem[]
-
-  @@map("carts")
-}
-
 model CartItem {
   id            Int @id @default(autoincrement())
-  cartId        Int
+  customerId    Int
   productId     Int
   quantity      Int
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  cart          Cart @relation(fields: [cartId], references: [id])
+  customer      Customer @relation(fields: [customerId], references: [id])
   product       Product @relation(fields: [productId], references: [id])
 
   @@map("cart_items")

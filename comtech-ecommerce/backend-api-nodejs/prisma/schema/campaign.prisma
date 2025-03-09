@@ -1,0 +1,61 @@
+model Campaign {
+  id              Int @id @default(autoincrement())
+  name            String
+  description     String
+  discount        Decimal @db.Decimal(18, 2)
+
+  createdAt       DateTime @default(now())
+  createdById     Int
+  updatedAt       DateTime @updatedAt
+  updatedById     Int?
+  deletedAt       DateTime?
+  deletedById     Int?
+
+  createdBy         User @relation("UserCreatedCampaign", fields: [createdById], references: [id])
+  updatedBy         User? @relation("UserUpdatedCampaign", fields: [updatedById], references: [id])
+  deletedBy         User? @relation("UserDeletedCampaign", fields: [deletedById], references: [id])
+
+  campaignHistories CampaignHistory[]
+  campaignProducts  CampaignProduct[]
+
+  @@map("campaigns")
+}
+
+model CampaignHistory {
+  id              Int @id @default(autoincrement())
+  campaignId      Int 
+  action          CampaignHistoryAction
+  note            String @db.Text
+
+  createdAt       DateTime @default(now())
+  createdById     Int
+
+  createdBy       User @relation("UserCreatedCampaignHistory", fields: [createdById], references: [id])
+  campaign        Campaign @relation(fields: [campaignId], references: [id])
+
+  @@map("campaign_histories")
+}
+
+enum CampaignHistoryAction {
+  CREATE // สร้าง campaign
+  UPDATE // แก้ไข campaign
+  ACTIVATED // เปิด campaign
+  DEACTIVATED // ปิด campaign
+  EXPANDTIME // เพิ่มระยะเวลา campaign
+  REDUCETIME // ลดระยะเวลา campaign
+  MOVETOTRASH // ลบ campaign (แบบ soft delete)
+}
+
+model CampaignProduct {
+  campaignId      Int
+  productId       Int
+  assignedAt      DateTime @default(now())
+  assignedById    Int
+
+  product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  campaign        Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  assignedBy      User @relation(fields: [assignedById], references: [id])
+
+  @@id([campaignId, productId])
+  @@map("campaign_products")
+}

@@ -29,6 +29,12 @@ model User {
   deletedBrands             Brand[] @relation("UserDeletedBrand") // soft delete
   // Stock event
   actionedStockEvent        StockEvent[]
+  // Campaign
+  createdCampaigns          Campaign[] @relation("UserCreatedCampaign")
+  updatedCampaigns          Campaign[] @relation("UserUpdatedCampaign")
+  deletedCampaigns          Campaign[] @relation("UserDeletedCampaign") // soft delete
+  createdCampaignHistories  CampaignHistory[] @relation("UserCreatedCampaignHistory")
+  assignedCampaignProducts  CampaignProduct[]
 
   @@map("users")
 }
@@ -63,10 +69,8 @@ model Customer {
   customerRefreshTokens   CustomerRefreshToken[]
   customerDetail          CustomerDetail?
   orders                  Order[]
-  cart                    Cart?
+  cartItems               CartItem[]
   createdReviews          Review[] @relation("CustomerCreatedReview")
-  updatedReviews          Review[] @relation("CustomerUpdatedReview")
-  deletedReviews          Review[] @relation("CustomerDeletedReview")
 
   @@map("customers")
 }

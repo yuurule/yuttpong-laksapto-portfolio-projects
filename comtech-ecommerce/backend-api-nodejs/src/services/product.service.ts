@@ -48,13 +48,14 @@ export class ProductService {
           createdBy: {
             connect: { id: userId }
           },
-          sku: generateUuidBasedSku('NBK-'),
+          sku: generateUuidBasedSku('NBK'),
           name: dto.name,
           description: dto.description,
           brand: {
             connect: { id: dto.brandId }
           },
           price: dto.price,
+          publish: dto.publish,
           inStock: {
             create: {
               inStock: 0
@@ -116,19 +117,40 @@ export class ProductService {
           }
         },
         include: {
-          brand: true,
+          brand: {
+            select: {
+              id: true,
+              name: true,
+            }
+          },
           categories: {
             include: {
-              category: true
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                }
+              }
             }
           },
           tags: {
             include: {
-              tag: true
+              tag: {
+                select: {
+                  id: true,
+                  name: true,
+                }
+              }
             }
           },
           specs: true,
-          images: true
+          images: {
+            select: {
+              id: true,
+              url_path: true,
+              sequence_order: true,
+            }
+          }
         }
       });
       return newProduct;
@@ -158,6 +180,7 @@ export class ProductService {
       if (dto.name !== undefined) updateData.name = dto.name;
       if (dto.description !== undefined) updateData.description = dto.description;
       if (dto.price !== undefined) updateData.price = dto.price;
+      if (dto.publish !== undefined) updateData.publish = dto.publish;
 
       // Brand relationship (one-to-many)
       if (dto.brandId !== undefined) {
@@ -175,7 +198,7 @@ export class ProductService {
             category: {
               connect: { id: item.categoryId }
             },
-            createBy: {
+            assignedBy: {
               connect: { id: userId }
             }
           }));
@@ -198,7 +221,7 @@ export class ProductService {
             tag: {
               connect: { id: item.tagId }
             },
-            createBy: {
+            assignedBy: {
               connect: { id: userId }
             }
           }));
@@ -223,7 +246,13 @@ export class ProductService {
         updateData.images = {};
         
         if (dto.images.create?.length) {
-          updateData.images.create = dto.images.create;
+          updateData.images.create = dto.images.create.map(item => ({
+            url_path: item.url_path,
+            sequence_order: item.sequence_order,
+            assignedBy: {
+              connect: { id: userId }
+            }
+          }));
         }
         
         if (dto.images.delete?.length) {
@@ -231,6 +260,8 @@ export class ProductService {
             id: item.id
           }));
         }
+
+        // update images ...
       }
 
       updateData.updatedBy = {
@@ -242,19 +273,40 @@ export class ProductService {
         where: { id: productId },
         data: updateData,
         include: {
-          brand: true,
+          brand: {
+            select: {
+              id: true,
+              name: true,
+            }
+          },
           categories: {
             include: {
-              category: true
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                }
+              },
             }
           },
           tags: {
             include: {
-              tag: true
+              tag: {
+                select: {
+                  id: true,
+                  name: true,
+                }
+              },
             }
           },
           specs: true,
-          images: true
+          images: {
+            select: {
+              id: true,
+              url_path: true,
+              sequence_order: true,
+            }
+          }
         }
       });
     
@@ -276,6 +328,7 @@ export class ProductService {
       const findUser = await prisma.user.findUnique({ where: { id: userId } });
       if(!findUser) throw new exception.NotFoundException(`Not found user with id ${userId}`);
 
+      // ตรวจสอบ product มีอยู่จริง
       const existingProducts = await prisma.product.findMany({
         where: { 
           id: { in: productId },
@@ -326,10 +379,5 @@ export class ProductService {
       throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }
   }
-
-  // Change images
-
-  // Update images order
-
 
 }

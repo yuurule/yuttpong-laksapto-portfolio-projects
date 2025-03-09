@@ -4,7 +4,9 @@ model Product {
   name            String
   description     String @db.Text
   price           Decimal @db.Decimal(10, 2) 
+  publish         Boolean @default(false)
   brandId         Int?
+
   createdAt       DateTime @default(now())
   createdById     Int
   updatedAt       DateTime @updatedAt
@@ -26,6 +28,7 @@ model Product {
   createdBy       User @relation("UserCreatedProduct", fields: [createdById], references: [id])
   updatedBy       User? @relation("UserUpdatedProduct", fields: [updatedById], references: [id])
   deletedBy       User? @relation("UserDeletedProduct", fields: [deletedById], references: [id])
+  campaignProducts  CampaignProduct[]
 
   @@map("products")
 }
@@ -64,7 +67,7 @@ model ProductImage {
   assignedAt      DateTime @default(now())
   assignedById    Int
   updatedAt       DateTime @updatedAt
-  updatedById     Int
+  updatedById     Int?
 
   product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   assignedBy      User @relation("UserAssignedProductImage", fields: [assignedById], references: [id])
@@ -81,7 +84,7 @@ model OnSalesProduct {
   assignedAt      DateTime @default(now())
   assignedById    Int
   updatedAt       DateTime @updatedAt
-  updatedById     Int
+  updatedById     Int?
 
   product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   assignedBy      User @relation("UserAssignedProductSales", fields: [assignedById], references: [id])

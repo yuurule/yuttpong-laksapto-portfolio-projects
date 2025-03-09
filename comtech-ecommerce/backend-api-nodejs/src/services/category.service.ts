@@ -21,7 +21,7 @@ export class CategoryService {
 
   async findOne(categoryId: number) {
     try {
-      const category = await prisma.product.findUnique({ where: { id: categoryId } });
+      const category = await prisma.category.findUnique({ where: { id: categoryId } });
       if(!category) throw new exception.NotFoundException(`Not found category with id ${categoryId}`)
       return category;
     }

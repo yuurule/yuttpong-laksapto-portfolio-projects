@@ -91,27 +91,20 @@ export class ReviewService {
     }
   }
 
-  async updateOne(reviewId: number, dto: updateReviewDto, customerId: number) {
+  async update(reviewId: number, dto: updateReviewDto) {
     try {
-      // ตรวจสอบ customer มีอยู่จริง
-      const findCustomer = await prisma.customer.findUnique({ where: { id: customerId } });
-      if(!findCustomer) throw new exception.NotFoundException(`Not found customer with id ${customerId}`);
-
       // ตรวจสอบ review มีอยู่จริง
       const findReview = await prisma.review.findUnique({ where: { id: reviewId } });
       if(!findReview) throw new exception.NotFoundException(`Not found review with id ${reviewId}`);
 
+      let updateData : any = {};
+
+      if(dto.message !== undefined) updateData.message = dto.message;
+      if(dto.rating !== undefined) updateData.rating = dto.rating;
+
       const updateReview = await prisma.review.update({
         where: { id: reviewId },
-        data: {
-          message: dto.message,
-          rating: dto.rating,
-          updatedBy: {
-            connect: {
-              id: customerId
-            }
-          }
-        }
+        data: updateData
       });
 
       return updateReview;
@@ -125,14 +118,44 @@ export class ReviewService {
     }
   }
 
-  async softDelete(reviewId: number[], customerId: number) {
+  async approve(reviewId: number, approve: boolean) {
     try {
+      // ตรวจสอบ review มีอยู่จริง
+      const findReview = await prisma.review.findUnique({ where: { id: reviewId } });
+      if(!findReview) throw new exception.NotFoundException(`Not found review with id ${reviewId}`);
 
+      const approveReview = await prisma.review.update({
+        where: { id: reviewId },
+        data: { approved: approve }
+      });
+
+      return approveReview;
     }
     catch(error: any) {
       if(error instanceof exception.NotFoundException) throw error;
       if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error soft delete one ___ due to: ${error.message}`);
+        throw new exception.DatabaseException(`Error approving review due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
+
+  async delete(reviewId: number) {
+    try {
+      // ตรวจสอบ review มีอยู่จริง
+      const findReview = await prisma.review.findUnique({ where: { id: reviewId } });
+      if(!findReview) throw new exception.NotFoundException(`Some review not found`);
+
+      const deleteReview = await prisma.review.delete({
+        where: { id: reviewId },
+      });
+
+      return deleteReview;
+    }
+    catch(error: any) {
+      if(error instanceof exception.NotFoundException) throw error;
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error delete reviews due to: ${error.message}`);
       }
       throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }

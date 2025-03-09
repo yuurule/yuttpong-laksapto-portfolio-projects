@@ -1,0 +1,88 @@
+import { PrismaClient, Prisma, StockAction } from '@prisma/client';
+import * as exception from '../libs/errorException';
+import { createStockActionDto } from '../types';
+
+const prisma = new PrismaClient();
+
+export class StockService {
+
+  async findAll() {
+    try {
+      const stockActions = await prisma.stockEvent.findMany();
+      return stockActions;
+    }
+    catch(error: any) {
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error find all stock action due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
+
+  async findOne(id: number) {
+    try {
+      const stockAction = await prisma.stockEvent.findUnique({ where: { id: id } });
+      if(!stockAction) throw new exception.NotFoundException(`Not found stock action with id ${id}`);
+      return stockAction;
+    }
+    catch(error: any) {
+      if(error instanceof exception.NotFoundException) throw error;
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error find one stock action due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
+
+  async create(dto: createStockActionDto) {
+    try {
+      // ตรวจสอบ user มีอยู่จริง
+      const findUser = await prisma.user.findUnique({ where: { id: dto.userId } });
+      if(!findUser) throw new exception.NotFoundException(`Not found user with id ${dto.userId}`);
+
+      // ตรวจสอบ product มีอยู่จริง
+      const findProduct = await prisma.product.findUnique({ where: { id: dto.productId } });
+      if(!findProduct) throw new exception.NotFoundException(`Not found product with id ${dto.productId}`);
+
+      const findProductInStock = await prisma.inStock.findUnique({ where: { productId: dto.productId } });
+      if(!findProductInStock) throw new exception.NotFoundException(`Not found in stock data with product id ${dto.productId}`);
+
+      const transaction = await prisma.$transaction(async (tx) => {
+
+        let currentInStock = findProductInStock.inStock;
+        if(dto.actionType === StockAction.ADD) {
+          currentInStock += dto.quantity;
+        }
+        else {
+          currentInStock -= dto.quantity;
+        }
+
+        const inStock = await tx.inStock.update({
+          where: { productId: dto.productId },
+          data: { inStock: currentInStock }
+        })
+
+        const newStockAction = await tx.stockEvent.create({
+          data: {
+            action: dto.actionType as StockAction,
+            quantity: dto.quantity,
+            description: dto.reason,
+            product: { connect: { id: dto.productId } },
+            actionedBy: { connect: { id: dto.userId } }
+          }
+        });
+
+        return {inStock, newStockAction};
+      });
+
+      return transaction;
+    }
+    catch(error: any) {
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error creating stock action due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
+
+}

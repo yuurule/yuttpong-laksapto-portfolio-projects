@@ -15,3 +15,18 @@ export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface Customer {
+  id: number;
+  email: string;
+}
+
+export interface CustomerTokenPayload {
+  customerId: number;
+  email: string;
+}
+
+export interface CustomerAuthTokens {
+  accessToken: string;
+  refreshToken: string;
+}

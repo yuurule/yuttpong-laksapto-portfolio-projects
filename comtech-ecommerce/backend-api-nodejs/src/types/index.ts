@@ -1,3 +1,5 @@
+import { PrismaClient, Prisma, StockAction } from '@prisma/client';
+
 // Customer
 export interface createCustomerDto {
   
@@ -9,6 +11,7 @@ export interface createProductDto {
   description: string,
   brandId: number,
   price: number,
+  publish: boolean,
   categories: {
     categoryId: number,
   }[],
@@ -36,14 +39,15 @@ export interface createProductDto {
   },
   images?: {
     url_path: string, 
+    //order: number,
   }[]
 }
-
 export interface updateProductDto {
   name?: string;
   description?: string;
   brandId?: number;
   price?: number;
+  publish?: boolean;
   categories?: {
     connect?: { categoryId: number }[];
     disconnect?: { categoryId: number }[];
@@ -53,25 +57,58 @@ export interface updateProductDto {
     disconnect?: { tagId: number }[];
   };
   specs?: {
-    mainboard?: string;
-    mainboardFeature?: string;
-    cpu?: string;
-    gpu?: string;
-    ram?: number;
-    harddisk?: string;
-    soundCard?: string;
-    powerSupply?: string;
-    screenSize?: number;
-    screenType?: string;
-    refreshRate?: number;
-    dimension?: string;
-    weight?: number;
-    freeGift?: string;
+    screen_size?: string,
+    processor?: string,
+    display?: string,
+    memory?: string,
+    storage?: string,
+    graphic?: string,
+    operating_system?: string,
+    camera?: string,
+    optical_drive?: string,
+    connection_ports?: string,
+    wireless?: string,
+    battery?: string,
+    color?: string,
+    dimemsion?: string,
+    weight?: string,
+    warranty?: string,
+    option?: string,
   };
   images?: {
-    create?: { url_path: string }[];
+    create?: { url_path: string, sequence_order: number }[];
     delete?: { id: number }[];
+    //update?: { id: number, urlPath: string, order: number }[]; 
   };
+}
+
+// Stock
+export interface createStockActionDto {
+  productId: number;
+  userId: number;
+  actionType: string;
+  quantity: number;
+  reason?: string;
+}
+
+// Campaign
+export interface createCampaignDto {
+  userId: number;
+  name: string;
+  description: string;
+  discount: number;
+}
+export interface updateCampaignDto {
+  userId: number;
+  name?: string;
+  description?: string;
+  discount?: number;
+}
+export interface createCampaignHistoryDto {
+  userId: number;
+  campaignId: number;
+  action: string;
+  note?: string;
 }
 
 // Review
@@ -93,7 +130,9 @@ export interface createCategoryDto {
 
 // Cart
 export interface createCartItemDto {
-  
+  customerId: number;
+  productId: number;
+  quantity: number;
 }
 
 // Order

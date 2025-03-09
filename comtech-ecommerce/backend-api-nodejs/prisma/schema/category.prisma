@@ -64,7 +64,7 @@ model Brand {
   createdById     Int
   updatedAt       DateTime @updatedAt
   updatedById     Int?
-  deletedAt       DateTime? @updatedAt
+  deletedAt       DateTime?
   deletedById     Int?
 
   products        Product[]
