@@ -1,10 +1,5 @@
 import { PrismaClient, Prisma, StockAction } from '@prisma/client';
 
-// Customer
-export interface createCustomerDto {
-  
-}
-
 // Product
 export interface createProductDto {
   name: string,
@@ -90,6 +85,12 @@ export interface createStockActionDto {
   quantity: number;
   reason?: string;
 }
+export interface createStockSellActionDto {
+  productId: number;
+  customerId: number;
+  actionType: string;
+  quantity: number;
+}
 
 // Campaign
 export interface createCampaignDto {
@@ -137,5 +138,13 @@ export interface createCartItemDto {
 
 // Order
 export interface createOrderDto {
-  
+  customerId: number;
+  total: number;
+  items: {
+    productId: number;
+    quantity: number;
+    campaignId?: number;
+    discount?: number;
+    salePrice: number
+  }[]
 }

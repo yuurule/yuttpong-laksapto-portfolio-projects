@@ -28,7 +28,8 @@ model Product {
   createdBy       User @relation("UserCreatedProduct", fields: [createdById], references: [id])
   updatedBy       User? @relation("UserUpdatedProduct", fields: [updatedById], references: [id])
   deletedBy       User? @relation("UserDeletedProduct", fields: [deletedById], references: [id])
-  campaignProducts  CampaignProduct[]
+  campaignProducts    CampaignProduct[]
+  stockSellEvents     StockSellEvent[]
 
   @@map("products")
 }

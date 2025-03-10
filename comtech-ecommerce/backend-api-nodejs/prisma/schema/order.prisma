@@ -1,28 +1,46 @@
 model Order {
   id              Int @id @default(autoincrement())
-  status          String @default("PENDING") // PENDING, CONFIRMED, PREPARING, DELIVERING, COMPLETED, CANCELLED
-  paymentStatus   String @default("PENDING") // PENDING, PAID, FAILED
+  status          OrderStatus @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
   paymentIntent   String? // Stripe payment intent ID
   customerId      Int
-  orderItems      OrderItem[]
-  address         String @db.Text
-  totalAmount     Decimal @db.Decimal(18, 2)
+  total           Decimal @db.Decimal(18, 2)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  updatePaymentAt   DateTime?
 
   customer        Customer @relation(fields: [customerId], references: [id])
+  orderItems      OrderItem[]
 
   @@map("orders") 
 }
 
 model OrderItem {
   id                Int  @id @default(autoincrement())
-  quantity          Int
-  productId         Int
   orderId           Int
+  productId         Int
+  quantity          Int
+  campaignId        Int? // อยู่ในเงื่อนไขลดราคาหรือไม่
+  discount          Decimal? @db.Decimal(18, 2) // %
+  sale_price        Decimal @db.Decimal(18, 2) // ราคาที่ขายหลังจากคำนวณลดราคาแล้ว ถ้ามี
 
   product           Product @relation(fields: [productId], references: [id])
   order             Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  campaign          Campaign? @relation(fields: [campaignId], references: [id])
   
   @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  DELIVERING
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
 }

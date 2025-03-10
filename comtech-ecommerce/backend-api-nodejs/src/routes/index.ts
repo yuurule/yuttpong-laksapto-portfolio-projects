@@ -9,6 +9,8 @@ import { BrandController } from '../controllers/brand.controller';
 import { StockController } from '../controllers/stock.controller';
 import { CampaignController } from '../controllers/campaign.controller';
 import { ReviewController } from '../controllers/review.controller';
+import { CartController } from '../controllers/cart.controller';
+import { OrderController } from '../controllers/order.controller';
 
 const router = express.Router();
 const authController = new AuthController();
@@ -20,6 +22,8 @@ const brandController = new BrandController();
 const stockController = new StockController();
 const campaignController = new CampaignController();
 const reviewController = new ReviewController();
+const cartController = new CartController();
+const orderController = new OrderController();
 
 // Auth routes
 router.post('/auth/register', authController.register);
@@ -83,9 +87,18 @@ router.put('/customer/review/approve/:id', authenticate, reviewController.approv
 router.delete('/customer/review/delete/:id', authenticate, reviewController.deleteReview);
 
 // Cart
+router.get('/cart', authenticate, cartController.getCartItems);
+router.get('/cart/customer/:id', authenticate, cartController.getCartByCustomer);
+router.post('/cart/add', authenticate, cartController.addCartItem);
+router.put('/cart/:id', authenticate, cartController.updateCartItem);
+router.delete('/cart/delete', authenticate, cartController.deleteCartItems);
 
 // Order
-
+router.get('/order', authenticate, orderController.getOrders);
+router.get('/order/:id', authenticate, orderController.getOrderById);
+router.post('/order/create', authenticate, orderController.createOrder);
+router.put('/order/:id/payment', authenticate, orderController.updatePayment);
+router.put('/order/:id/delivery', authenticate, orderController.updateDelivery);
 
 // Protected route example
 // router.get(

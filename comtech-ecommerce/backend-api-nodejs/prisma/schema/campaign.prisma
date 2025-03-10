@@ -17,6 +17,7 @@ model Campaign {
 
   campaignHistories CampaignHistory[]
   campaignProducts  CampaignProduct[]
+  orderItems        OrderItem[]
 
   @@map("campaigns")
 }

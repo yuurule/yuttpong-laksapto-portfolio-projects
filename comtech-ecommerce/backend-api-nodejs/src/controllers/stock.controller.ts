@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { sendResponse, sendError } from '../libs/response';
 import { isValidId, isValidHaveValue } from '../libs/validation';
 import { StockService } from '../services/stock.service';
-import { createStockActionDto } from '../types';
+import { createStockActionDto, createStockSellActionDto } from '../types';
 
 const stockService = new StockService();
 
@@ -71,5 +71,37 @@ export class StockController {
       sendError(res, error.statusCode, error.message);
     }
   }
+
+  // async createNewStockSellAction(req: Request, res: Response) {
+  //   const { productId, customerId, actionType, quantity } = req.body;
+
+  //   if(!isValidHaveValue([productId, customerId, actionType, quantity])) {
+  //     sendError(res, 400, `productId, customerId, actionType and quantity is required`);
+  //   }
+
+  //   if(!isValidId(productId)) {
+  //     sendError(res, 400, `Product id must not zero or negative number`);
+  //   }
+
+  //   if(!isValidId(customerId)) {
+  //     sendError(res, 400, `Customer id must not zero or negative number`);
+  //   }
+
+  //   const dataDto : createStockSellActionDto = {
+  //     productId: productId,
+  //     customerId: customerId,
+  //     actionType: actionType,
+  //     quantity: quantity
+  //   }
+
+  //   try {
+  //     const newStockSellAction = await stockService.createSell(dataDto);
+  //     sendResponse(res, 201, `Creating stock sell action ok`, newStockSellAction);
+  //   }
+  //   catch (error: any) {
+  //     console.error('Creating stock sell action error: ', error);
+  //     sendError(res, error.statusCode, error.message);
+  //   }
+  // }
 
 }

@@ -1,6 +1,6 @@
-import { PrismaClient, Prisma, StockAction } from '@prisma/client';
+import { PrismaClient, Prisma, StockAction, StockSellAction } from '@prisma/client';
 import * as exception from '../libs/errorException';
-import { createStockActionDto } from '../types';
+import { createStockActionDto, createStockSellActionDto } from '../types';
 
 const prisma = new PrismaClient();
 
@@ -34,6 +34,7 @@ export class StockService {
     }
   }
 
+  // Add, remove for webadmin manage stock
   async create(dto: createStockActionDto) {
     try {
       // ตรวจสอบ user มีอยู่จริง
@@ -53,7 +54,7 @@ export class StockService {
         if(dto.actionType === StockAction.ADD) {
           currentInStock += dto.quantity;
         }
-        else {
+        else if(dto.actionType === StockAction.REMOVE) {
           currentInStock -= dto.quantity;
         }
 
@@ -85,4 +86,54 @@ export class StockService {
     }
   }
 
+  // Sell, reserve, cancel reserve for customer order
+  async createSell(dto: createStockSellActionDto) {
+    try {
+      // ตรวจสอบ user มีอยู่จริง
+      const findCustomer = await prisma.customer.findUnique({ where: { id: dto.customerId } });
+      if(!findCustomer) throw new exception.NotFoundException(`Not found customer with id ${dto.customerId}`);
+
+      // ตรวจสอบ product มีอยู่จริง
+      const findProduct = await prisma.product.findUnique({ where: { id: dto.productId } });
+      if(!findProduct) throw new exception.NotFoundException(`Not found product with id ${dto.productId}`);
+
+      const findProductInStock = await prisma.inStock.findUnique({ where: { productId: dto.productId } });
+      if(!findProductInStock) throw new exception.NotFoundException(`Not found in stock data with product id ${dto.productId}`);
+
+      const transaction = await prisma.$transaction(async (tx) => {
+
+        let currentInStock = findProductInStock.inStock;
+        if(dto.actionType === StockSellAction.SELL || dto.actionType === StockSellAction.RESERVE) {
+          currentInStock -= dto.quantity;
+        }
+        else if(dto.actionType === StockSellAction.CANCELRESERVE) {
+          currentInStock += dto.quantity;
+        }
+
+        const inStock = await tx.inStock.update({
+          where: { productId: dto.productId },
+          data: { inStock: currentInStock }
+        })
+
+        const newStockSellAction = await tx.stockSellEvent.create({
+          data: {
+            action: dto.actionType as StockSellAction,
+            quantity: dto.quantity,
+            product: { connect: { id: dto.productId } },
+            actionedBy: { connect: { id: dto.customerId } }
+          }
+        });
+
+        return {inStock, newStockSellAction};
+      });
+
+      return transaction;
+    }
+    catch(error: any) {
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error creating stock sell action due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
 }

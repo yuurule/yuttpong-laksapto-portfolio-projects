@@ -26,9 +26,27 @@ model StockEvent {
   @@map("stock_events")
 }
 
+model StockSellEvent {
+  id              Int @id @default(autoincrement())
+  action          StockSellAction
+  quantity        Int
+  productId       Int
+  actionedById    Int
+  actionedAt      DateTime @default(now())
+
+  product         Product @relation(fields: [productId], references: [id])
+  actionedBy      Customer @relation(fields: [actionedById], references: [id])
+
+  @@map("stock_sell_events")
+}
+
 enum StockAction {
   ADD // เพิ่มจำนวนของ
-  SELL  // จำหน่ายออก
-  RESERVE // จองไว้สำหรับออเดอร์รอจ่าย
   REMOVE // รองรับกรณีพนักงานลงข้อมูลเกิน, ของสูญหาย เสียหาย, เหตุสุดวิสัยอื่นๆ
+}
+
+enum StockSellAction {
+  SELL  // จำหน่ายออก
+  RESERVE // จองไว้สำหรับ order รอจ่าย
+  CANCELRESERVE // ยกเลิกการจองสำหรับ order
 }
