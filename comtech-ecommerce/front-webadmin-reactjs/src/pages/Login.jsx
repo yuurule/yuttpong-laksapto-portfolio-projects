@@ -32,19 +32,6 @@ export default function Login() {
   });
 
   const onSubmit = async (data) => {
-    // try {
-    //   // จำลองการส่งข้อมูลไปยัง API (ในโปรเจคจริงควรเรียกใช้ API จริง)
-    //   console.log('ข้อมูลที่ส่ง:', data);
-      
-    //   // จำลองการรอการตอบกลับจาก API
-    //   // await new Promise(resolve => setTimeout(resolve, 1000));
-      
-    //   // alert('เข้าสู่ระบบสำเร็จ!');
-    // } catch (error) {
-    //   console.error('เกิดข้อผิดพลาดในการเข้าสู่ระบบ:', error);
-    //   alert('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
-    // }
-
     const { email, password } = data;
 
     try {

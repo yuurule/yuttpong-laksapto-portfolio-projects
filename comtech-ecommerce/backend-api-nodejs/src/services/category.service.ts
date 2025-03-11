@@ -6,9 +6,40 @@ const prisma = new PrismaClient();
 
 export class CategoryService {
 
-  async findAll() {
+  async findAll(orderBy?: string, nameOrderBy?: string, haveProductOrderBy?: string,) {
     try {
-      const categories = await prisma.category.findMany();
+
+      const queryData : any = {
+        include: {
+          createdBy: {
+            select: {
+              email: true
+            }
+          },
+          updatedBy: {
+            select: {
+              email: true
+            }
+          },
+          products: true
+        }
+      }
+
+      const orderByQuery = [];
+
+      if(orderBy !== undefined) {
+        orderByQuery.push({ createdAt: orderBy })
+      }
+      if(nameOrderBy !== undefined) {
+        orderByQuery.push({ name: nameOrderBy })
+      }
+      if(haveProductOrderBy !== undefined) {
+        orderByQuery.push({ products: { _count: haveProductOrderBy } })
+      }
+
+      queryData.orderBy = orderByQuery;
+
+      const categories = await prisma.category.findMany(queryData);
       return categories;
     }
     catch(error: any) {

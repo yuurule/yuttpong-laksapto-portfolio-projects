@@ -55,7 +55,7 @@ export const refreshTokenAction = () => async (dispatch, getState) => {
     dispatch({
       type: 'AUTH_SUCCESS',
       payload: {
-        ...getState().auth.userRole,
+        ...getState().auth,
         accessToken: newToken,
         refreshToken: newRefreshToken
       }

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { store } from '../redux/store';
+import { refreshTokenAction } from '../redux/actions/authAction';
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL
@@ -20,7 +21,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if(error.response?.status === 403 && !originalRequest._retry) {
+    if((error.response?.status === 403 || error.response?.status === 401) && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         const newToken = await store.dispatch(refreshTokenAction());

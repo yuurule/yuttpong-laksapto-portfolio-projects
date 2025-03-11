@@ -3,6 +3,7 @@ model User {
   email         String   @unique
   password      String
   role          Role     @default(EDITOR)
+  displayName   String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

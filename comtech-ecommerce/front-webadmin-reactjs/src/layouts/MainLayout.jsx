@@ -10,7 +10,6 @@ const MainLayout = () => {
       <TopBarMenu />
       <main className="main-content">
         <Outlet />
-        <p>Hello world</p>
       </main>
     </div>
   )
