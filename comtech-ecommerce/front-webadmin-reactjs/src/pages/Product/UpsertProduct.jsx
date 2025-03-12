@@ -1,10 +1,60 @@
+import { useState, useEffect } from 'react';
 import { Form  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faSave, faClose, faBars } from '@fortawesome/free-solid-svg-icons';
+import * as ProductService from '../../services/productService';
+import { toast } from 'react-toastify';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+const categorySchema = z.object({
+  name: z.string().min(1),
+  description: z.string().min(1),
+  price: z.number().positive(),
+  screen_size: z.string(),
+  processor: z.string(),
+  display: z.string(),
+  memory: z.number().positive(),
+  storage: z.string(),
+  graphic: z.string(),
+  operating_system: z.string(),
+  camera: z.string().optional(),
+  optical_drive: z.string().optional(),
+  connection_ports: z.string(),
+  wireless: z.string(),
+  battery: z.string(),
+  color: z.string(),
+  width: z.number().positive(),
+  depth: z.number().positive(),
+  height: z.number().positive(),
+  weight: z.number().positive(),
+  warranty: z.string().optional(),
+  option: z.string().optional(),
+});
 
 export default function UpsertProduct() {
 
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting }
+  } = useForm({
+    resolver: zodResolver(categorySchema),
+    // defaultValues: {
+    //   name: currentData.name,
+    //   description: currentData.description
+    // }
+  });
 
+  useEffect(() => {
+
+  }, []);
+
+  const onSubmit = async () => {
+
+  }
 
   return (
     <div className={`page`}>

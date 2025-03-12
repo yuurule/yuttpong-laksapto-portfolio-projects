@@ -18,12 +18,20 @@ async function main() {
         {
           email: 'admin@example.com',
           password: await hashPassword('admin123'),
+          displayName: 'Webadmin',
           role: Role.ADMIN,
         },
         {
           email: 'editor@example.com',
           password: await hashPassword('editor123'),
+          displayName: 'Test Editor',
           role: Role.EDITOR,
+        },
+        {
+          email: 'author@example.com',
+          password: await hashPassword('author123'),
+          displayName: 'Test Author',
+          role: Role.AUTHOR,
         },
       ];
 

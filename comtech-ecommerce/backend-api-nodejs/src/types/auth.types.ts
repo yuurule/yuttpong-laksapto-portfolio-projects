@@ -1,6 +1,7 @@
 export interface User {
   id: number;
   email: string;
+  displayName: string;
   role: string;
 }
 
@@ -11,7 +12,11 @@ export interface TokenPayload {
 }
 
 export interface AuthTokens {
-  userRole: string,
+  userInfo: {
+    id: number;
+    displayName: string;
+    role: string;
+  },
   accessToken: string;
   refreshToken: string;
 }

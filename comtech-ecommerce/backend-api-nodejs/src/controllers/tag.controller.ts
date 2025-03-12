@@ -8,8 +8,24 @@ const tagService = new TagService();
 export class TagController {
 
   async getAllTag(req: Request, res: Response) {
+    let nameBy = req.query.nameBy as string | undefined;
+    let orderBy = req.query.orderBy as string | undefined;
+    let haveProductBy = req.query.haveProductBy as string | undefined;
+
+    if (orderBy !== undefined && orderBy !== 'asc' && orderBy !== 'desc') {
+      orderBy = 'desc'; // ใหม่สุด -> เก่าสุด
+    }
+
+    if(nameBy !== undefined && nameBy !== 'asc' && nameBy !== 'desc') {
+      nameBy = 'asc'; // a -> z
+    }
+
+    if(haveProductBy !== undefined && haveProductBy !== 'asc' && haveProductBy !== 'desc') {
+      haveProductBy = 'desc'; // มาก -> น้อย
+    }
+
     try {
-      const tags = await tagService.findAll();
+      const tags = await tagService.findAll(orderBy, nameBy, haveProductBy);
       sendResponse(res, 200, `Get all tag ok`, tags)
     }
     catch (error: any) {

@@ -9,7 +9,7 @@ import ms from 'ms';
 const prisma = new PrismaClient();
 
 export class AuthService {
-  async register(email: string, password: string, role: string) {
+  async register(email: string, password: string, displayName: string, role: string) {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
       const startTime = process.hrtime();
@@ -18,6 +18,7 @@ export class AuthService {
         data: {
           email,
           password: hashedPassword,
+          displayName: displayName,
           role: role as Role
         },
       });
@@ -120,8 +121,7 @@ export class AuthService {
   }
 
   private async generateTokens(user: User): Promise<AuthTokens> {
-    const userRole = user.role;
-
+   
     const payload: TokenPayload = {
       userId: user.id,
       email: user.email,
@@ -150,6 +150,16 @@ export class AuthService {
       },
     });
 
-    return { userRole, accessToken, refreshToken };
+    const result : AuthTokens = { 
+      userInfo: {
+        id: user.id, 
+        displayName: user.displayName, 
+        role: user.role
+      }, 
+      accessToken, 
+      refreshToken 
+    };
+
+    return result;
   }
 }

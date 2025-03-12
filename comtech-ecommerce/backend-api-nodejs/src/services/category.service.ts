@@ -6,19 +6,19 @@ const prisma = new PrismaClient();
 
 export class CategoryService {
 
-  async findAll(orderBy?: string, nameOrderBy?: string, haveProductOrderBy?: string,) {
+  async findAll(orderBy?: string, nameOrderBy?: string, haveProductOrderBy?: string) {
     try {
 
       const queryData : any = {
         include: {
           createdBy: {
             select: {
-              email: true
+              displayName: true
             }
           },
           updatedBy: {
             select: {
-              email: true
+              displayName: true
             }
           },
           products: true

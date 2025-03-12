@@ -5,9 +5,40 @@ const prisma = new PrismaClient();
 
 export class TagService {
 
-  async findAll() {
+  async findAll(orderBy?: string, nameOrderBy?: string, haveProductOrderBy?: string) {
     try {
-      const tags = await prisma.tag.findMany();
+
+      const queryData : any = {
+        include: {
+          createdBy: {
+            select: {
+              displayName: true
+            }
+          },
+          updatedBy: {
+            select: {
+              displayName: true
+            }
+          },
+          products: true
+        }
+      }
+
+      const orderByQuery = [];
+
+      if(orderBy !== undefined) {
+        orderByQuery.push({ createdAt: orderBy })
+      }
+      if(nameOrderBy !== undefined) {
+        orderByQuery.push({ name: nameOrderBy })
+      }
+      if(haveProductOrderBy !== undefined) {
+        orderByQuery.push({ products: { _count: haveProductOrderBy } })
+      }
+
+      queryData.orderBy = orderByQuery;
+
+      const tags = await prisma.tag.findMany(queryData);
       return tags;
     }
     catch(error: any) {

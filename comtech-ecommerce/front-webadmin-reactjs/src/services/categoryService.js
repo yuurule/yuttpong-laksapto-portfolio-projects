@@ -54,3 +54,21 @@ export async function updateCategory(id, data) {
 
 	return new Promise(updateCategoryAPI);
 }
+
+export async function deleteCategories(data) {
+  const deleteCategoriesAPI = (resolve, reject) => {
+		let url = SERVER_API + `/api/category/delete`;
+		axiosInstance
+			.delete(url, { data })
+			.then((res) => {
+				// console.log(res.data);
+				resolve(res.data);
+			})
+			.catch((err) => {
+				console.log(`Error deleteCategoriesAPI: ${err}`);
+				reject(err);
+			});
+	};
+
+	return new Promise(deleteCategoriesAPI);
+}

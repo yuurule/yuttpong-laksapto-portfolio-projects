@@ -2,13 +2,13 @@ import { Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 const PrivateRoute = ({ children, allowedRoles = [] }) => {
-  const { userRole, accessToken } = useSelector(state => state.auth);
+  const { user, accessToken } = useSelector(state => state.auth);
   
   if (!accessToken) {
     return <Navigate to="/login" replace />;
   }
   
-  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
     return <Navigate to="/unauthorized" replace />;
   }
   

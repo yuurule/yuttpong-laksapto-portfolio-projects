@@ -9,11 +9,11 @@ export const login = (email, password) => async (dispatch) => {
       `${SERVER_API}/api/auth/login`, 
       { email, password }
     );
-    const { userRole, accessToken, refreshToken } = response.data;
+    const { userInfo, accessToken, refreshToken } = response.data;
 
     dispatch({
       type: 'AUTH_SUCCESS',
-      payload: { userRole, accessToken, refreshToken }
+      payload: { userInfo, accessToken, refreshToken }
     });
   }
   catch (error) {
@@ -26,7 +26,6 @@ export const login = (email, password) => async (dispatch) => {
 };
 
 export const logout = (refreshToken) => async (dispatch) => {
-
   try {
     await axiosInstance.post(
       `${SERVER_API}/api/auth/logout`, 
@@ -55,7 +54,7 @@ export const refreshTokenAction = () => async (dispatch, getState) => {
     dispatch({
       type: 'AUTH_SUCCESS',
       payload: {
-        ...getState().auth,
+        userInfo: {...getState().auth.user},
         accessToken: newToken,
         refreshToken: newRefreshToken
       }

@@ -5,21 +5,30 @@ import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus } from '@for
 import MyPagination from '../components/MyPagination/MyPagination';
 import * as CategoryService from '../services/categoryService';
 import UpsertCategory from '../components/Category/UpsetCategory';
+import { Dialog, DialogContent, DialogActions } from '@mui/material';
+import { useSelector } from 'react-redux';
+import { formatTimestamp } from '../utils/utils';
+import { toast } from 'react-toastify';
 
 export default function Category() {
 
+  const authUser = useSelector(state => state.auth.user);
   const [loading, setLoading] = useState(false);
+  const [onSubmit, setOnSubmit] = useState(false);
   const [refresh, setRefresh] = useState(0);
   const [categories, setCategories] = useState([]);
   const [actionForm, setActionForm] = useState('CREATE');
   const [selectedData, setSelectedData] = useState({
     id: null,
-    name: null,
-    description: null,
+    name: '',
+    description: '',
   });
   const [selectedOrderBy, setSelectedOrderBy] = useState(''); // createdAt, name, haveProduct
   const [orderBy, setOrderBy] = useState('desc');
   const [deleteCategoriesId, setDeleteCategoriesId] = useState([]);
+  const [confirmDeletesDialog, setConfirmDeletesDialog] = useState(false);
+  const [selectDeleteCategory, setSelectDeleteCategory] = useState(null);
+  const [deleteType, setDeleteType] = useState('single'); // 'single', 'multiple'
 
   useEffect(() => {
     getAllCategory();
@@ -40,24 +49,13 @@ export default function Category() {
 
   const handleRefreshData = () => setRefresh(prevState => prevState + 1);
 
-  function formatTimestamp(timestamp) {
-    const date = new Date(timestamp);
-    
-    // ใช้ Intl.DateTimeFormat เพื่อจัดรูปแบบวันที่
-    const formatter = new Intl.DateTimeFormat('th', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
+  const handleResetToCreate = () => {
+    setActionForm('CREATE');
+    setSelectedData({
+      id: null,
+      name: '',
+      description: '',
     });
-    
-    return formatter.format(date);
-  }
-
-  const renderUser = (data) => {
-    if(data !== null) {
-      return "by " + data.email.split('@')[0];
-    }
-    return "-";
   }
 
   const handlerClickCreate = () => {
@@ -81,11 +79,10 @@ export default function Category() {
   const renderIconOrderBy = (target) => {
     if(selectedOrderBy === target) {
       if(orderBy === 'desc') return <FontAwesomeIcon icon={faArrowUp} />
-      else <FontAwesomeIcon icon={faArrowDown} />
+      else return <FontAwesomeIcon icon={faArrowDown} />
     }
     else return <FontAwesomeIcon icon={faMinus} />
   }
-
   const handleClickSelectOrderBy = (target) => {
     if(selectedOrderBy === target) {
       if(orderBy === 'desc') {
@@ -102,12 +99,14 @@ export default function Category() {
     }
   }
 
+  /**
+   * Delete category
+   */
   const checkIsSelectDelete = (id) => {
     const findId = deleteCategoriesId.find(i => parseInt(i) === id);
     if(findId) return true;
     return false;
   }
-
   const handleSelectCategory = (e) => {
     const tempResult = [...deleteCategoriesId];
     const findThisId = tempResult.find(i => i === e.target.value);
@@ -118,6 +117,68 @@ export default function Category() {
     else {
       const removeIdResult = tempResult.filter(i => i !== e.target.value);
       setDeleteCategoriesId(removeIdResult);
+    }
+  }
+  const openConfirmDeleteDailog = (deleteType) => {
+    if(deleteType === 'multiple') {
+      if(deleteCategoriesId.length === 0) {
+        alert('Please select some catagory')
+      }
+      else setConfirmDeletesDialog(true);
+    }
+    else {
+      setConfirmDeletesDialog(true);
+    }
+  }
+  const closeConfirmDeleteDialog = () => {
+    setConfirmDeletesDialog(false);
+    setSelectDeleteCategory(null);
+    setDeleteCategoriesId([]);
+  }
+  const renderCategoryName = (id) => {
+    if(id !== null) {
+      return categories.find(i => i.id === id)?.name;
+    }
+  }
+  const renderMutipleCategoryName = (ids) => {
+    let result = "[";
+    ids.map((i, index) => {
+      const category = categories.find(x => x.id === parseInt(i))?.name;
+      result += `"${category}"${index < ids.length - 1 ? ', ' : ''}`;
+    });
+    result += "]";
+    return result;
+  }
+  const handleDeleteCategories = async () => {
+    setOnSubmit(true);
+    try {
+      const categoriesId = deleteCategoriesId.map(i => parseInt(i));
+      const requestData = {
+        userId: authUser.id,
+        categoriesId: deleteType === 'multiple' ? categoriesId : [parseInt(selectDeleteCategory)]
+      }
+
+      await CategoryService.deleteCategories(requestData)
+        .then(res => {
+          console.log(`Delete categories is successfully! : ${res.RESULT_DATA}`);
+          handleRefreshData();
+          setOnSubmit(false);
+          setConfirmDeletesDialog(false);
+          setSelectDeleteCategory(null);
+          setDeleteCategoriesId([]);
+          handleResetToCreate();
+          toast.success(`Delete categories is successfully!`);
+        })
+        .catch(error => {
+          throw new Error(`Delete categories failed due to: ${error.response.data}`);
+        })
+    }
+    catch(error) {
+      console.log(error);
+      toast.error(error);
+    }
+    finally {
+      setOnSubmit(false);
     }
   }
 
@@ -138,7 +199,13 @@ export default function Category() {
                 <div className='card-body'>
                   <div className='d-flex justify-content-between align-items-center mb-3'>
                     <div>
-                      <button className='btn btn-danger'>Deletes</button>
+                      <button 
+                        className='btn btn-danger'
+                        onClick={() => {
+                          setDeleteType('multiple');
+                          openConfirmDeleteDailog('multiple');
+                        }}  
+                      >Delete categories</button>
                     </div>
                     <div>
                       <InputGroup className="">
@@ -180,18 +247,35 @@ export default function Category() {
                                 onChange={(e) => handleSelectCategory(e)}
                               />
                             </td>
-                            <td>{i.name}</td>
+                            <td>
+                              {i.name}<br />
+                              <small className='opacity-50'>{i.description}</small>
+                            </td>
                             <td>coming soon...</td>
                             <td>{i.products.length}</td>
-                            <td>{formatTimestamp(i.createdAt)}<br /><small>{renderUser(i.createdBy)}</small></td>
-                            <td>{formatTimestamp(i.updatedAt)}<br /><small>{renderUser(i.updatedBy)}</small></td>
+                            <td>
+                              {formatTimestamp(i.createdAt)}<br />
+                              <small className='opacity-50'>{i.createdBy?.displayName}</small>
+                            </td>
+                            <td>
+                              {formatTimestamp(i.updatedAt)}<br />
+                              <small className='opacity-50'>{i.updatedBy?.displayName}</small></td>
                             <td>
                               <div className='d-flex'>
                                 <button 
+                                  type="button"
                                   className='btn btn-primary me-2'
                                   onClick={() => handlerClickUpdate(i.id, i.name, i.description)}
                                 ><FontAwesomeIcon icon={faEdit} /></button>
-                                <button className='btn btn-danger'><FontAwesomeIcon icon={faTrash} /></button>
+                                <button 
+                                  type="button"
+                                  className='btn btn-danger'
+                                  onClick={() => {
+                                    setSelectDeleteCategory(i.id);
+                                    setDeleteType('single');
+                                    openConfirmDeleteDailog('single');
+                                  }}
+                                ><FontAwesomeIcon icon={faTrash} /></button>
                               </div>
                             </td>
                           </tr>
@@ -212,6 +296,7 @@ export default function Category() {
                     action={actionForm}
                     currentData={selectedData}
                     handleRefreshData={handleRefreshData}
+                    handleResetToCreate={handleResetToCreate}
                   />
                 </div>
               </div>
@@ -220,6 +305,31 @@ export default function Category() {
         </div>
       </div>
       
+      {
+        !loading &&
+        <Dialog open={confirmDeletesDialog}>
+          <DialogContent style={{minWidth: 450}}>
+            <div className='text-center pt-3'>
+              <p className='h3'>
+                { deleteType === 'single' && `Delete category "${renderCategoryName(selectDeleteCategory)}"`}
+                { deleteType === 'multiple' && <>Delete categories<br />{renderMutipleCategoryName(deleteCategoriesId)}</>}
+              </p>
+              <p>Do you confirm this action?</p>
+            </div>
+          </DialogContent>
+          <DialogActions className='text-center px-4 pb-3'>
+            <button
+              className='btn btn-primary w-50'
+              onClick={handleDeleteCategories}
+            >{onSubmit ? 'Processing...' : 'Confirm Delete'}</button>
+            <button
+              className='btn btn-secondary w-50'
+              onClick={closeConfirmDeleteDialog}
+            >Cancel</button>
+          </DialogActions>
+        </Dialog>
+      }
+
     </div>
   )
 }

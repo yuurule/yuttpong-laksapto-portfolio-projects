@@ -1,13 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Form, InputGroup, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faChevronLeft, faChevronRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../../components/MyPagination/MyPagination';
 import { Link } from 'react-router';
+import * as ProductService from '../../services/productService';
+import { toast } from 'react-toastify';
 
 export default function Products() {
 
+  const [loading, setLoading] = useState(false);
+  const [onSubmit, setOnSubmit] = useState(false);
   const [showSoftDelete, setShowSoftDelete] = useState(false);
+  const [productList, setProductList] = useState([]);
+  const [refresh, setRefresh] = useState(0);
+
+  useEffect(() => {
+    getAllProduct();
+  }, [refresh]);
+
+  const getAllProduct = async () => {
+    setLoading(true);
+    try {
+      await ProductService.getAllProduct()
+        .then(res => {
+          console.log(res.RESULT_DATA);
+          setProductList(res.RESULT_DATA);
+        })
+        .catch(error => { 
+          throw new Error(`Get all product failed due to: ${error}`);
+        });
+    }
+    catch(error) {
+      console.log(error);
+      toast.error(error);
+    }
+  }
+
+  const handleRefreshData = () => setRefresh(prevState => prevState + 1);
 
   return (
     <div className={`page`}>
@@ -106,7 +136,7 @@ export default function Products() {
                       <button className='btn btn-primary me-2' onClick={() => setShowSoftDelete(false)}>
                         <FontAwesomeIcon icon={faArrowLeft} className='me-1' /> Back
                       </button>
-                      <button className='btn btn-danger'>Delete</button>
+                      {/* <button className='btn btn-danger'>Delete</button> */}
                     </div>
                     <div>
                       <InputGroup className="">
@@ -185,18 +215,20 @@ export default function Products() {
               <div className='row'>
                 <div className='col-6'>
                   <table className='w-100'>
-                    <tr>
-                      <td><small>Sale Amount</small></td>
-                      <td className='text-end'>20</td>
-                    </tr>
-                    <tr>
-                      <td><small>Sales off</small></td>
-                      <td className='text-end'>-$159.00</td>
-                    </tr>
-                    <tr>
-                      <td><small>Total Views</small></td>
-                      <td className='text-end'>3,652</td>
-                    </tr>
+                    <tbody>
+                      <tr>
+                        <td><small>Sale Amount</small></td>
+                        <td className='text-end'>20</td>
+                      </tr>
+                      <tr>
+                        <td><small>Sales off</small></td>
+                        <td className='text-end'>-$159.00</td>
+                      </tr>
+                      <tr>
+                        <td><small>Total Views</small></td>
+                        <td className='text-end'>3,652</td>
+                      </tr>
+                    </tbody>
                   </table>
                 </div>
                 <div className='col-6 text-center'>
