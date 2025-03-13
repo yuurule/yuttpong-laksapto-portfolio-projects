@@ -8,29 +8,32 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+//.coerce
+
 const categorySchema = z.object({
-  name: z.string().min(1),
-  description: z.string().min(1),
-  price: z.number().positive(),
-  screen_size: z.string(),
-  processor: z.string(),
-  display: z.string(),
-  memory: z.number().positive(),
-  storage: z.string(),
-  graphic: z.string(),
-  operating_system: z.string(),
-  camera: z.string().optional(),
-  optical_drive: z.string().optional(),
-  connection_ports: z.string(),
-  wireless: z.string(),
-  battery: z.string(),
-  color: z.string(),
-  width: z.number().positive(),
-  depth: z.number().positive(),
-  height: z.number().positive(),
-  weight: z.number().positive(),
-  warranty: z.string().optional(),
-  option: z.string().optional(),
+  name: z.string().min(1, {message: 'Required'}),
+  //price: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number({message: 'Required'}).positive()),
+  price: z.coerce.number().min(1, {message: 'Required'}).positive(),
+  description: z.string().min(1, {message: 'Required'}),
+  screen_size: z.string().min(1, {message: 'Required'}),
+  processor: z.string().min(1, {message: 'Required'}),
+  display: z.string().min(1, {message: 'Required'}),
+  memory: z.string().min(1, {message: 'Required'}),
+  storage: z.string().min(1, {message: 'Required'}),
+  graphic: z.string().min(1, {message: 'Required'}),
+  operating_system: z.string().min(1, {message: 'Required'}),
+  camera: z.string().min(1, {message: 'Required'}),
+  optical_drive: z.string().min(1, {message: 'Required'}),
+  connection_ports: z.string().min(1, {message: 'Required'}),
+  wireless: z.string().min(1, {message: 'Required'}),
+  battery: z.string().min(1, {message: 'Required'}),
+  color: z.string().min(1, {message: 'Required'}),
+  width: z.coerce.number().min(1, {message: 'Required'}).positive(),
+  depth: z.coerce.number().min(1, {message: 'Required'}).positive(),
+  height: z.coerce.number().min(1, {message: 'Required'}).positive(),
+  weight: z.coerce.number().min(1, {message: 'Required'}).positive(),
+  warranty: z.string().min(1, {message: 'Required'}),
+  option: z.string().min(1, {message: 'Required'}),
 });
 
 export default function UpsertProduct() {
@@ -52,19 +55,21 @@ export default function UpsertProduct() {
 
   }, []);
 
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
+    
+    console.log(data)
 
   }
 
   return (
     <div className={`page`}>
       
-      <div className="row">
+      <form onSubmit={handleSubmit(onSubmit)} className="row">
 
         <header className="col-12 d-flex justify-content-between align-items-center mb-4">
           <h1>Add New Product</h1>
           <div>
-            <button className='btn btn-success px-5 py-2'><FontAwesomeIcon icon={faSave} className='me-2' />Save</button>
+            <button type="submit" className='btn btn-success px-5 py-2'><FontAwesomeIcon icon={faSave} className='me-2' />Save</button>
           </div>
         </header>
 
@@ -113,96 +118,268 @@ export default function UpsertProduct() {
                     <h5>Product Specifications</h5>
                     <hr />
                   </header>
-                  <Form className='mt-4'>
-                    <dl className='row'>
-                      <dt className='col-sm-3 mb-3'>Name</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Screen Size</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Processor</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control as="textarea" rows={2} />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Display</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Memory</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control type="number" />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Storage</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Graphics</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Operating System</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Camera</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Optical Drive</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Connection Ports</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control as="textarea" rows={2} />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Wireless</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control as="textarea" rows={2} />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Battery</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Color</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Dimension (WxDxH)</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <div className='row'>
-                          <div className='col-sm-4'><Form.Control type="number" /></div>
-                          <div className='col-sm-4'><Form.Control type="number" /></div>
-                          <div className='col-sm-4'><Form.Control type="number" /></div>
+
+                  <dl className='row mb-4'>
+                    <dt className='col-sm-3 mb-3'>Name</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          {...register('name')}
+                          className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                        />
+                        {errors.name && <small className="invalid-feedback">{errors.name.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Price</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="number"
+                          min={0}
+                          step={0.01}
+                          {...register('price')}
+                          className={`form-control ${errors.price ? 'is-invalid' : ''}`}
+                        />
+                        {errors.price && <small className="invalid-feedback">{errors.price.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Screen Size</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          {...register('screen_size')}
+                          className={`form-control ${errors.screen_size ? 'is-invalid' : ''}`}
+                        />
+                        {errors.screen_size && <small className="invalid-feedback">{errors.screen_size.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Processor</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <textarea
+                          rows={1}
+                          {...register('processor')}
+                          className={`form-control ${errors.processor ? 'is-invalid' : ''}`}
+                        ></textarea>
+                        {errors.processor && <small className="invalid-feedback">{errors.processor.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Display</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          {...register('display')}
+                          className={`form-control ${errors.display ? 'is-invalid' : ''}`}
+                        />
+                        {errors.display && <small className="invalid-feedback">{errors.display.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Memory</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          {...register('memory')}
+                          className={`form-control ${errors.memory ? 'is-invalid' : ''}`}
+                        />
+                        {errors.memory && <small className="invalid-feedback">{errors.memory.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Storage</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          {...register('storage')}
+                          className={`form-control ${errors.storage ? 'is-invalid' : ''}`}
+                        />
+                        {errors.storage && <small className="invalid-feedback">{errors.storage.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Graphics</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          {...register('graphic')}
+                          className={`form-control ${errors.graphic ? 'is-invalid' : ''}`}
+                        />
+                        {errors.graphic && <small className="invalid-feedback">{errors.graphic.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Operating System</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          {...register('operating_system')}
+                          className={`form-control ${errors.operating_system ? 'is-invalid' : ''}`}
+                        />
+                        {errors.operating_system && <small className="invalid-feedback">{errors.operating_system.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Camera</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          {...register('camera')}
+                          className={`form-control ${errors.camera ? 'is-invalid' : ''}`}
+                        />
+                        {errors.camera && <small className="invalid-feedback">{errors.camera.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Optical Drive</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          {...register('optical_drive')}
+                          className={`form-control ${errors.optical_drive ? 'is-invalid' : ''}`}
+                        />
+                        {errors.optical_drive && <small className="invalid-feedback">{errors.optical_drive.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Connection Ports</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <textarea
+                          rows={1}
+                          {...register('connection_ports')}
+                          className={`form-control ${errors.connection_ports ? 'is-invalid' : ''}`}
+                        ></textarea>
+                        {errors.connection_ports && <small className="invalid-feedback">{errors.connection_ports.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Wireless</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <textarea
+                          rows={1}
+                          {...register('wireless')}
+                          className={`form-control ${errors.wireless ? 'is-invalid' : ''}`}
+                        ></textarea>
+                        {errors.wireless && <small className="invalid-feedback">{errors.wireless.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Battery</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          {...register('battery')}
+                          className={`form-control ${errors.battery ? 'is-invalid' : ''}`}
+                        />
+                        {errors.battery && <small className="invalid-feedback">{errors.battery.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Color</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          {...register('color')}
+                          className={`form-control ${errors.color ? 'is-invalid' : ''}`}
+                        />
+                        {errors.color && <small className="invalid-feedback">{errors.color.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Dimension (WxDxH)</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className='row'>
+                        <div className='col-sm-4'>
+                          <div className="form-group">
+                            <input
+                              type="number"
+                              min={0}
+                              step={0.01}
+                              {...register('width')}
+                              className={`form-control ${errors.width ? 'is-invalid' : ''}`}
+                            />
+                            {errors.width && <small className="invalid-feedback">{errors.width.message}</small>}
+                          </div>
                         </div>
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Weight</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control type="number" />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Warranty</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control />
-                      </dd>
-                      <dt className='col-sm-3 mb-3'>Option</dt>
-                      <dd className='col-sm-9 mb-3'>
-                        <Form.Control />
-                      </dd>
-                    </dl>
-                  </Form>
+                        <div className='col-sm-4'>
+                          <div className="form-group">
+                            <input
+                              type="number"
+                              min={0}
+                              step={0.01}
+                              {...register('height')}
+                              className={`form-control ${errors.height ? 'is-invalid' : ''}`}
+                            />
+                            {errors.height && <small className="invalid-feedback">{errors.height.message}</small>}
+                          </div>
+                        </div>
+                        <div className='col-sm-4'>
+                          <div className="form-group">
+                            <input
+                              type="number"
+                              min={0}
+                              step={0.01}
+                              {...register('depth')}
+                              className={`form-control ${errors.depth ? 'is-invalid' : ''}`}
+                            />
+                            {errors.depth && <small className="invalid-feedback">{errors.depth.message}</small>}
+                          </div>
+                        </div>
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Weight</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="number"
+                          min={0}
+                          step={0.01}
+                          {...register('weight')}
+                          className={`form-control ${errors.weight ? 'is-invalid' : ''}`}
+                        />
+                        {errors.weight && <small className="invalid-feedback">{errors.weight.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Warranty</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          {...register('warranty')}
+                          className={`form-control ${errors.warranty ? 'is-invalid' : ''}`}
+                        />
+                        {errors.warranty && <small className="invalid-feedback">{errors.warranty.message}</small>}
+                      </div>
+                    </dd>
+                    <dt className='col-sm-3 mb-3'>Option</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          {...register('option')}
+                          className={`form-control ${errors.option ? 'is-invalid' : ''}`}
+                        />
+                        {errors.option && <small className="invalid-feedback">{errors.option.message}</small>}
+                      </div>
+                    </dd>
+                  </dl>
+
                 </div>
               </div>
             </div>
             <div className='col-sm-4'>
               <div className='card mb-3'>
                 <div className='card-body'>
-                  <Form.Group>
-                    <Form.Label>Product Detail</Form.Label>
-                    <Form.Control as="textarea" rows={12} />
-                  </Form.Group>
+                  <div className="form-group">
+                    <label className='form-label'>Product Detail</label>
+                    <textarea
+                      rows={8}
+                      {...register('description')}
+                      className={`form-control ${errors.description ? 'is-invalid' : ''}`}
+                    ></textarea>
+                    {errors.description && <small className="invalid-feedback">{errors.description.message}</small>}
+                  </div>
                 </div>
               </div>
               <div className='card mb-3'>
@@ -233,7 +410,7 @@ export default function UpsertProduct() {
           </div>
         </div>
 
-      </div>
+      </form>
     </div>
   )
 }
