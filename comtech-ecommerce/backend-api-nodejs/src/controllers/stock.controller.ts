@@ -37,7 +37,7 @@ export class StockController {
   }
 
   async createNewStockAction(req: Request, res: Response) {
-    const { productId, userId, actionType, quantity, reason } = req.body;
+    const { productId, userId, actionType, quantity, description } = req.body;
 
     if(!isValidHaveValue([productId, userId, actionType, quantity])) {
       sendError(res, 400, `productId, userId, actionType and quantity is required`);
@@ -58,8 +58,8 @@ export class StockController {
       quantity: quantity
     }
 
-    if(isValidHaveValue([reason])) {
-      dataDto.reason = reason;
+    if(isValidHaveValue([description])) {
+      dataDto.description = description;
     }
 
     try {
@@ -68,6 +68,17 @@ export class StockController {
     }
     catch (error: any) {
       console.error('Creating stock action error: ', error);
+      sendError(res, error.statusCode, error.message);
+    }
+  }
+
+  async getAllStockSellAction(req: Request, res: Response) {
+    try {
+      const stockSellActions = await stockService.findAllSell();
+      sendResponse(res, 200, `Get all stock sell action ok`, stockSellActions)
+    }
+    catch (error: any) {
+      console.error('Get all stock sell action error: ', error);
       sendError(res, error.statusCode, error.message);
     }
   }

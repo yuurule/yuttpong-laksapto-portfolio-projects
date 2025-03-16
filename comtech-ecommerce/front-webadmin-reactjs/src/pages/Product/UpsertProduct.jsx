@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Form  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faSave, faClose, faBars } from '@fortawesome/free-solid-svg-icons';
 import * as ProductService from '../../services/productService';
@@ -7,10 +6,11 @@ import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-
-//.coerce
+import { useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router';
 
 const categorySchema = z.object({
+  brandId: z.coerce.number().min(1, {message: 'Required'}),
   name: z.string().min(1, {message: 'Required'}),
   //price: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number({message: 'Required'}).positive()),
   price: z.coerce.number().min(1, {message: 'Required'}).positive(),
@@ -29,14 +29,86 @@ const categorySchema = z.object({
   battery: z.string().min(1, {message: 'Required'}),
   color: z.string().min(1, {message: 'Required'}),
   width: z.coerce.number().min(1, {message: 'Required'}).positive(),
-  depth: z.coerce.number().min(1, {message: 'Required'}).positive(),
   height: z.coerce.number().min(1, {message: 'Required'}).positive(),
-  weight: z.coerce.number().min(1, {message: 'Required'}).positive(),
+  depth: z.coerce.number().min(1, {message: 'Required'}).positive(),
+  weight: z.string().min(1, {message: 'Required'}),
   warranty: z.string().min(1, {message: 'Required'}),
   option: z.string().min(1, {message: 'Required'}),
 });
 
 export default function UpsertProduct() {
+
+  const { id } = useParams();
+  const authUser = useSelector(state => state.auth.user);
+  const navigate = useNavigate();
+  
+  const [loadData, setLoadData] = useState(false);
+  const [product, setProduct] = useState(null);
+  const [error, setError] = useState(null);
+  const [brandList, setBrandList] = useState([]);
+  const [submitType, setSubmitType] = useState('INSERT'); // 'INSERT', 'UPDATE'
+
+  const [cacheCategories, setCacheCategories] = useState([]); 
+  const [cacheTags, setCacheTags] = useState([]);
+  const [updateCategoies, setUpdateCategories] = useState([]);
+  const [updateTags, setUpdateTags] = useState([]);
+
+  useEffect(() => {
+    const findProduct = async () => {
+      setLoadData(true);
+      try {
+        const findProduct = await ProductService.getOneProduct(id);
+        const productData = findProduct.data.RESULT_DATA;
+        setProduct(productData);
+        const dimension = (productData.specs.dimension).split(' x ');
+        const productDataForm = {
+          brandId: productData.brandId,
+          name: productData.name,
+          price: productData.price,
+          description: productData.description,
+          screen_size: productData.specs.screen_size,
+          processor: productData.specs.processor,
+          display: productData.specs.display,
+          memory: productData.specs.memory,
+          storage: productData.specs.storage,
+          graphic: productData.specs.graphic,
+          operating_system: productData.specs.operating_system,
+          camera: productData.specs.camera,
+          optical_drive: productData.specs.optical_drive,
+          connection_ports: productData.specs.connection_ports,
+          wireless: productData.specs.wireless,
+          battery: productData.specs.battery,
+          color: productData.specs.color,
+          width: parseFloat(dimension[0]),
+          height: parseFloat(dimension[1]),
+          depth: parseFloat(dimension[2]),
+          weight: productData.specs.weight,
+          warranty: productData.specs.warranty,
+          option: productData.specs.option,
+        }
+        reset(productDataForm);
+        setCacheCategories(productData.categories);
+        setCacheTags(productData.tags);
+        setUpdateCategories(productData.categories);
+        setUpdateTags(productData.tags);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          setError('ไม่พบข้อมูลที่ต้องการ');
+        } else {
+          setError('เกิดข้อผิดพลาดในการดึงข้อมูล');
+        }
+        console.log(error.message);
+      }
+      finally {
+        setLoadData(false);
+      }
+    }
+
+    if(id) {
+      setSubmitType('UPDATE');
+      findProduct();
+    }
+  }, [id]);
 
   const {
     register,
@@ -44,22 +116,146 @@ export default function UpsertProduct() {
     reset,
     formState: { errors, isSubmitting }
   } = useForm({
-    resolver: zodResolver(categorySchema),
-    // defaultValues: {
-    //   name: currentData.name,
-    //   description: currentData.description
-    // }
+    resolver: zodResolver(categorySchema)
   });
 
   useEffect(() => {
-
+    fecthProductBrand();
   }, []);
 
-  const onSubmit = async (data) => {
-    
-    console.log(data)
-
+  const fecthProductBrand = async () => {
+    setLoadData(true);
+    try {
+      const fetchBrands = await ProductService.getBrands();
+      setBrandList(fetchBrands.data.RESULT_DATA);
+    }
+    catch(error) {
+      console.log(error.message);
+      toast.error(error.message);
+    }
+    finally {
+      setLoadData(false);
+    }
   }
+
+  const onSubmit = async (data) => {
+    //console.log(data)
+
+    let categoriesData;
+    let tagsData;
+    let imagesData;
+
+    if(submitType === 'INSERT') {
+      categoriesData = [
+        { categoryId: 1 }
+      ];
+      tagsData = [
+        //{ tagId: 1 }
+      ];
+      imagesData = [
+        //{ url_path: "http://www.testimage.com/test_image_1.jpg" }
+      ];
+    }
+    else if(submitType === 'UPDATE') {
+      categoriesData = {
+        connect: [
+            //{ "categoryId": 3 }
+        ],
+        disconnect: [
+            //{ "categoryId": 1 }
+        ]
+      };
+      tagsData = {
+        connect: [
+            //{ "tagId": 3 }
+        ],
+        disconnect: [
+            // { "tagId": 1 },
+            // { "tagId": 2 }
+        ]
+      };
+      imagesData = {
+        create: [
+            // { 
+            //     "url_path": "http://www.testimage.com/test_image_3.jpg",
+            //     "sequence_order": 3
+            // }
+        ],
+        delete: [
+            //{ "id": 5 }
+        ],
+        update: [
+            // { 
+            //     "id": 5,
+            //     "url_path": "http://www.testimage.com/test_image_3.jpg",
+            //     "sequence_order": 3
+            // }
+        ]
+      };
+    }
+
+    const requestData = {
+      userId: authUser.id,
+      name: data.name,
+      description: data.description,
+      brandId: data.brandId,
+      price: data.price,
+      publish: true,
+      categories: categoriesData,
+      tags: tagsData,
+      specs: {
+        screen_size: data.screen_size,
+        processor: data.processor,
+        display: data.display,
+        memory: data.memory,
+        storage: data.storage,
+        graphic: data.graphic,
+        operating_system: data.operating_system,
+        camera: data.camera,
+        optical_drive: data.optical_drive,
+        connection_ports: data.connection_ports,
+        wireless: data.wireless,
+        battery: data.battery,
+        color: data.color,
+        dimemsion: `${data.width}x${data.height}x${data.depth}`,
+        weight: data.weight,
+        warranty: data.warranty,
+        option: data.option
+      },
+      images: imagesData
+    }
+
+    if(submitType === 'INSERT') {
+      try {
+        await ProductService.addNewProduct(requestData)
+        toast.success(`Add new product is successfully!`);
+        navigate('/product', { replace: true });
+      }
+      catch(error) {
+        console.log(error.message);
+        toast.error(`Add new product is failed due to: ${error.message}`);
+      }
+    }
+    else if(submitType === 'UPDATE') {
+      try {
+        await ProductService.updateProduct(id, requestData)
+        toast.success(`Update product is successfully!`);
+        navigate('/product', { replace: true });
+      }
+      catch(error) {
+        console.log(error.message);
+        toast.error(`Update product is failed due to: ${error.message}`);
+      }
+    }
+  }
+
+  if(loadData) return <div>กำลังโหลด...</div>;
+  if(error) return (
+    <div>
+      <h1>Something wrong</h1>
+      <p>เกิดข้อผิดพลาด: {error}</p>
+    </div>
+  );
 
   return (
     <div className={`page`}>
@@ -67,9 +263,16 @@ export default function UpsertProduct() {
       <form onSubmit={handleSubmit(onSubmit)} className="row">
 
         <header className="col-12 d-flex justify-content-between align-items-center mb-4">
-          <h1>Add New Product</h1>
           <div>
-            <button type="submit" className='btn btn-success px-5 py-2'><FontAwesomeIcon icon={faSave} className='me-2' />Save</button>
+            <h1>{submitType === 'INSERT' && 'Add New'} {submitType === 'UPDATE' && 'Update'} Product</h1>
+            {submitType === 'UPDATE' && <p className='mb-0'>SKU: {product?.sku}</p>}
+          </div>
+          <div>
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className='btn btn-success px-5 py-2'
+            >{isSubmitting ? 'Processing...' : <><FontAwesomeIcon icon={faSave} className='me-2' />Save</> }</button>
           </div>
         </header>
 
@@ -120,6 +323,25 @@ export default function UpsertProduct() {
                   </header>
 
                   <dl className='row mb-4'>
+                    <dt className='col-sm-3 mb-3'>Product Brand</dt>
+                    <dd className='col-sm-9 mb-3'>
+                      <div className="form-group">
+                        <select 
+                          {...register('brandId')}
+                          className={`form-control ${errors.brandId ? 'is-invalid' : ''}`}
+                        >
+                          <option value="">--Select brand--</option>
+                          {
+                            brandList.map((brand) => (
+                              <option key={`product_brand_${brand.id}`} value={brand.id}>
+                                {brand.name}
+                              </option>
+                            ))
+                          }
+                        </select>
+                        {errors.brandId && <small className="invalid-feedback">{errors.brandId.message}</small>}
+                      </div>
+                    </dd>
                     <dt className='col-sm-3 mb-3'>Name</dt>
                     <dd className='col-sm-9 mb-3'>
                       <div className="form-group">
@@ -332,9 +554,7 @@ export default function UpsertProduct() {
                     <dd className='col-sm-9 mb-3'>
                       <div className="form-group">
                         <input
-                          type="number"
-                          min={0}
-                          step={0.01}
+                          type="text"
                           {...register('weight')}
                           className={`form-control ${errors.weight ? 'is-invalid' : ''}`}
                         />
@@ -389,8 +609,16 @@ export default function UpsertProduct() {
                     <button className='btn btn-primary'><small>+ Add</small></button>
                   </header>
                   <div className='d-flex mb-2' style={{border: '1px solid rgba(0,0,0,0.3)', borderRadius: 4, padding: 15}}>
-                    <button className='btn btn-secondary me-2'><small>Working <FontAwesomeIcon icon={faClose} /></small></button>
-                    <button className='btn btn-secondary me-2'><small>Gaming <FontAwesomeIcon icon={faClose} /></small></button>
+                    {
+                      updateCategoies.map((cat, index) => (
+                        <button 
+                          key={`category_${cat.category.id}`}
+                          type="button"
+                          className='btn btn-secondary me-2'
+                          onClick={() => {}}
+                        ><small>{cat.category.name} <FontAwesomeIcon icon={faClose} /></small></button>
+                      ))
+                    }
                   </div>
                 </div>
               </div>
@@ -401,8 +629,16 @@ export default function UpsertProduct() {
                     <button className='btn btn-primary'><small>+ Add</small></button>
                   </header>
                   <div className='d-flex mb-2' style={{border: '1px solid rgba(0,0,0,0.3)', borderRadius: 4, padding: 15}}>
-                    <button className='btn btn-secondary me-2'><small>Slim <FontAwesomeIcon icon={faClose} /></small></button>
-                    <button className='btn btn-secondary me-2'><small>Hi-end <FontAwesomeIcon icon={faClose} /></small></button>
+                    {
+                      updateTags.map((tag, index) => (
+                        <button 
+                          key={`tag_${tag.tag.id}`}
+                          type="button"
+                          className='btn btn-secondary me-2'
+                          onClick={() => {}}
+                        ><small>{tag.tag.name} <FontAwesomeIcon icon={faClose} /></small></button>
+                      ))
+                    }
                   </div>
                 </div>
               </div>

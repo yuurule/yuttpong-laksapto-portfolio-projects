@@ -1,13 +1,62 @@
+import { useState, useEffect } from 'react';
 import { Form, InputGroup, Button  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../components/MyPagination/MyPagination';
 import { Link } from 'react-router';
 import Breadcrumbs from '../components/Breadcrumbs/Breadcrumbs';
-import PaginationArrow from '../components/PaginationArrow/PaginationArrow';
+import * as CampaignService from '../services/campaignService';
+import { formatTimestamp } from '../utils/utils';
+import { toast } from 'react-toastify';
+import ProductInCampaign from '../components/Campaign/ProductInCampaign';
+import UpsertCampaign from '../components/Campaign/UpsertCampaign';
+import ActivateCampaign from '../components/Campaign/ActivateCampaign';
 
 export default function Campaign() {
 
+  const [loadData, setLoadData] = useState(false);
+  const [campaignList, setCampaignList] = useState([]);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
+  const [productListCampaign, setProductListCampaign] = useState([]);
+
+  const [selectedEditCampaign, setSelectEditCampaign] = useState(null);
+  const [upsertAction, setUpsertAction] = useState(null); // 'CREATE', 'EDIT'
+  const [openUpsertCampaignDialog, setOpenUpsertCampaignDialog] = useState(false);
+
+  const [selectedActivateCampaign, setSelectActivateCampaign] = useState(null);
+  const [openActivateCampaignDialog, setOpenActivateCampaignDialog] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoadData(true);
+      try {
+        const campaigns = await CampaignService.getAllCampaign();
+        setCampaignList(campaigns.data.RESULT_DATA);
+      }
+      catch(error) {
+        console.log(error.message);
+        toast.error(error.message);
+      }
+      finally {
+        setLoadData(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  const handleSelectedCampaign = (id, name) => {
+    const productsInSelectedCampaign = campaignList.find(i => i.id === id);
+    if(productsInSelectedCampaign) {
+      setProductListCampaign(productsInSelectedCampaign?.campaignProducts);
+    }
+    setSelectedCampaign({
+      id: id,
+      name: name
+    });
+  }
+
+  if(loadData) return <div>กำลังโหลด...</div>
 
   return (
     <div className={`page`}>
@@ -19,7 +68,15 @@ export default function Campaign() {
             <Breadcrumbs />
           </div>
           <div>
-            <Link to="/product/create" className='btn btn-primary text-bg-primary'>+ Create New Campaign</Link>
+            <button 
+              type="button"
+              className='btn btn-primary text-bg-primary'
+              onClick={() => {
+                setUpsertAction('CREATE');
+                setSelectEditCampaign(null);
+                setOpenUpsertCampaignDialog(true);
+              }}
+            >+ Create New Campaign</button>
           </div>
         </header>
 
@@ -47,37 +104,83 @@ export default function Campaign() {
                 </div>
               </div>
               <table className="table">
-                <thead>
+                <thead className='table-secondary'>
                   <tr>
-                    <th></th>
-                    <th>Campaign Name <FontAwesomeIcon icon={faArrowUp} /></th>
-                    <th>Discount <FontAwesomeIcon icon={faArrowUp} /></th>
-                    <th>Created At <FontAwesomeIcon icon={faMinus} /></th>
-                    <th>End At <FontAwesomeIcon icon={faMinus} /></th>
-                    <th>Last Update <FontAwesomeIcon icon={faMinus} /></th>
+                    <th style={{width: '36px'}}></th>
+                    <th style={{width: '340px'}}>
+                      <div className='d-flex align-items-center'>
+                        Campaign Name
+                        <FontAwesomeIcon icon={faArrowUp} className='ms-1' />
+                      </div>
+                    </th>
+                    <th>
+                      <div className='d-flex align-items-center'>
+                        Discount
+                        <FontAwesomeIcon icon={faArrowUp} className='ms-1' />
+                      </div>
+                    </th>
+                    <th>Status</th>
+                    <th>Start</th>
+                    <th>End</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
                   {
-                    [...Array(4)].map((i, index) => (
-                      <tr key={`category_row_${index + 1}`}>
+                    campaignList.map((campaign, index) => (
+                      <tr key={`category_row_${campaign.id}`}>
                         <td>
                           <Form.Check
                             type={"checkbox"}
-                            id={`select-product`}
+                            id={`select-campaign`}
                             label={``}
                           />
                         </td>
-                        <td>Back To School<br /><small style={{opacity: '0.5'}}>Lorem ipsum dolor sit amet consectetur, adipisicing elit.</small></td>
-                        <td>-5%</td>
-                        <td>20 Jan 25</td>
-                        <td>20 Feb 25</td>
-                        <td>20 Feb 25</td>
+                        <td>
+                          <Link 
+                            to={null} 
+                            onClick={() => handleSelectedCampaign(campaign.id, campaign.name)}>{campaign?.name}</Link>
+                          <br />
+                          <small style={{opacity: '0.5'}}>{campaign?.description}</small>
+                        </td>
+                        <td>-{campaign?.discount}%</td>
+                        <td>
+                          <button
+                            type="button"
+                            className='btn btn-link p-0'
+                            onClick={() => {
+                              setSelectActivateCampaign({
+                                id: campaign.id,
+                                isActive: campaign.isActive,
+                                startAt: campaign.startAt,
+                                endAt: campaign.endAt
+                              });
+                              setOpenActivateCampaignDialog(true);
+                            }}
+                          >
+                          <small className={`badge ${campaign?.isActive === true ? 'text-bg-success' : 'text-bg-secondary'}`}>
+                            {campaign?.isActive === true ? 'active' : 'inactive'}
+                          </small>
+                          </button>
+                        </td>
+                        <td>{campaign?.isActive ? formatTimestamp(campaign?.startAt) : '-'}</td>
+                        <td>{campaign?.isActive ? formatTimestamp(campaign?.endAt) : '-'}</td>
                         <td>
                           <div className='d-flex'>
-                            <button className='btn btn-primary me-2'><FontAwesomeIcon icon={faEdit} /></button>
-                            <button className='btn btn-danger'><FontAwesomeIcon icon={faTrash} /></button>
+                            <button 
+                              type="button"
+                              className='btn btn-primary'
+                              onClick={() => {
+                                setUpsertAction('EDIT');
+                                setSelectEditCampaign({
+                                  id: campaign.id,
+                                  name: campaign.name,
+                                  description: campaign.description,
+                                  discount: campaign.discount
+                                });
+                                setOpenUpsertCampaignDialog(true);
+                              }}
+                            ><FontAwesomeIcon icon={faEdit} /></button>
                           </div>
                         </td>
                       </tr>
@@ -95,46 +198,29 @@ export default function Campaign() {
         <div className='col-sm-4'>
           <div className='card'>
             <div className='card-body'>
-              <header className='d-flex justify-content-between align-items-center'>
-                <h6>Products in campaign "Back To School"</h6>
-                <button className='btn btn-primary'>Add</button>
-              </header>
-              <table className='table'>
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    [...Array(8)].map((i, index) => (
-                      <tr key={`product_in_campaign_row_${index + 1}`}>
-                        <td>
-                          <Form.Check
-                            type={"checkbox"}
-                            id={`select-product`}
-                            label={``}
-                          />
-                        </td>
-                        <td>Asus ROG Zephyrus G16 GU605MI-QR225WS Eclipse Gray</td>
-                        <td>$1,250<br /><small><s>$1,400</s></small></td>
-                        <td>
-                          <button className='btn btn-danger'><FontAwesomeIcon icon={faTrash} /></button>
-                        </td>
-                      </tr>
-                    ))
-                  }
-                </tbody>
-              </table>
-              <PaginationArrow />
+              <ProductInCampaign 
+                selectedCampaign={selectedCampaign}
+                data={productListCampaign} 
+              />
             </div>
           </div>
         </div>
 
       </div>
+
+      <UpsertCampaign
+        openDialog={openUpsertCampaignDialog}
+        handleCloseDialog={() => setOpenUpsertCampaignDialog(false)}
+        upsertAction={upsertAction}
+        selectedEditCampaign={selectedEditCampaign}
+      />
+
+      <ActivateCampaign
+        openDialog={openActivateCampaignDialog}
+        handleCloseDialog={() => setOpenActivateCampaignDialog(false)}
+        selectedActivateCampaign={selectedActivateCampaign}
+      />
+
     </div>
   )
 }

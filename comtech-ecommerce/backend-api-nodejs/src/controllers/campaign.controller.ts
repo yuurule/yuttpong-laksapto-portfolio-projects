@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { sendResponse, sendError } from '../libs/response';
 import { isValidId, isValidHaveValue } from '../libs/validation';
 import { CampaignService } from '../services/campaign.service';
-import { createCampaignDto, createCampaignHistoryDto, updateProductDto } from '../types';
+import { createCampaignDto, createCampaignHistoryDto, activateCampaignDto } from '../types';
 import { updateCampaignDto } from '../types';
 
 const campaignService = new CampaignService();
@@ -102,6 +102,44 @@ export class CampaignController {
     }
     catch (error: any) {
       console.error('Updating campaign error: ', error);
+      sendError(res, error.statusCode, error.message);
+    }
+  }
+
+  async activateCampaign(req: Request, res: Response) {
+    const campaignId = parseInt(req.params.id);
+    const { userId, isActive, startAt, endAt } = req.body;
+
+    if(!isValidId(campaignId)) {
+      sendError(res, 400, `Campaign id must not zero or negative number`);
+    } 
+
+    if(!isValidHaveValue([userId])) {
+      sendError(res, 400, `userId is required`);
+    }
+
+    if(isActive && (!isValidId(startAt) || !isValidId(endAt))) {
+      sendError(res, 400, `startAt and endAt is required for active campaign`);
+    }
+
+    if(!isValidId(userId)) {
+      sendError(res, 400, `User id must not zero or negative number`);
+    }
+
+    const data : activateCampaignDto = {
+      campaignId: campaignId,
+      userId: userId,
+      isActive: isActive,
+      startAt: startAt,
+      endAt: endAt,
+    } 
+
+    try {
+      const activateCampaign = await campaignService.activate(data);
+      sendResponse(res, 200, `Activate/Deactivate campaign ok`, activateCampaign)
+    }
+    catch (error: any) {
+      console.error('Activate/Deactivate campaign error: ', error);
       sendError(res, error.statusCode, error.message);
     }
   }

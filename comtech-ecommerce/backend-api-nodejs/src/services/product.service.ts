@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma, StockAction } from '@prisma/client';
+import { PrismaClient, Prisma, StockAction, StockSellAction } from '@prisma/client';
 import * as exception from '../libs/errorException';
 import { createProductDto, updateProductDto } from '../types';
 import { generateUuidBasedSku } from '../libs/utility';
@@ -9,7 +9,21 @@ export class ProductService {
 
   async findAll() {
     try {
-      const products = await prisma.product.findMany();
+      const products = await prisma.product.findMany({
+        include: {
+          specs: true,
+          categories: { include: { category: { select: { id: true, name: true } } } },
+          tags: { include: { tag: { select: { id: true, name: true } } } },
+          images: true,
+          inStock: true,
+          stockSellEvents: {
+            where: {
+              action: StockSellAction.SELL
+            } 
+          },
+          orderItems: true,
+        }
+      });
       return products;
     }
     catch(error: any) {
@@ -22,7 +36,22 @@ export class ProductService {
 
   async findOne(productId: number) {
     try {
-      const product = await prisma.product.findUnique({ where: { id: productId } });
+      const product = await prisma.product.findUnique({ 
+        where: { id: productId },
+        include: {
+          specs: true,
+          categories: { include: { category: { select: { id: true, name: true } } } },
+          tags: { include: { tag: { select: { id: true, name: true } } } },
+          images: true,
+          inStock: true,
+          stockSellEvents: {
+            where: {
+              action: StockSellAction.SELL
+            } 
+          },
+          orderItems: true,
+        }
+      });
       if(!product) throw new exception.NotFoundException(`Not found product with id ${productId}`)
       return product;
     }
@@ -109,7 +138,7 @@ export class ProductService {
               wireless: dto.specs.wireless,
               battery: dto.specs.battery,
               color: dto.specs.color,
-              dimemsion: dto.specs.dimemsion,
+              dimension: dto.specs.dimension,
               weight: dto.specs.weight,
               warranty: dto.specs.warranty,
               option: dto.specs.option,
@@ -180,7 +209,6 @@ export class ProductService {
       if (dto.name !== undefined) updateData.name = dto.name;
       if (dto.description !== undefined) updateData.description = dto.description;
       if (dto.price !== undefined) updateData.price = dto.price;
-      if (dto.publish !== undefined) updateData.publish = dto.publish;
 
       // Brand relationship (one-to-many)
       if (dto.brandId !== undefined) {

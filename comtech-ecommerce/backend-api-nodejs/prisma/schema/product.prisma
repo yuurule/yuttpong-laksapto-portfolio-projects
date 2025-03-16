@@ -50,7 +50,7 @@ model ProductSpecs {
   wireless          String
   battery           String
   color             String
-  dimemsion         String
+  dimension         String
   weight            String
   warranty          String
   option            String

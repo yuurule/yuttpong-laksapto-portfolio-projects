@@ -41,6 +41,7 @@ function App() {
               <Route path="product" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR']}><Products /></PrivateRoute>}></Route>
               <Route path="product/:id" element={<PrivateRoute allowedRoles={['ADMIN']}><ProductDetail /></PrivateRoute>}></Route>
               <Route path="product/create" element={<PrivateRoute allowedRoles={['ADMIN']}><UpsertProduct /></PrivateRoute>}></Route>
+              <Route path="product/edit/:id" element={<PrivateRoute allowedRoles={['ADMIN']}><UpsertProduct /></PrivateRoute>}></Route>
               <Route path="stock" element={<PrivateRoute allowedRoles={['ADMIN']}><Stock /></PrivateRoute>}></Route>
               <Route path="order" element={<PrivateRoute allowedRoles={['ADMIN']}><Orders /></PrivateRoute>}></Route>
               <Route path="customer" element={<PrivateRoute allowedRoles={['ADMIN']}><Customers /></PrivateRoute>}></Route>

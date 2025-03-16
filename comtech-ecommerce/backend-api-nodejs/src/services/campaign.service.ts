@@ -1,6 +1,6 @@
 import { PrismaClient, Prisma, CampaignHistoryAction } from '@prisma/client';
 import * as exception from '../libs/errorException';
-import { createCampaignDto, updateCampaignDto, createCampaignHistoryDto } from '../types';
+import { createCampaignDto, updateCampaignDto, createCampaignHistoryDto, activateCampaignDto } from '../types';
 
 const prisma = new PrismaClient();
 
@@ -8,7 +8,17 @@ export class CampaignService {
 
   async findAll() {
     try {
-      const campaigns = await prisma.campaign.findMany();
+      const campaigns = await prisma.campaign.findMany({
+        include: {
+          campaignProducts: {
+            include: {
+              product: true
+            }
+          },
+          campaignHistories: true,
+          orderItems: true,
+        }
+      });
       return campaigns;
     }
     catch(error: any) {
@@ -21,7 +31,18 @@ export class CampaignService {
 
   async findOne(id: number) {
     try {
-      const findCampaign = await prisma.campaign.findUnique({ where: { id: id } });
+      const findCampaign = await prisma.campaign.findUnique({ 
+        where: { id: id },
+        include: {
+          campaignProducts: {
+            include: {
+              product: true
+            }
+          },
+          campaignHistories: true,
+          orderItems: true,
+        } 
+      });
       if(!findCampaign) throw new exception.NotFoundException(`Not found campaign with id ${id}`);
       return findCampaign;
     }
@@ -87,6 +108,39 @@ export class CampaignService {
       if(error instanceof exception.NotFoundException) throw error;
       if(error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new exception.DatabaseException(`Error update one campaign due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
+
+  async activate(dto: activateCampaignDto) {
+    try {
+      // ตรวจสอบ user มีอยู่จริง
+      const findUser = await prisma.user.findUnique({ where: { id: dto.userId } });
+      if(!findUser) throw new exception.NotFoundException(`Not found user with id ${dto.userId}`);
+
+      // ตรวจสอบ campaign มีอยู่จริง
+      const findCampaign = await prisma.campaign.findUnique({ where: { id: dto.campaignId } });
+      if(!findCampaign) throw new exception.NotFoundException(`Not found campaign with id ${dto.campaignId}`);
+
+      const activateData = {
+        isActive: dto.isActive,
+        startAt: dto.isActive ? dto.startAt : null,
+        endAt: dto.isActive ? dto.endAt : null,
+        updatedBy: { connect: { id: dto.userId } }
+      }
+
+      const activateCampaign = await prisma.campaign.update({
+        where: { id: dto.campaignId },
+        data: activateData
+      });
+
+      return activateCampaign;
+    }
+    catch(error: any) {
+      if(error instanceof exception.NotFoundException) throw error;
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error Activate/Deactivate campaign due to: ${error.message}`);
       }
       throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }

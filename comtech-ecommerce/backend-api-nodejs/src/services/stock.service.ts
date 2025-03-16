@@ -8,7 +8,12 @@ export class StockService {
 
   async findAll() {
     try {
-      const stockActions = await prisma.stockEvent.findMany();
+      const stockActions = await prisma.stockEvent.findMany({
+        include: {
+          product: true,
+          actionedBy: true,
+        }
+      });
       return stockActions;
     }
     catch(error: any) {
@@ -21,7 +26,13 @@ export class StockService {
 
   async findOne(id: number) {
     try {
-      const stockAction = await prisma.stockEvent.findUnique({ where: { id: id } });
+      const stockAction = await prisma.stockEvent.findUnique({ 
+        where: { id: id },
+        include: { 
+          product: true,
+          actionedBy: true
+        } 
+      });
       if(!stockAction) throw new exception.NotFoundException(`Not found stock action with id ${id}`);
       return stockAction;
     }
@@ -67,7 +78,7 @@ export class StockService {
           data: {
             action: dto.actionType as StockAction,
             quantity: dto.quantity,
-            description: dto.reason,
+            description: dto.description,
             product: { connect: { id: dto.productId } },
             actionedBy: { connect: { id: dto.userId } }
           }
@@ -81,6 +92,24 @@ export class StockService {
     catch(error: any) {
       if(error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new exception.DatabaseException(`Error creating stock action due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
+
+  async findAllSell() {
+    try {
+      const stockSellActions = await prisma.stockSellEvent.findMany({
+        include: {
+          product: true,
+          actionedBy: true,
+        }
+      });
+      return stockSellActions;
+    }
+    catch(error: any) {
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error find all stock sell action due to: ${error.message}`);
       }
       throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }

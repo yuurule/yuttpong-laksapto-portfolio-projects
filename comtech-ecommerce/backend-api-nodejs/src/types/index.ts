@@ -27,7 +27,7 @@ export interface createProductDto {
     wireless: string,
     battery: string,
     color: string,
-    dimemsion: string,
+    dimension: string,
     weight: string,
     warranty: string,
     option: string,
@@ -65,7 +65,7 @@ export interface updateProductDto {
     wireless?: string,
     battery?: string,
     color?: string,
-    dimemsion?: string,
+    dimension?: string,
     weight?: string,
     warranty?: string,
     option?: string,
@@ -83,7 +83,7 @@ export interface createStockActionDto {
   userId: number;
   actionType: string;
   quantity: number;
-  reason?: string;
+  description?: string;
 }
 export interface createStockSellActionDto {
   productId: number;
@@ -104,6 +104,13 @@ export interface updateCampaignDto {
   name?: string;
   description?: string;
   discount?: number;
+}
+export interface activateCampaignDto {
+  campaignId: number;
+  userId: number;
+  isActive: boolean;
+  startAt?: Date;
+  endAt?: Date;
 }
 export interface createCampaignHistoryDto {
   userId: number;

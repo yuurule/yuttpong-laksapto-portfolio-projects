@@ -3,6 +3,9 @@ model Campaign {
   name            String
   description     String
   discount        Decimal @db.Decimal(18, 2)
+  isActive        Boolean @default(false)
+  startAt         DateTime?
+  endAt           DateTime?
 
   createdAt       DateTime @default(now())
   createdById     Int
@@ -27,6 +30,8 @@ model CampaignHistory {
   campaignId      Int 
   action          CampaignHistoryAction
   note            String @db.Text
+  startAt         DateTime?
+  endAt           DateTime?
 
   createdAt       DateTime @default(now())
   createdById     Int

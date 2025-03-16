@@ -3,13 +3,15 @@ import { Form, InputGroup, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faChevronLeft, faChevronRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../../components/MyPagination/MyPagination';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import * as ProductService from '../../services/productService';
 import { toast } from 'react-toastify';
 
 export default function Products() {
 
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const [loadData, setLoadData] = useState(false);
   const [onSubmit, setOnSubmit] = useState(false);
   const [showSoftDelete, setShowSoftDelete] = useState(false);
   const [productList, setProductList] = useState([]);
@@ -20,20 +22,17 @@ export default function Products() {
   }, [refresh]);
 
   const getAllProduct = async () => {
-    setLoading(true);
+    setLoadData(true);
     try {
-      await ProductService.getAllProduct()
-        .then(res => {
-          console.log(res.RESULT_DATA);
-          setProductList(res.RESULT_DATA);
-        })
-        .catch(error => { 
-          throw new Error(`Get all product failed due to: ${error}`);
-        });
+      const fetchProducts = await ProductService.getAllProduct();
+      setProductList(fetchProducts.data.RESULT_DATA);
     }
     catch(error) {
-      console.log(error);
-      toast.error(error);
+      console.log(error.message);
+      toast.error(`Get all product failed due to: ${error.message}`);
+    }
+    finally {
+      setLoadData(false);
     }
   }
 
@@ -81,7 +80,7 @@ export default function Products() {
                     <thead>
                       <tr>
                         <th></th>
-                        <th>SKU</th>
+                        {/* <th>SKU</th> */}
                         <th>Product <FontAwesomeIcon icon={faArrowUp} /></th>
                         <th>In Stock <FontAwesomeIcon icon={faArrowUp} /></th>
                         <th>Price <FontAwesomeIcon icon={faArrowUp} /></th>
@@ -92,8 +91,8 @@ export default function Products() {
                     </thead>
                     <tbody>
                       {
-                        [...Array(8)].map((i, index) => (
-                          <tr key={`category_row_${index + 1}`}>
+                        productList.map((product, index) => (
+                          <tr key={`product_${product.id}`}>
                             <td>
                               <Form.Check
                                 type={"checkbox"}
@@ -101,23 +100,36 @@ export default function Products() {
                                 label={``}
                               />
                             </td>
-                            <td>471138788</td>
+                            {/* <td>{product.sku}</td> */}
                             <td style={{width: 300}}>
                               <Link to="/product/1" className="d-flex align-items-center">
                                 <figure className='me-2'>
                                   <img src="/images/dummy-product.jpg" style={{width: 60}} />
                                 </figure>
-                                Asus ROG Flow Z13 GZ302EA-RU087WA Off Black
+                                <div>
+                                  <p className='mb-0'>{product.name}</p>
+                                  sku: <small className='opacity-50'>{product.sku}</small>
+                                </div>
                               </Link>
                             </td>
-                            <td>25</td>
-                            <td>$127.99</td>
-                            <td>56</td>
-                            <td>$5,480.00</td>
+                            <td>{product.inStock.inStock}</td>
+                            <td>฿{product.price}</td>
+                            <td>{product.stockSellEvents.length === 0 ? '0' : 'n/a'}</td>
+                            <td>{product.orderItems.length === 0 ? '0' : 'n/a'}</td>
                             <td>
                               <div className='d-flex'>
-                                <button className='btn btn-primary me-2'><FontAwesomeIcon icon={faEdit} /></button>
-                                <button className='btn btn-danger'><FontAwesomeIcon icon={faTrash} /></button>
+                                <button 
+                                  type="button"
+                                  className='btn btn-primary me-2'
+                                  onClick={() => {
+                                    navigate(`/product/edit/${product.id}`);
+                                  }}
+                                ><FontAwesomeIcon icon={faEdit} /></button>
+                                <button 
+                                  type="button"
+                                  className='btn btn-danger'
+                                  onClick={null}
+                                ><FontAwesomeIcon icon={faTrash} /></button>
                               </div>
                             </td>
                           </tr>

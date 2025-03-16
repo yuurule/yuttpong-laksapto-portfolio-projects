@@ -22,7 +22,7 @@ export class ProductController {
   async getOneProduct(req: Request, res: Response) {
     const id = parseInt(req.params.id);
 
-    if(isValidId(id)) {
+    if(!isValidId(id)) {
       sendError(res, 400, `Product id must not zero or negative number`);
     }
 
@@ -64,16 +64,16 @@ export class ProductController {
       wireless,
       battery,
       color,
-      dimemsion,
+      dimension,
       weight,
       warranty,
       option,
     } = specs;
 
-    if(!isValidHaveValue([userId, name, description, brandId, price, publish, categories, specs])) {
-      sendError(res, 400, `userId, name, description brandId, price, publish, categories and specs is required`);
+    if(!isValidHaveValue([userId, name, description, brandId, price, categories, specs])) {
+      sendError(res, 400, `userId, name, description, brandId, price, categories and specs is required`);
     }
-    if(!isValidHaveValue([screen_size, processor, display, memory, storage, graphic, operating_system, camera, optical_drive, connection_ports, wireless, battery, color, dimemsion, weight, warranty, option])) {
+    if(!isValidHaveValue([screen_size, processor, display, memory, storage, graphic, operating_system, camera, optical_drive, connection_ports, wireless, battery, color, dimension, weight, warranty, option])) {
       sendError(res, 400, `Some data in specs is missing`);
     }
 
@@ -106,7 +106,7 @@ export class ProductController {
         wireless: wireless,
         battery: battery,
         color: color,
-        dimemsion: dimemsion,
+        dimension: dimension,
         weight: weight,
         warranty: warranty,
         option: option
@@ -138,7 +138,6 @@ export class ProductController {
       description, 
       brandId, 
       price, 
-      publish,
       categories, 
       tags, 
       specs, 
@@ -159,7 +158,7 @@ export class ProductController {
       wireless,
       battery,
       color,
-      dimemsion,
+      dimension,
       weight,
       warranty,
       option,
@@ -178,7 +177,6 @@ export class ProductController {
       description: description,
       brandId: brandId,
       price: price,
-      publish: publish,
       categories: categories,
       specs: {
         screen_size: screen_size,
@@ -194,7 +192,7 @@ export class ProductController {
         wireless: wireless,
         battery: battery,
         color: color,
-        dimemsion: dimemsion,
+        dimension: dimension,
         weight: weight,
         warranty: warranty,
         option: option

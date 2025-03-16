@@ -62,15 +62,17 @@ router.delete('/product/delete', authenticate, productController.moveProductToTr
 // Stock
 router.get('/stock-action', authenticate, stockController.getAllStockAction);
 router.get('/stock-action/:id', authenticate, stockController.getOneStockActionById);
-router.post('/stock-action/create', authenticate, stockController.createNewStockAction);
+router.post('/stock-action', authenticate, stockController.createNewStockAction);
+router.get('/stock-sell-action', authenticate, stockController.getAllStockSellAction);
 
 // Campaign
 router.get('/campaign', authenticate, campaignController.getCampaigns);
 router.get('/campaign/:id', authenticate, campaignController.getOneCampaignById);
-router.post('/campaign/create', authenticate, campaignController.createCampaign);
-router.put('/campaign/:id', authenticate, campaignController.updateCampaign);
-router.delete('/campaign/delete', authenticate, campaignController.moveCampaignsToTrash);
-router.post('/campaign/history/create', authenticate, campaignController.createCampaignHistory);
+router.post('/campaign', authenticate, campaignController.createCampaign);
+router.put('/campaign/update/:id', authenticate, campaignController.updateCampaign);
+router.put('/campaign/activate/:id', authenticate, campaignController.activateCampaign);
+router.delete('/campaign', authenticate, campaignController.moveCampaignsToTrash);
+router.post('/campaign/history', authenticate, campaignController.createCampaignHistory);
 
 // Customer
 router.post('/customer/auth/register', customerController.register);

@@ -7,8 +7,7 @@ export async function getAllProduct() {
 		axiosInstance
 			.get(url)
 			.then((res) => {
-				// console.log(res.data);
-				resolve(res.data);
+				resolve(res);
 			})
 			.catch((err) => {
 				console.log(`Error getAllProductAPI: ${err}`);
@@ -25,8 +24,7 @@ export async function getOneProduct(id) {
 		axiosInstance
 			.get(url)
 			.then((res) => {
-				// console.log(res.data);
-				resolve(res.data);
+				resolve(res);
 			})
 			.catch((err) => {
 				console.log(`Error getOneProductAPI: ${err}`);
@@ -43,8 +41,7 @@ export async function addNewProduct(data) {
 		axiosInstance
 			.post(url, data)
 			.then((res) => {
-				// console.log(res.data);
-				resolve(res.data);
+				resolve(res);
 			})
 			.catch((err) => {
 				console.log(`Error addNewProductAPI: ${err}`);
@@ -61,8 +58,7 @@ export async function updateProduct(id, data) {
 		axiosInstance
 			.put(url, data)
 			.then((res) => {
-				// console.log(res.data);
-				resolve(res.data);
+				resolve(res);
 			})
 			.catch((err) => {
 				console.log(`Error updateProductAPI: ${err}`);
@@ -79,8 +75,7 @@ export async function moveProductsToTrash(data) {
 		axiosInstance
 			.delete(url, { data })
 			.then((res) => {
-				// console.log(res.data);
-				resolve(res.data);
+				resolve(res);
 			})
 			.catch((err) => {
 				console.log(`Error moveProductsToTrashAPI: ${err}`);
@@ -89,4 +84,22 @@ export async function moveProductsToTrash(data) {
 	};
 
 	return new Promise(moveProductsToTrashAPI);
+}
+
+// Brand
+export async function getBrands() {
+  const getBrandsAPI = (resolve, reject) => {
+		let url = SERVER_API + `/api/brand`;
+		axiosInstance
+			.get(url)
+			.then((res) => {
+				resolve(res);
+			})
+			.catch((err) => {
+				console.log(`Error getBrandsAPI: ${err}`);
+				reject(err);
+			});
+	};
+
+	return new Promise(getBrandsAPI);
 }
