@@ -73,6 +73,7 @@ model Customer {
   cartItems               CartItem[]
   createdReviews          Review[] @relation("CustomerCreatedReview")
   stockSellEvents         StockSellEvent[]
+  wishlists               Wishlist[]
 
   @@map("customers")
 }

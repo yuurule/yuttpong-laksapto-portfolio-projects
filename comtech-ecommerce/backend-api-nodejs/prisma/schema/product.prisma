@@ -30,6 +30,7 @@ model Product {
   deletedBy       User? @relation("UserDeletedProduct", fields: [deletedById], references: [id])
   campaignProducts    CampaignProduct[]
   stockSellEvents     StockSellEvent[]
+  wishlists           Wishlist[]
 
   @@map("products")
 }

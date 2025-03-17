@@ -14,7 +14,9 @@ async function main() {
       };
 
       await tx.user.deleteMany({});
+      await tx.customer.deleteMany({});
 
+      // Dummy data
       const users = [
         {
           email: 'admin@example.com',
@@ -168,6 +170,63 @@ async function main() {
           discount: 10
         },
       ]
+      const productsCampaign = [
+        { userId: 1, campaignId: 2, productsId: [1, 2, 4] },
+        { userId: 1, campaignId: 1, productsId: [3] },
+      ]
+      const customers = [
+        {
+          email: 'cs1@example.com',
+          password: await hashPassword('passcs1'),
+          lastActive: new Date(),
+        },
+        {
+          email: 'cs2@example.com',
+          password: await hashPassword('passcs1'),
+          lastActive: new Date(),
+        },
+      ];
+      const wishlists = [
+        { customerId: 1, productId: 1 },
+        { customerId: 1, productId: 2 },
+        { customerId: 2, productId: 3 },
+      ]
+      const reviews = [
+        { 
+          productId: 1,
+          message: 'Good notebook for my game',
+          rating: 4,
+          customerId: 1 
+        },
+        { 
+          productId: 3,
+          message: 'I want this',
+          rating: 5,
+          customerId: 2 
+        },
+      ]
+      const carts = [
+        { customerId: 1, productId: 1, quantity: 1 },
+        { customerId: 2, productId: 3, quantity: 2 },
+      ]
+      const orders = [
+        { 
+          customerId: 1, 
+          total: 79990,
+          items: [{
+            productId: 1,
+            quantity: 1
+          }] 
+        },
+        { 
+          customerId: 2, 
+          total: 57990,
+          items: [{
+            productId: 3,
+            quantity: 1
+          }] 
+        },
+      ]
 
       for (const user of users) {
         await tx.user.upsert({
@@ -290,6 +349,14 @@ async function main() {
             discount: campaign.discount,
             createdBy: { connect: { id: 1 } }
           }
+        });
+      }
+
+      for (const customer of customers) {
+        await tx.customer.upsert({
+          where: { email: customer.email },
+          update: {}, // ถ้ามีอยู่แล้วให้ไม่ทำอะไร
+          create: customer, // ถ้ายังไม่มีให้สร้างใหม่
         });
       }
 

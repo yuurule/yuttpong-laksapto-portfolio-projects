@@ -118,6 +118,11 @@ export interface createCampaignHistoryDto {
   action: string;
   note?: string;
 }
+export interface addRemoveProductCampaignDto {
+  userId: number;
+  campaignId: number;
+  productsId: number[];
+}
 
 // Review
 export interface createReviewDto {

@@ -11,6 +11,7 @@ import { CampaignController } from '../controllers/campaign.controller';
 import { ReviewController } from '../controllers/review.controller';
 import { CartController } from '../controllers/cart.controller';
 import { OrderController } from '../controllers/order.controller';
+import { WishlistController } from '../controllers/wishlist.controller';
 
 const router = express.Router();
 const authController = new AuthController();
@@ -24,6 +25,7 @@ const campaignController = new CampaignController();
 const reviewController = new ReviewController();
 const cartController = new CartController();
 const orderController = new OrderController();
+const wishlistController = new WishlistController();
 
 // Auth routes
 router.post('/auth/register', authController.register);
@@ -101,6 +103,10 @@ router.get('/order/:id', authenticate, orderController.getOrderById);
 router.post('/order/create', authenticate, orderController.createOrder);
 router.put('/order/:id/payment', authenticate, orderController.updatePayment);
 router.put('/order/:id/delivery', authenticate, orderController.updateDelivery);
+
+// Wishlist
+router.post('/wishlist/add', authenticate, wishlistController.addWishlist);
+router.delete('/wishlist/:id', authenticate, wishlistController.removeWishlist);
 
 // Protected route example
 // router.get(

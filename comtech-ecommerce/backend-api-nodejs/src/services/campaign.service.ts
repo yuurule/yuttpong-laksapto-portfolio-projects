@@ -1,6 +1,12 @@
 import { PrismaClient, Prisma, CampaignHistoryAction } from '@prisma/client';
 import * as exception from '../libs/errorException';
-import { createCampaignDto, updateCampaignDto, createCampaignHistoryDto, activateCampaignDto } from '../types';
+import { 
+  createCampaignDto, 
+  updateCampaignDto, 
+  createCampaignHistoryDto, 
+  activateCampaignDto, 
+  addRemoveProductCampaignDto 
+} from '../types';
 
 const prisma = new PrismaClient();
 
@@ -236,6 +242,66 @@ export class CampaignService {
   }
 
   // Campaign product item
-  // add[]
-  // remove[]
+  async addProductCampaign(dto: addRemoveProductCampaignDto) {
+    try {
+      // ตรวจสอบ user มีอยู่จริง
+      const findUser = await prisma.user.findUnique({ where: { id: dto.userId } });
+      if(!findUser) throw new exception.NotFoundException(`Not found user with id ${dto.userId}`);
+
+      // ตรวจสอบ campaign มีอยู่จริง
+      const findCampaign = await prisma.campaign.findUnique({ where: { id: dto.campaignId } });
+      if(!findCampaign) throw new exception.NotFoundException(`Not found campaign with id ${dto.campaignId}`);
+
+      // ตรวจสอบ product ทุกตัวมีอยู่จริง
+      const findProducts = await prisma.product.findMany({ where: { id: { in: dto.productsId } } });
+      if(!findProducts) throw new exception.NotFoundException(`Some product not found`);
+
+      const addProductsInCampaign = await prisma.campaignProduct.createMany({
+        data: dto.productsId.map(id => (
+          {
+            campaignId: dto.campaignId,
+            productId: id,
+            assignedById: dto.userId
+          }
+        ))
+      });
+
+      return addProductsInCampaign;
+    }
+    catch(error: any) {
+      if(error instanceof exception.NotFoundException) throw error;
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error update one campaign due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
+
+  async removeProductCampaign(dto: addRemoveProductCampaignDto) {
+    try {
+      // ตรวจสอบ user มีอยู่จริง
+      const findUser = await prisma.user.findUnique({ where: { id: dto.userId } });
+      if(!findUser) throw new exception.NotFoundException(`Not found user with id ${dto.userId}`);
+
+      // ตรวจสอบ campaign มีอยู่จริง
+      const findCampaign = await prisma.campaign.findUnique({ where: { id: dto.campaignId } });
+      if(!findCampaign) throw new exception.NotFoundException(`Not found campaign with id ${dto.campaignId}`);
+
+      const removeProductsInCampaign = await prisma.campaignProduct.deleteMany({
+        where: {
+          campaignId: dto.campaignId,
+          productId: { in: dto.productsId }
+        }
+      });
+
+      return removeProductsInCampaign;
+    }
+    catch(error: any) {
+      if(error instanceof exception.NotFoundException) throw error;
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error update one campaign due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
 }

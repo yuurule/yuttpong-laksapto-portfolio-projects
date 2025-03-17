@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { sendResponse, sendError } from '../libs/response';
 import { isValidId, isValidHaveValue } from '../libs/validation';
 import { CampaignService } from '../services/campaign.service';
-import { createCampaignDto, createCampaignHistoryDto, activateCampaignDto } from '../types';
+import { createCampaignDto, createCampaignHistoryDto, activateCampaignDto, addRemoveProductCampaignDto } from '../types';
 import { updateCampaignDto } from '../types';
 
 const campaignService = new CampaignService();
@@ -206,4 +206,76 @@ export class CampaignController {
     }
   }
 
+  // Product in campaign
+  async addProductsToCampaign(req: Request, res: Response) {
+    const { userId, campaignId, productsId } = req.body;
+
+    if(!isValidId(userId)) {
+      sendError(res, 400, `User id must not zero or negative number`);
+    }
+    if(!isValidId(campaignId)) {
+      sendError(res, 400, `Campaign id must not zero or negative number`);
+    }
+    if(Array.isArray(productsId)) {
+      for(const id of productsId) {
+        if(!isValidId(id)) {
+          sendError(res, 400, `Product id must not zero or negative number`);
+        }
+      }
+    }
+    else {
+      sendError(res, 400, `Products id required array value`);
+    }
+
+    const dto : addRemoveProductCampaignDto = {
+      userId: userId,
+      campaignId: campaignId,
+      productsId: productsId
+    }
+
+    try {
+      const addProducts = await campaignService.addProductCampaign(dto);
+      sendResponse(res, 201, `Add products in campaign ok`, addProducts)
+    }
+    catch (error: any) {
+      console.error('Add products in campaign error: ', error);
+      sendError(res, error.statusCode, error.message);
+    }
+  }
+
+  async removeProductsToCampaign(req: Request, res: Response) {
+    const { userId, campaignId, productsId } = req.body;
+
+    if(!isValidId(userId)) {
+      sendError(res, 400, `User id must not zero or negative number`);
+    }
+    if(!isValidId(campaignId)) {
+      sendError(res, 400, `Campaign id must not zero or negative number`);
+    }
+    if(Array.isArray(productsId)) {
+      for(const id of productsId) {
+        if(!isValidId(id)) {
+          sendError(res, 400, `Product id must not zero or negative number`);
+        }
+      }
+    }
+    else {
+      sendError(res, 400, `Products id required array value`);
+    }
+
+    const dto : addRemoveProductCampaignDto = {
+      userId: userId,
+      campaignId: campaignId,
+      productsId: productsId
+    }
+
+    try {
+      const removeProducts = await campaignService.removeProductCampaign(dto);
+      sendResponse(res, 200, `Remove products in campaign ok`, removeProducts)
+    }
+    catch (error: any) {
+      console.error('Remove products in campaign error: ', error);
+      sendError(res, error.statusCode, error.message);
+    }
+  }
 }
