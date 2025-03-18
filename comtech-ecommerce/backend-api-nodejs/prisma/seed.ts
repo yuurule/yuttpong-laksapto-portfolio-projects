@@ -171,8 +171,10 @@ async function main() {
         },
       ]
       const productsCampaign = [
-        { userId: 1, campaignId: 2, productsId: [1, 2, 4] },
-        { userId: 1, campaignId: 1, productsId: [3] },
+        { userId: 1, campaignId: 2, productId: 1 },
+        { userId: 1, campaignId: 2, productId: 2 },
+        { userId: 1, campaignId: 2, productId: 4 },
+        { userId: 1, campaignId: 1, productId: 3 },
       ]
       const customers = [
         {
@@ -186,47 +188,6 @@ async function main() {
           lastActive: new Date(),
         },
       ];
-      const wishlists = [
-        { customerId: 1, productId: 1 },
-        { customerId: 1, productId: 2 },
-        { customerId: 2, productId: 3 },
-      ]
-      const reviews = [
-        { 
-          productId: 1,
-          message: 'Good notebook for my game',
-          rating: 4,
-          customerId: 1 
-        },
-        { 
-          productId: 3,
-          message: 'I want this',
-          rating: 5,
-          customerId: 2 
-        },
-      ]
-      const carts = [
-        { customerId: 1, productId: 1, quantity: 1 },
-        { customerId: 2, productId: 3, quantity: 2 },
-      ]
-      const orders = [
-        { 
-          customerId: 1, 
-          total: 79990,
-          items: [{
-            productId: 1,
-            quantity: 1
-          }] 
-        },
-        { 
-          customerId: 2, 
-          total: 57990,
-          items: [{
-            productId: 3,
-            quantity: 1
-          }] 
-        },
-      ]
 
       for (const user of users) {
         await tx.user.upsert({
@@ -352,11 +313,110 @@ async function main() {
         });
       }
 
+      for(let pCam of productsCampaign) {
+        await tx.campaignProduct.create({
+          data: {
+            campaign: { connect: { id: pCam.campaignId } },
+            product: { connect: { id: pCam.productId } },
+            assignedBy: { connect: { id: pCam.userId } }
+          }
+        });
+      }
+
       for (const customer of customers) {
         await tx.customer.upsert({
           where: { email: customer.email },
           update: {}, // ถ้ามีอยู่แล้วให้ไม่ทำอะไร
           create: customer, // ถ้ายังไม่มีให้สร้างใหม่
+        });
+      }
+
+      const wishlists = [
+        { customerId: 1, productId: 1 },
+        { customerId: 1, productId: 2 },
+        { customerId: 2, productId: 3 },
+      ]
+      for (const wish of wishlists) {
+        await tx.wishlist.create({
+          data: {
+            customer: { connect: { id: wish.customerId } },
+            product: { connect: { id: wish.productId } },
+          }
+        });
+      }
+
+      const reviews = [
+        { 
+          productId: 1,
+          message: 'Good notebook for my game',
+          rating: 4,
+          customerId: 1 
+        },
+        { 
+          productId: 3,
+          message: 'I want this',
+          rating: 5,
+          customerId: 2 
+        },
+      ]
+      for (const review of reviews) {
+        await tx.review.create({
+          data: {
+            message: review.message,
+            rating: review.rating,
+            product: { connect: { id: review.productId } },
+            createdBy: { connect: { id: review.customerId } },
+          }
+        });
+      }
+
+      const carts = [
+        { customerId: 1, productId: 1, quantity: 1 },
+        { customerId: 2, productId: 3, quantity: 2 },
+      ]
+      for (const cart of carts) {
+        await tx.cartItem.create({
+          data: {
+            customer: { connect: { id: cart.customerId } },
+            product: { connect: { id: cart.productId } },
+            quantity: cart.quantity
+          }
+        });
+      }
+
+      const orders = [
+        { 
+          customerId: 1, 
+          total: 79990,
+          items: [{
+            productId: 1,
+            quantity: 1,
+            sale_price: 79990
+          }] 
+        },
+        { 
+          customerId: 2, 
+          total: 57990,
+          items: [{
+            productId: 3,
+            quantity: 1,
+            sale_price: 57990
+          }] 
+        },
+      ]
+      for (const order of orders) {
+        await tx.order.create({
+          data: {
+            customer: { connect: { id: order.customerId } },
+            total: order.total,
+            orderItems: {
+              create: order.items.map(i => ({
+                quantity: i.quantity,
+                product: { connect: { id: i.productId } },
+                sale_price: i.sale_price
+              }))
+            }
+          }
         });
       }
 
