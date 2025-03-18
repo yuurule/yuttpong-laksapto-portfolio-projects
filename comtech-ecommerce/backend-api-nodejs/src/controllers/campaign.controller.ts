@@ -118,7 +118,7 @@ export class CampaignController {
       sendError(res, 400, `userId is required`);
     }
 
-    if(isActive && (!isValidId(startAt) || !isValidId(endAt))) {
+    if(isActive && !isValidHaveValue([startAt, endAt])) {
       sendError(res, 400, `startAt and endAt is required for active campaign`);
     }
 

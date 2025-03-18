@@ -81,7 +81,7 @@ export default function UpsertCategory({
       try {
         await CategoryService.updateCategory(currentData.id, requestData)
           .then(res => {
-            console.log(res.RESULT_DATA);
+            //console.log(res.RESULT_DATA);
             handleRefreshData();
             handleResetToCreate();
             toast.success(`Updating category is successfully!`);

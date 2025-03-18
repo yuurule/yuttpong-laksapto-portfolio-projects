@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import ProductInCampaign from '../components/Campaign/ProductInCampaign';
 import UpsertCampaign from '../components/Campaign/UpsertCampaign';
 import ActivateCampaign from '../components/Campaign/ActivateCampaign';
+import dayjs from 'dayjs';
 
 export default function Campaign() {
 
@@ -25,6 +26,8 @@ export default function Campaign() {
 
   const [selectedActivateCampaign, setSelectActivateCampaign] = useState(null);
   const [openActivateCampaignDialog, setOpenActivateCampaignDialog] = useState(false);
+
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,7 +46,9 @@ export default function Campaign() {
     }
 
     fetchData();
-  }, []);
+  }, [refresh]);
+
+  const handleRefreshData = () => setRefresh(prevState => prevState + 1);
 
   const handleSelectedCampaign = (id, name) => {
     const productsInSelectedCampaign = campaignList.find(i => i.id === id);
@@ -54,6 +59,11 @@ export default function Campaign() {
       id: id,
       name: name
     });
+  }
+
+  const handleResetToCreate = () => {
+    setUpsertAction('CREATE');
+    setSelectEditCampaign(null);
   }
 
   if(loadData) return <div>กำลังโหลด...</div>
@@ -152,8 +162,8 @@ export default function Campaign() {
                               setSelectActivateCampaign({
                                 id: campaign.id,
                                 isActive: campaign.isActive,
-                                startAt: campaign.startAt,
-                                endAt: campaign.endAt
+                                startAt: campaign.startAt ? dayjs(campaign.startAt) : null,
+                                endAt: campaign.endAt ? dayjs(campaign.endAt) : null
                               });
                               setOpenActivateCampaignDialog(true);
                             }}
@@ -213,12 +223,15 @@ export default function Campaign() {
         handleCloseDialog={() => setOpenUpsertCampaignDialog(false)}
         upsertAction={upsertAction}
         selectedEditCampaign={selectedEditCampaign}
+        handleRefreshData={handleRefreshData}
+        handleResetToCreate={handleResetToCreate}
       />
 
       <ActivateCampaign
         openDialog={openActivateCampaignDialog}
         handleCloseDialog={() => setOpenActivateCampaignDialog(false)}
         selectedActivateCampaign={selectedActivateCampaign}
+        handleRefreshData={handleRefreshData}
       />
 
     </div>

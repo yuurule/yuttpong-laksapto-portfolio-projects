@@ -4,11 +4,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
 import PaginationArrow from '../../components/PaginationArrow/PaginationArrow';
 import AddProductInCampaign from './AddProductInCampaign';
+import { formatMoney } from '../../utils/utils';
 
 export default function ProductInCampaign({ selectedCampaign, data }) {
 
   const [openAddDialog, setOpenAddDialog] = useState(false);
-
 
   return (
     <>
@@ -58,8 +58,8 @@ export default function ProductInCampaign({ selectedCampaign, data }) {
                           label={``}
                         />
                       </td>
-                      <td>Asus ROG Zephyrus G16 GU605MI-QR225WS Eclipse Gray</td>
-                      <td>$1,250<br /><small><s>$1,400</s></small></td>
+                      <td>{i.product.name}</td>
+                      <td>฿{formatMoney(i.product.price)}</td>
                     </tr>
                   ))
                 }

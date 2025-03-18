@@ -23,6 +23,9 @@ export class CampaignService {
           },
           campaignHistories: true,
           orderItems: true,
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
       });
       return campaigns;

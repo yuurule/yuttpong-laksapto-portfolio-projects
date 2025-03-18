@@ -12,6 +12,7 @@ import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import * as CampaignService from '../../services/campaignService';
 
 dayjs.extend(isSameOrAfter);
 
@@ -39,8 +40,11 @@ const activatCampaignSchema = z.object({
 export default function ActivateCampaign({
   openDialog,
   handleCloseDialog,
-  selectedActivateCampaign=null
+  selectedActivateCampaign=null,
+  handleRefreshData
 }) {
+
+  const authUser = useSelector(state => state.auth.user);
 
   const {
     control,
@@ -69,7 +73,7 @@ export default function ActivateCampaign({
   }, [selectedActivateCampaign]);
 
   const onSubmit = async (data) => {
-    console.log(data)
+    //console.log(data)
 
     const formattedData = {
       startAt_iso: dayjs(data.startAt).toISOString(),
@@ -77,7 +81,26 @@ export default function ActivateCampaign({
     };
 
     const requestData = {
-      
+      userId: authUser.id,
+      isActive: data.isActive,
+      startAt: data.isActive === true ? formattedData.startAt_iso : null,
+      endAt: data.isActive === true ? formattedData.endAt_iso : null,
+    }
+
+    try {
+      await CampaignService.activateCampaign(selectedActivateCampaign.id, requestData)
+        .then(res => {
+          handleRefreshData();
+          toast.success(` is successfully!`);
+          handleCloseDialog();
+        })
+        .catch(error => {
+          throw new Error(`Updating category error due to: ${error}`)
+        });
+    }
+    catch(error) {
+      console.log(error);
+      toast.error(error);
     }
   }
 

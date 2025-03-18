@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faClose } from '@fortawesome/free-solid-svg-icons';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import * as CampaignService from '../../services/campaignService';
 
 const campaignSchema = z.object({
   name: z
@@ -26,7 +27,11 @@ export default function UpsertCampaign({
   handleCloseDialog,
   upsertAction=null,
   selectedEditCampaign=null,
+  handleRefreshData,
+  handleResetToCreate
 }) {
+
+  const authUser = useSelector(state => state.auth.user);
 
   const {
     register,
@@ -52,7 +57,51 @@ export default function UpsertCampaign({
 
 
   const onSubmit = async (data) => {
-    console.log(data)
+    
+    const requestData = {
+      userId: authUser.id,
+      name: data.name,
+      discount: data.discount,
+      description: data.description
+    }
+
+    if(upsertAction === 'CREATE') {
+      try {
+        await CampaignService.createCampaign(requestData)
+          .then(res => {
+            handleRefreshData();
+            reset(selectedEditCampaign);
+            toast.success(`Creating new campaign is successfully!`);
+            handleCloseDialog();
+          })
+          .catch(error => {
+            throw new Error(`Creating new campaign error due to: ${error}`)
+          });
+      }
+      catch(error) {
+        console.log(error);
+        toast.error(error);
+      }
+    }
+    else if(upsertAction === 'EDIT') {
+      try {
+        await CampaignService.updateCampaign(selectedEditCampaign.id, requestData)
+          .then(res => {
+            handleRefreshData();
+            handleResetToCreate();
+            toast.success(`Update campaign is successfully!`);
+            handleCloseDialog();
+          })
+          .catch(error => {
+            throw new Error(`Update new campaign error due to: ${error}`)
+          });
+      }
+      catch(error) {
+        console.log(error);
+        toast.error(error);
+      }
+    }
+
   }
 
   return (
