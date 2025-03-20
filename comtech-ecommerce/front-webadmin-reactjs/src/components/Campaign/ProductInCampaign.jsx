@@ -80,10 +80,13 @@ export default function ProductInCampaign({ selectedCampaign, data }) {
       <h5 className='my-5 text-center'>Select some campaign</h5>
     }
     
-    <AddProductInCampaign
-      openDialog={openAddDialog}
-      handleCloseDialog={() => setOpenAddDialog(false)}
-    />
+    {
+      openAddDialog &&
+      <AddProductInCampaign
+        openDialog={openAddDialog}
+        handleCloseDialog={() => setOpenAddDialog(false)}
+      />
+    }
     </>
   )
 }

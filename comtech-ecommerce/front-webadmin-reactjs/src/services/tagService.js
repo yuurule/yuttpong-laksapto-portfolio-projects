@@ -7,8 +7,7 @@ export async function getTags() {
 		axiosInstance
 			.get(url)
 			.then((res) => {
-				// console.log(res.data);
-				resolve(res.data);
+				resolve(res);
 			})
 			.catch((err) => {
 				console.log(`Error getTagsAPI: ${err}`);
@@ -25,8 +24,7 @@ export async function createTag(data) {
 		axiosInstance
 			.post(url, data)
 			.then((res) => {
-				// console.log(res.data);
-				resolve(res.data);
+				resolve(res);
 			})
 			.catch((err) => {
 				console.log(`Error createTagAPI: ${err}`);
@@ -43,8 +41,7 @@ export async function updateTag(id, data) {
 		axiosInstance
 			.put(url, data)
 			.then((res) => {
-				// console.log(res.data);
-				resolve(res.data);
+				resolve(res);
 			})
 			.catch((err) => {
 				console.log(`Error updateTagAPI: ${err}`);
@@ -61,8 +58,7 @@ export async function deleteTags(data) {
 		axiosInstance
 			.delete(url, { data })
 			.then((res) => {
-				// console.log(res.data);
-				resolve(res.data);
+				resolve(res);
 			})
 			.catch((err) => {
 				console.log(`Error deleteTagsAPI: ${err}`);

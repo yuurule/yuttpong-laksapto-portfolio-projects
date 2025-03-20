@@ -8,7 +8,7 @@ export async function getCategories() {
 			.get(url)
 			.then((res) => {
 				// console.log(res.data);
-				resolve(res.data);
+				resolve(res);
 			})
 			.catch((err) => {
 				console.log(`Error getCategoryAPI: ${err}`);
@@ -26,7 +26,7 @@ export async function createCategory(data) {
 			.post(url, data)
 			.then((res) => {
 				// console.log(res.data);
-				resolve(res.data);
+				resolve(res);
 			})
 			.catch((err) => {
 				console.log(`Error createCategoryAPI: ${err}`);
@@ -44,7 +44,7 @@ export async function updateCategory(id, data) {
 			.put(url, data)
 			.then((res) => {
 				// console.log(res.data);
-				resolve(res.data);
+				resolve(res);
 			})
 			.catch((err) => {
 				console.log(`Error updateCategoryAPI: ${err}`);
@@ -62,7 +62,7 @@ export async function deleteCategories(data) {
 			.delete(url, { data })
 			.then((res) => {
 				// console.log(res.data);
-				resolve(res.data);
+				resolve(res);
 			})
 			.catch((err) => {
 				console.log(`Error deleteCategoriesAPI: ${err}`);

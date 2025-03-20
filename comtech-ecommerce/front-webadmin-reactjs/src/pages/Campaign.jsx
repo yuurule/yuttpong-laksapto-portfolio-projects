@@ -218,21 +218,27 @@ export default function Campaign() {
 
       </div>
 
-      <UpsertCampaign
-        openDialog={openUpsertCampaignDialog}
-        handleCloseDialog={() => setOpenUpsertCampaignDialog(false)}
-        upsertAction={upsertAction}
-        selectedEditCampaign={selectedEditCampaign}
-        handleRefreshData={handleRefreshData}
-        handleResetToCreate={handleResetToCreate}
-      />
-
-      <ActivateCampaign
-        openDialog={openActivateCampaignDialog}
-        handleCloseDialog={() => setOpenActivateCampaignDialog(false)}
-        selectedActivateCampaign={selectedActivateCampaign}
-        handleRefreshData={handleRefreshData}
-      />
+      {
+        openUpsertCampaignDialog &&
+        <UpsertCampaign
+          openDialog={openUpsertCampaignDialog}
+          handleCloseDialog={() => setOpenUpsertCampaignDialog(false)}
+          upsertAction={upsertAction}
+          selectedEditCampaign={selectedEditCampaign}
+          handleRefreshData={handleRefreshData}
+          handleResetToCreate={handleResetToCreate}
+        />
+      }
+      
+      {
+        openActivateCampaignDialog &&
+        <ActivateCampaign
+          openDialog={openActivateCampaignDialog}
+          handleCloseDialog={() => setOpenActivateCampaignDialog(false)}
+          selectedActivateCampaign={selectedActivateCampaign}
+          handleRefreshData={handleRefreshData}
+        />
+      }
 
     </div>
   )
