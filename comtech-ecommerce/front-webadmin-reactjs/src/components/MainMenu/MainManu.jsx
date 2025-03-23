@@ -17,13 +17,13 @@ export default function MainMenu() {
       <ul className='list-unstyled'>
         <li><Link to="/dashboard"><FontAwesomeIcon icon={faChartLine} className='me-2' />Dashboard</Link></li>
         {/* <li><Link to="/report"><FontAwesomeIcon icon={faChartPie} className='me-2' />Report</Link></li> */}
+        <li><Link to="/customer"><FontAwesomeIcon icon={faUsers} className='me-2' />Customer</Link></li>
         <li><Link to="/product"><FontAwesomeIcon icon={faBox} className='me-2' />Product</Link></li>
         <li><Link to="/stock"><FontAwesomeIcon icon={faBoxes} className='me-2' />Stock</Link></li>
         <li><Link to="/order"><FontAwesomeIcon icon={faShoppingBag} className='me-2' />Order</Link></li>
         <li><Link to="/campaign"><FontAwesomeIcon icon={faGift} className='me-2' />Campaign</Link></li>
         <li><Link to="/category"><FontAwesomeIcon icon={faList} className='me-2' />Category</Link></li>
         <li><Link to="/tag"><FontAwesomeIcon icon={faTags} className='me-2' />Tag</Link></li>
-        <li><Link to="/customer"><FontAwesomeIcon icon={faUsers} className='me-2' />Customer</Link></li> 
         {/* <li><Link to="/user"><FontAwesomeIcon icon={faUsers} className='me-2' />Users</Link></li> */}
       </ul>
     </div>

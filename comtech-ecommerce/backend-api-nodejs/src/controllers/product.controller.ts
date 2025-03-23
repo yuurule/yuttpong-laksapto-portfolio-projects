@@ -3,14 +3,61 @@ import { sendResponse, sendError } from '../libs/response';
 import { isValidId, isValidHaveValue } from '../libs/validation';
 import { ProductService } from '../services/product.service';
 import { createProductDto, updateProductDto } from '../types';
+import { parseBoolean } from '../libs/utility';
 
 const productService = new ProductService();
 
 export class ProductController {
 
   async getProducts(req: Request, res: Response) {
+    // pagination
+    const page = parseInt(req.query.page as string || '1');
+    const pageSize = parseInt(req.query.pageSize as string || '10');
+    const noPagination = parseBoolean(req.query.noPagination as string) || false;
+    // filtering
+    const search = req.query.search as string;
+    const brandsId = req.query.brands as string;
+    const categoriesId = req.query.categories as string;
+    const tagsId = req.query.tags as string;
+    // sorting
+    const orderBy = req.query.orderBy as string || 'createdAt';
+    const orderDir = req.query.orderDir as string || 'desc';
+
+    let brands : number[] = [];
+    if(brandsId) {
+      brands = brandsId.split(',').map(id => {
+        const parsed = parseInt(id.trim(), 10);
+        if(!isValidId(parsed)) {
+          sendError(res, 400, `Brand id must not zero or negative number`);
+        }
+        return parsed;
+      })
+    }
+
+    let categories : number[] = [];
+    if(categoriesId) {
+      categories = categoriesId.split(',').map(id => {
+        const parsed = parseInt(id.trim(), 10);
+        if(!isValidId(parsed)) {
+          sendError(res, 400, `Category id must not zero or negative number`);
+        }
+        return parsed;
+      })
+    }
+
+    let tags : number[] = [];
+    if(tagsId) {
+      tags = tagsId.split(',').map(id => {
+        const parsed = parseInt(id.trim(), 10);
+        if(!isValidId(parsed)) {
+          sendError(res, 400, `Tag id must not zero or negative number`);
+        }
+        return parsed;
+      })
+    }
+
     try {
-      const products = await productService.findAll();
+      const products = await productService.findAll(page, pageSize, noPagination, search, brands, categories, tags, orderBy, orderDir);
       sendResponse(res, 200, `Get all product ok`, products);
     }
     catch (error: any) {

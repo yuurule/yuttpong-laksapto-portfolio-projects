@@ -283,8 +283,8 @@ export class CampaignService {
   async removeProductCampaign(dto: addRemoveProductCampaignDto) {
     try {
       // ตรวจสอบ user มีอยู่จริง
-      const findUser = await prisma.user.findUnique({ where: { id: dto.userId } });
-      if(!findUser) throw new exception.NotFoundException(`Not found user with id ${dto.userId}`);
+      // const findUser = await prisma.user.findUnique({ where: { id: dto.userId } });
+      // if(!findUser) throw new exception.NotFoundException(`Not found user with id ${dto.userId}`);
 
       // ตรวจสอบ campaign มีอยู่จริง
       const findCampaign = await prisma.campaign.findUnique({ where: { id: dto.campaignId } });

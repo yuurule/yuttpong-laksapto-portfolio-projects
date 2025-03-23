@@ -12,3 +12,20 @@ export function generateUuidBasedSku(prefix: string): string {
   // ตัวอย่างผลลัพธ์: ABC-1A2B3C4D-230426
   return `${prefix}-${shortUuid}-${shortDate}`;
 }
+
+// ฟังก์ชันสำหรับแปลง string เป็น boolean
+export function parseBoolean(value: string) {
+  const truthy = ['true', 't', 'yes', 'y', 'on', '1'];
+  const falsy = ['false', 'f', 'no', 'n', 'off', '0'];
+  
+  if (typeof value === 'boolean') return value;
+  if (typeof value !== 'string') return Boolean(value);
+  
+  value = value.trim().toLowerCase();
+  
+  if (truthy.includes(value)) return true;
+  if (falsy.includes(value)) return false;
+  
+  // กรณีไม่ใช่ค่าที่รู้จัก
+  return null;
+}

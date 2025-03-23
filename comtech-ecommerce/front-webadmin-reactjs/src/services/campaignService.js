@@ -86,11 +86,17 @@ export async function activateCampaign(id, data) {
 	return new Promise(activateCampaignAPI);
 }
 
-export async function deleteCampaigns(data) {
+export async function deleteCampaigns(campaignsId, userId) {
   const deleteCampaignsAPI = (resolve, reject) => {
 		let url = SERVER_API + `/api/campaign`;
+
+		const requestData = {
+			campaignsId: campaignsId, 
+			userId: userId
+		}
+
 		axiosInstance
-			.delete(url, data)
+			.delete(url, { data: requestData })
 			.then((res) => {
 				resolve(res);
 			})
@@ -118,4 +124,50 @@ export async function createCampaignHistory(data) {
 	};
 
 	return new Promise(createCampaignHistoryAPI);
+}
+
+export async function addProductsToCampaign(id, products, userId) {
+	const addProductsToCampaignAPI = (resolve, reject) => {
+		let url = SERVER_API + `/api/campaign/${id}/add-product`;
+
+		const requestData = {
+			userId: userId, 
+			productsId: products
+		}
+
+		axiosInstance
+			.post(url, requestData)
+			.then((res) => {
+				resolve(res);
+			})
+			.catch((err) => {
+				console.log(`Error addProductsToCampaignAPI: ${err}`);
+				reject(err);
+			});
+	};
+
+	return new Promise(addProductsToCampaignAPI);
+}
+
+export async function removeProductsFromCampaign(id, products, userId) {
+	const removeProductsFromCampaignAPI = (resolve, reject) => {
+		let url = SERVER_API + `/api/campaign/${id}/remove-product`;
+
+		const requestData = {
+			userId: userId, 
+			productsId: products
+		}
+
+		axiosInstance
+			.delete(url, { data: requestData })
+			.then((res) => {
+				resolve(res);
+			})
+			.catch((err) => {
+				console.log(`Error removeProductsFromCampaignAPI: ${err}`);
+				reject(err);
+			});
+	};
+
+	return new Promise(removeProductsFromCampaignAPI);
 }

@@ -1,12 +1,47 @@
+import { useState, useEffect } from 'react';
 import { Form, InputGroup, Button  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../../components/MyPagination/MyPagination';
 import { Link } from 'react-router';
+import { toast } from 'react-toastify';
+import * as CustomerService from '../../services/customerService';
+import { formatTimestamp } from '../../utils/utils';
+import ReviewWaitApprove from '../../components/Customer/ReviewWaitApprove';
 
 export default function Customers() {
 
+  const [loadData, setLoadData] = useState(false);
+  const [customerList, setCustomerList] = useState([]);
 
+  useEffect(() => {
+    const fecthCustomers = async () => {
+      setLoadData(true);
+      try {
+        const customers = await CustomerService.getCustomers();
+        setCustomerList(customers.data.RESULT_DATA);
+      }
+      catch(error) {
+        console.log(error);
+        toast.error(error);
+      } 
+      finally {
+        setLoadData(false);
+      }
+    }
+
+    fecthCustomers();
+  }, []);
+
+  const renderTotalExpense = (ordersData) => {
+    let result = 0;
+    ordersData.map(i => {
+      result += parseFloat(i.total);
+    });
+    return `฿${result.toLocaleString('th-TH')}`;
+  }
+
+  if(loadData) return <>Loading...</>
 
   return (
     <div className={`page`}>
@@ -16,7 +51,7 @@ export default function Customers() {
           <h1>Customers</h1>
         </header>
 
-        <div className='col-sm-7'>
+        <div className='col-sm-8'>
           <div className="card">
             <div className="card-body">
               <div className='d-flex justify-content-between align-items-center mb-3'>
@@ -52,7 +87,7 @@ export default function Customers() {
                 </thead>
                 <tbody>
                   {
-                    [...Array(15)].map((i, index) => (
+                    customerList.map((customer, index) => (
                       <tr key={`customer_row_${index + 1}`}>
                         <td>
                           <Form.Check
@@ -61,11 +96,11 @@ export default function Customers() {
                             label={``}
                           />
                         </td>
-                        <td><Link to="/customer/1">Yuttapong Laksapto</Link></td>
-                        <td>$5,480.00</td>
-                        <td><span className='badge text-bg-success'>active</span></td>
-                        <td>12 Jan 25</td>
-                        <td>12 Jan 25</td>
+                        <td><Link to={`/customer/${customer.id}`}>{customer?.customerDetail?.firstName} {customer?.customerDetail?.lastName}</Link></td>
+                        <td>{renderTotalExpense(customer.orders)}</td>
+                        <td><span className='badge text-bg-success'>n/a</span></td>
+                        <td>{formatTimestamp(customer.createdAt)}</td>
+                        <td>{formatTimestamp(customer.lastActive)}</td>
                       </tr>
                     ))
                   }
@@ -78,51 +113,31 @@ export default function Customers() {
           </div>
         </div>
 
-        <div className='col-sm-5'>
+        <div className='col-sm-4'>
 
           <div className='card mb-3'>
             <div className='card-body'>
               <header className='d-flex justify-content-between align-items-center'>
-                <h5 className='mb-0'>Customer Interesting</h5>
+                <h5 className='mb-0'>Total Customer</h5>
               </header>
-              <div className='d-flex justify-content-center align-items-center' style={{height: 360}}>
+              {/* <div className='d-flex justify-content-center align-items-center'>
                 <p className='mb-0'>"Pie Chart Here"</p>
-              </div>
+              </div> */}
             </div>
           </div>
 
-          <div className='card'>
+          <div className='card mb-3'>
             <div className='card-body'>
-              <header>
-                <h5>Review Waiting For Approve</h5>
+              <header className='d-flex justify-content-between align-items-center'>
+                <h5 className='mb-0'>New Register</h5>
               </header>
-              <div className='d-flex justify-content-between align-items-center'>
-                <strong>Review</strong>
-                <div className='d-flex'>
-                  <button className='btn btn-primary me-2'><FontAwesomeIcon icon={faEdit} /></button>
-                  <button className='btn btn-danger'><FontAwesomeIcon icon={faTrash} /></button>
-                </div>
-              </div>
-              <hr />
-              <div>
-                <p style={{maxHeight: 120, overflowY: 'auto'}}>"Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum cum saepe dolores reprehenderit inventore dolorum corrupti, harum itaque, eos unde nobis soluta. Repellat nulla est nobis aliquid! Corrupti, magni quaerat."</p>
-                <div className='d-flex justify-content-between align-items-center'>
-                  <p className='mb-0'><strong>By</strong>: Yuttapong</p>
-                  <p className='mb-0'><strong>At</strong>: 12 Jan 25, 12:30:55</p>
-                </div>
-                <p className='mb-0'><strong>On Product</strong>: Asus ROG Flow Z13 GZ302EA-RU087WA </p>
-              </div>
-              <div className='w-100 d-flex justify-content-between align-items-center mt-3'>
-                <button className='btn btn-link p-0'>
-                  <FontAwesomeIcon icon={faChevronLeft} />
-                </button>
-                <strong>1 of 50</strong>
-                <button className='btn btn-link p-0'>
-                  <FontAwesomeIcon icon={faChevronRight} />
-                </button>
-              </div>
+              {/* <div className='d-flex justify-content-center align-items-center'>
+                <p className='mb-0'>"Pie Chart Here"</p>
+              </div> */}
             </div>
           </div>
+
+          <ReviewWaitApprove />
 
         </div>
         

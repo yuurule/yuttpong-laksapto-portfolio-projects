@@ -6,12 +6,26 @@ const prisma = new PrismaClient();
 
 export class ReviewService {
 
-  async findAll(customerId?: number) {
+  async findAll() {
     try { 
       const reviews = await prisma.review.findMany({
-        where: customerId ? {
-          id: customerId
-        } : {}
+        include: {
+          product: {
+            select: {
+              name: true
+            }
+          },
+          createdBy: {
+            include: {
+              customerDetail: {
+                select: {
+                  firstName: true,
+                  lastName: true
+                }
+              }
+            }
+          }
+        }
       });
       return reviews;
     }

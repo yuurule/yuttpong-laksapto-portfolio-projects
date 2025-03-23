@@ -208,13 +208,14 @@ export class CampaignController {
 
   // Product in campaign
   async addProductsToCampaign(req: Request, res: Response) {
-    const { userId, campaignId, productsId } = req.body;
+    const campaignId = parseInt(req.params.id);
+    const { userId, productsId } = req.body;
 
-    if(!isValidId(userId)) {
-      sendError(res, 400, `User id must not zero or negative number`);
-    }
     if(!isValidId(campaignId)) {
       sendError(res, 400, `Campaign id must not zero or negative number`);
+    }
+    if(!isValidId(userId)) {
+      sendError(res, 400, `User id must not zero or negative number`);
     }
     if(Array.isArray(productsId)) {
       for(const id of productsId) {
@@ -244,13 +245,14 @@ export class CampaignController {
   }
 
   async removeProductsToCampaign(req: Request, res: Response) {
-    const { userId, campaignId, productsId } = req.body;
+    const campaignId = parseInt(req.params.id);
+    const { userId, productsId } = req.body;
 
-    if(!isValidId(userId)) {
-      sendError(res, 400, `User id must not zero or negative number`);
-    }
     if(!isValidId(campaignId)) {
       sendError(res, 400, `Campaign id must not zero or negative number`);
+    }
+    if(!isValidId(userId)) {
+      sendError(res, 400, `User id must not zero or negative number`);
     }
     if(Array.isArray(productsId)) {
       for(const id of productsId) {

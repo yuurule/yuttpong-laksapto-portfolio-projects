@@ -1,9 +1,20 @@
 import { SERVER_API } from './serviceConfig';
 import axiosInstance from '../utils/axiosInstance';
 
-export async function getAllProduct() {
+export async function getAllProduct(paramsQuery) {
   const getAllProductAPI = (resolve, reject) => {
-		let url = SERVER_API + `/api/product`;
+		const {
+			page,
+			pageSize,
+			noPagination,
+			brands,
+			categories,
+			tags,
+			orderBy,
+			orderDir
+		} = paramsQuery;
+
+		let url = SERVER_API + `/api/product?page=${page}&pageSize=${pageSize}&noPagination=${noPagination}&brands=${brands}&categories=${categories}&tags=${tags}&orderBy=${orderBy}&orderDir=${orderDir}`;
 		axiosInstance
 			.get(url)
 			.then((res) => {

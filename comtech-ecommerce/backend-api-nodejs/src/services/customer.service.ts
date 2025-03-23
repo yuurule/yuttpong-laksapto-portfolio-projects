@@ -1,10 +1,11 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Prisma, Role } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { AUTH_CONFIG } from '../config/auth.config';
 import { CustomerAuthTokens, CustomerTokenPayload, Customer } from '../types/auth.types';
 import * as metrics from '../config/metrics.config';
 import ms from 'ms';
+import * as exception from '../libs/errorException';
 
 const prisma = new PrismaClient();
 
@@ -123,5 +124,53 @@ export class CustomerService {
     });
 
     return { accessToken, refreshToken };
+  }
+
+  async findAll() {
+    try {
+      const customers = await prisma.customer.findMany({
+        include: {
+          customerDetail: true,
+          orders: true,
+          cartItems: true,
+          createdReviews: true,
+          stockSellEvents: true,
+          wishlists: true
+        }
+      });
+      return customers;
+    }
+    catch(error: any) {
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error find all customer due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
+
+  async findOne(customerId: number) {
+    try {
+      const customer = await prisma.customer.findUnique({
+        where: { id: customerId },
+        include: {
+          customerDetail: true,
+          orders: true,
+          cartItems: true,
+          createdReviews: true,
+          stockSellEvents: true,
+          wishlists: true
+        }
+      });
+
+      if(!customer) throw new exception.NotFoundException(`Not found campaign with id ${customerId}`);
+      return customer;
+    }
+    catch(error: any) {
+      if(error instanceof exception.NotFoundException) throw error;
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error find all customer due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
   }
 }

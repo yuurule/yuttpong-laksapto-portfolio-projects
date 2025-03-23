@@ -1,17 +1,17 @@
 import { SERVER_API } from './serviceConfig';
 import axiosInstance from '../utils/axiosInstance';
 
-export async function getAllReview() {
+export async function getReviews() {
   const getAllReviewAPI = (resolve, reject) => {
-		let url = SERVER_API + `/api/customer/review`;
+		let url = SERVER_API + `/api/review`;
 		axiosInstance
 			.get(url)
 			.then((res) => {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error getAllReviewAPI: ${err}`);
-				reject(err);
+				console.log(`Error getAllReviewAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
 			});
 	};
 
@@ -27,8 +27,8 @@ export async function getReviewsByCustomer(customerId) {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error getReviewsByCustomerAPI: ${err}`);
-				reject(err);
+				console.log(`Error getReviewsByCustomerAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
 			});
 	};
 
@@ -44,8 +44,8 @@ export async function approveReview(reviewId, data) {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error approveReviewAPI: ${err}`);
-				reject(err);
+				console.log(`Error approveReviewAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
 			});
 	};
 

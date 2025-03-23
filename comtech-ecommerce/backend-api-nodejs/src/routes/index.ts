@@ -75,20 +75,24 @@ router.put('/campaign/update/:id', authenticate, campaignController.updateCampai
 router.put('/campaign/activate/:id', authenticate, campaignController.activateCampaign);
 router.delete('/campaign', authenticate, campaignController.moveCampaignsToTrash);
 router.post('/campaign/history', authenticate, campaignController.createCampaignHistory);
+router.post('/campaign/:id/add-product', authenticate, campaignController.addProductsToCampaign);
+router.delete('/campaign/:id/remove-product', authenticate, campaignController.removeProductsToCampaign);
 
 // Customer
 router.post('/customer/auth/register', customerController.register);
 router.post('/customer/auth/login', customerController.login);
 router.post('/customer/auth/refresh', customerController.refresh);
 router.post('/customer/auth/logout', authenticate, customerController.logout);
+router.get('/customer', authenticate, customerController.getCustomers);
+router.get('/customer/:id', authenticate, customerController.getOneCustomer);
 
 // Review
-router.get('/customer/review', authenticate, reviewController.getReviews);
-router.get('/customer/review/:id', authenticate, reviewController.getOneReview);
-router.post('/customer/review/create', authenticate, reviewController.createReview);
-router.put('/customer/review/update/:id', authenticate, reviewController.updateReview);
-router.put('/customer/review/approve/:id', authenticate, reviewController.approveReview);
-router.delete('/customer/review/delete/:id', authenticate, reviewController.deleteReview);
+router.get('/review', authenticate, reviewController.getReviews);
+router.get('/review/:id', authenticate, reviewController.getOneReview);
+router.post('/review/create', authenticate, reviewController.createReview);
+router.put('/review/update/:id', authenticate, reviewController.updateReview);
+router.put('/review/approve/:id', authenticate, reviewController.approveReview);
+router.delete('/review/delete/:id', authenticate, reviewController.deleteReview);
 
 // Cart
 router.get('/cart', authenticate, cartController.getCartItems);

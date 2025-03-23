@@ -7,9 +7,61 @@ const prisma = new PrismaClient();
 
 export class ProductService {
 
-  async findAll() {
+  async findAll(
+    page: number, 
+    pageSize: number, 
+    noPagiation: boolean, 
+    search?: string,
+    brands?: number[],
+    categories?: number[],
+    tags?: number[],
+    orderBy: string = 'crratedAt',
+    orderDir: string = 'desc',
+  ) {
     try {
+
+      let where: Prisma.ProductWhereInput = {};
+
+      if(brands) {
+        if(brands.length === 0) where.brandId = -1;
+        else {
+          where.brandId = {
+            in: brands
+          }
+        }
+      }
+      if(categories) {
+        if(categories.length === 0) where.categories = {}
+        else {
+          where.categories = {
+            some: {
+              categoryId: {
+                in: categories
+              }
+            }
+          }
+        }
+      }
+      if(tags) {
+        if(tags.length === 0) where.tags = {};
+        else {
+          where.tags = {
+            some: {
+              tagId: {
+                in: tags
+              }
+            }
+          }
+        }
+      }
+      if(search) {
+        where.name = {
+          contains: search
+        }
+      }
+
       const products = await prisma.product.findMany({
+        where,
         include: {
           specs: true,
           categories: { include: { category: { select: { id: true, name: true } } } },
@@ -22,6 +74,16 @@ export class ProductService {
             } 
           },
           orderItems: true,
+          campaignProducts: {
+            include: {
+              campaign: true
+            }
+          }
+        },
+        skip: !noPagiation ? (page - 1) * pageSize : undefined,
+        take: !noPagiation ? pageSize : undefined,
+        orderBy: {
+          [orderBy]: orderDir
         }
       });
       return products;
