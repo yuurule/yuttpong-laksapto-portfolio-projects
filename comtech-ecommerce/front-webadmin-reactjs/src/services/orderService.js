@@ -1,7 +1,7 @@
 import { SERVER_API } from './serviceConfig';
 import axiosInstance from '../utils/axiosInstance';
 
-export async function getAllOrder() {
+export async function getOrders() {
   const getAllOrderAPI = (resolve, reject) => {
 		let url = SERVER_API + `/api/order`;
 		axiosInstance
@@ -10,8 +10,8 @@ export async function getAllOrder() {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error getAllOrderAPI: ${err}`);
-				reject(err);
+				console.log(`Error getAllOrderAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
 			});
 	};
 
@@ -27,8 +27,8 @@ export async function getOneOrder(orderId) {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error getOneOrderAPI: ${err}`);
-				reject(err);
+				console.log(`Error getOneOrderAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
 			});
 	};
 
@@ -44,8 +44,8 @@ export async function updateOrderDelivery(orderId, data) {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error updateOrderDeliveryAPI: ${err}`);
-				reject(err);
+				console.log(`Error updateOrderDeliveryAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
 			});
 	};
 

@@ -10,7 +10,36 @@ export class OrderService {
 
   async findAll() {
     try {
-      const orders = await prisma.order.findMany();
+      const orders = await prisma.order.findMany({
+        include: {
+          customer: {
+            include: {
+              customerDetail: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                }
+              }
+            }
+          },
+          orderItems: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                  price: true,
+                }
+              },
+              campaign: {
+                select: {
+                  name: true,
+                }
+              }
+            }
+          }
+        }
+      });
       return orders;
     }
     catch(error: any) {

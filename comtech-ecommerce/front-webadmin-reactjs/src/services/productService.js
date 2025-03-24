@@ -21,8 +21,8 @@ export async function getAllProduct(paramsQuery) {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error getAllProductAPI: ${err}`);
-				reject(err);
+				console.log(`Error getAllProductAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
 			});
 	};
 

@@ -3,7 +3,7 @@ model Review {
   productId       Int
   message         String @db.Text
   rating          Int @default(0)
-  approved        Boolean @default(false)
+  approved        Boolean?
   createdAt       DateTime @default(now())
   createdById     Int
   updatedAt       DateTime @updatedAt

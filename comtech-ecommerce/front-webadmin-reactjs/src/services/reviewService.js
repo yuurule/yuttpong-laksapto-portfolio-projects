@@ -20,7 +20,7 @@ export async function getReviews() {
 
 export async function getReviewsByCustomer(customerId) {
   const getReviewsByCustomerAPI = (resolve, reject) => {
-		let url = SERVER_API + `/api/customer/review/${customerId}`;
+		let url = SERVER_API + `/api/review/${customerId}`;
 		axiosInstance
 			.get(url)
 			.then((res) => {
@@ -37,9 +37,14 @@ export async function getReviewsByCustomer(customerId) {
 
 export async function approveReview(reviewId, data) {
   const approveReviewAPI = (resolve, reject) => {
-		let url = SERVER_API + `/api/customer/review/approve/${reviewId}`;
+		let url = SERVER_API + `/api/review/approve/${reviewId}`;
+
+		const requestData = {
+			approve: data
+		}
+
 		axiosInstance
-			.put(url, data)
+			.put(url, requestData)
 			.then((res) => {
 				resolve(res);
 			})

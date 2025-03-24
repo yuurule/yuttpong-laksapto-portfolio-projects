@@ -96,10 +96,6 @@ export class ReviewController {
       sendError(res, 400, `Review id must not zero or negative number`);
     }
 
-    if(!isValidHaveValue([approve])) {
-      sendError(res, 400, `approve is required`);
-    }
-
     try {
       const approveReview = await reviewService.approve(id, approve);
       sendResponse(res, 200, `Approving review ok`, approveReview)

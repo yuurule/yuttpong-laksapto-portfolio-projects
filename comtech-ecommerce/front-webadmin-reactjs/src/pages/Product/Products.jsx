@@ -5,6 +5,7 @@ import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faChevronLe
 import MyPagination from '../../components/MyPagination/MyPagination';
 import { Link, useNavigate } from 'react-router';
 import * as ProductService from '../../services/productService';
+import * as BrandService from '../../services/brandService';
 import { toast } from 'react-toastify';
 
 export default function Products() {
@@ -16,27 +17,43 @@ export default function Products() {
   const [showSoftDelete, setShowSoftDelete] = useState(false);
   const [productList, setProductList] = useState([]);
   const [refresh, setRefresh] = useState(0);
+  const [productParamsQuery, setProductParamsQuery] = useState({
+    page: null,
+    pageSize: null,
+    noPagination: true,
+    brands: [],
+    categories: [],
+    tags: [],
+    orderBy: 'createdAt',
+    orderDir: 'desc'
+  });
 
   useEffect(() => {
-    getAllProduct();
+    const fecthData = async () => {
+      setLoadData(true);
+      try {
+        const brands = await BrandService.getBrands();
+        const tempProductParamsQuery = {...productParamsQuery};
+        tempProductParamsQuery.brands = brands.data.RESULT_DATA.map(i => (i.id));
+        const products = await ProductService.getAllProduct(tempProductParamsQuery);
+        setProductList(products.data.RESULT_DATA);
+        setProductParamsQuery(tempProductParamsQuery);
+      }
+      catch(error) {
+        console.log(error);
+        toast.error(error);
+      }
+      finally {
+        setLoadData(false);
+      }
+    }
+
+    fecthData();
   }, [refresh]);
 
-  const getAllProduct = async () => {
-    setLoadData(true);
-    try {
-      const fetchProducts = await ProductService.getAllProduct();
-      setProductList(fetchProducts.data.RESULT_DATA);
-    }
-    catch(error) {
-      console.log(error.message);
-      toast.error(`Get all product failed due to: ${error.message}`);
-    }
-    finally {
-      setLoadData(false);
-    }
-  }
-
   const handleRefreshData = () => setRefresh(prevState => prevState + 1);
+
+  if(loadData) return <div>กำลังโหลด...</div> 
 
   return (
     <div className={`page`}>
@@ -113,7 +130,7 @@ export default function Products() {
                               </Link>
                             </td>
                             <td>{product.inStock.inStock}</td>
-                            <td>฿{product.price}</td>
+                            <td>฿{parseFloat(product.price).toLocaleString('th-TH')}</td>
                             <td>{product.stockSellEvents.length === 0 ? '0' : 'n/a'}</td>
                             <td>{product.orderItems.length === 0 ? '0' : 'n/a'}</td>
                             <td>
