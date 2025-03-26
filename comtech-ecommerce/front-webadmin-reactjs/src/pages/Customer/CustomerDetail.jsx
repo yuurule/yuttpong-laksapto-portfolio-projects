@@ -1,8 +1,12 @@
+import { useState, useEffect } from 'react';
 import { Form, InputGroup, Button  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faChevronLeft, faChevronRight, faGift } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../../components/MyPagination/MyPagination';
-import { Link } from 'react-router';
+import { useParams, Link } from 'react-router';
+import { toast } from 'react-toastify';
+import * as CustomerService from '../../services/customerService';
+import { formatTimestamp } from '../../utils/utils';
 
 const dummyInfo = [
   { name: 'Name', value: 'Yuttapong Laksapto' },
@@ -16,6 +20,44 @@ const dummyInfo = [
 
 export default function CustomerDetail() {
 
+  const params = useParams();
+
+  const [loadData, setLoadData] = useState(false);
+  const [customerData, setCustomerData] = useState(null);
+  const [paidOrders, setPaidOrders] = useState([]);
+  const [totalExpense, setTotalExpense] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoadData(true);
+      try {
+        const customer = await CustomerService.getOneCustomer(params.id);
+        //console.log(customer.data.RESULT_DATA);
+        const result = customer.data.RESULT_DATA;
+        const ordersPaidResult = result.orders.filter(i => i.paymentStatus === 'PAID');
+
+        let tempTotalExpense = 0;
+        ordersPaidResult.map(i => {
+          tempTotalExpense += parseInt(i.total);
+        });
+
+        setCustomerData(result);
+        setTotalExpense(tempTotalExpense);
+      }
+      catch(error) {
+        console.log(error);
+        toast.error(error);
+      }
+      finally {
+        setLoadData(false);
+      }
+    }
+
+    fetchData();
+  }, [params]);
+
+  if(loadData) return <p>Loading...</p>
+  if(customerData === null) return <p>Something wrong...</p>
 
   return (
     <div className={`page`}>
@@ -23,7 +65,7 @@ export default function CustomerDetail() {
       <div className="row">
         <header className="col-12 d-flex justify-content-between align-items-center mb-4">
           <div>
-            <h1 className='h3 mb-0'>Customer Detail</h1>
+            <h1 className='h3 mb-0'>{`${customerData.customerDetail.firstName} ${customerData.customerDetail.lastName}`}</h1>
           </div>
           <div className='d-flex'>
             <button className='btn btn-info px-4 me-3'><FontAwesomeIcon icon={faGift} className='me-2' />Send Campign</button>
@@ -42,7 +84,7 @@ export default function CustomerDetail() {
                   </div>
                   <div className='d-flex align-items-center'>
                     <div className='text-center me-5'>
-                      <strong className='h3 d-block mb-1'>$3,590</strong>
+                      <strong className='h3 d-block mb-1'>{totalExpense.toLocaleString('th-TH')}</strong>
                       <p className='mb-0 opacity-50'>Total Expense</p>
                     </div>
                     <div className='text-center me-5'>
@@ -50,11 +92,11 @@ export default function CustomerDetail() {
                       <p className='mb-0 opacity-50'>Last Month Expense</p>
                     </div>
                     <div className='text-center me-5'>
-                      <strong className='h5 d-block mb-1'>Active</strong>
+                      <strong className='h5 d-block mb-1'>{customerData.onDelete === null ? 'Active' : 'Suspend'}</strong>
                       <p className='mb-0 opacity-50'>Status</p>
                     </div>
                     <div className='text-center me-5'>
-                      <strong className='h5 d-block mb-1'>20 Jan 2025</strong>
+                      <strong className='h5 d-block mb-1'>{formatTimestamp(customerData.lastActive)}</strong>
                       <p className='mb-0 opacity-50'>Last Active</p>
                     </div>
                   </div>
@@ -70,14 +112,48 @@ export default function CustomerDetail() {
                   </header>
                   <table className='table'>
                     <tbody>
-                      {
-                        dummyInfo.map((i, index) => (
-                          <tr key={`info_row_${index + 1}`}>
-                            <td style={{width: '35%'}}><strong>{i.name}</strong></td>
-                            <td>{i.value}</td>
-                          </tr>
-                        ))
-                      }
+                      <tr>
+                        <td style={{width: '35%'}}>
+                          <strong>Name</strong>
+                        </td>
+                        <td>{customerData.customerDetail.firstName} {customerData.customerDetail.lastName}</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <strong>Sign up at</strong>
+                        </td>
+                        <td>{formatTimestamp(customerData.createdAt)}</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <strong>Email</strong>
+                        </td>
+                        <td>{customerData.email}</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <strong>Phone</strong>
+                        </td>
+                        <td>{customerData.customerDetail.phone}</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <strong>Line id</strong>
+                        </td>
+                        <td>{customerData.customerDetail.lineId}</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <strong>Address</strong>
+                        </td>
+                        <td>n/a</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <strong>Shipping Address</strong>
+                        </td>
+                        <td>n/a</td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
