@@ -73,6 +73,7 @@ export class ProductService {
               action: StockSellAction.SELL
             } 
           },
+          reviews: true,
           orderItems: true,
           campaignProducts: {
             include: {
@@ -111,7 +112,26 @@ export class ProductService {
               action: StockSellAction.SELL
             } 
           },
+          reviews: {
+            include: {
+              createdBy: {
+                include: {
+                  customerDetail: {
+                    select: {
+                      firstName: true,
+                      lastName: true,
+                    }
+                  }
+                }
+              }
+            }
+          },
           orderItems: true,
+          campaignProducts: {
+            include: {
+              campaign: true
+            }
+          }
         }
       });
       if(!product) throw new exception.NotFoundException(`Not found product with id ${productId}`)

@@ -38,8 +38,8 @@ export async function getOneProduct(id) {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error getOneProductAPI: ${err}`);
-				reject(err);
+				console.log(`Error getOneProductAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
 			});
 	};
 
@@ -55,8 +55,8 @@ export async function addNewProduct(data) {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error addNewProductAPI: ${err}`);
-				reject(err);
+				console.log(`Error addNewProductAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
 			});
 	};
 
@@ -72,8 +72,8 @@ export async function updateProduct(id, data) {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error updateProductAPI: ${err}`);
-				reject(err);
+				console.log(`Error updateProductAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
 			});
 	};
 
@@ -89,28 +89,10 @@ export async function moveProductsToTrash(data) {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error moveProductsToTrashAPI: ${err}`);
-				reject(err);
+				console.log(`Error moveProductsToTrashAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
 			});
 	};
 
 	return new Promise(moveProductsToTrashAPI);
-}
-
-// Brand
-export async function getBrands() {
-  const getBrandsAPI = (resolve, reject) => {
-		let url = SERVER_API + `/api/brand`;
-		axiosInstance
-			.get(url)
-			.then((res) => {
-				resolve(res);
-			})
-			.catch((err) => {
-				console.log(`Error getBrandsAPI: ${err}`);
-				reject(err);
-			});
-	};
-
-	return new Promise(getBrandsAPI);
 }
