@@ -156,9 +156,17 @@ export class CustomerService {
           customerDetail: true,
           orders: true,
           cartItems: true,
-          createdReviews: true,
+          createdReviews: {
+            include: {
+              product: { select: { name: true } }
+            }
+          },
           stockSellEvents: true,
-          wishlists: true
+          wishlists: {
+            include: {
+              product: { select: { name: true } }
+            }
+          }
         }
       });
 

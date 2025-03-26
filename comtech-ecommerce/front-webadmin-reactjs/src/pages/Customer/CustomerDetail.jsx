@@ -8,16 +8,6 @@ import { toast } from 'react-toastify';
 import * as CustomerService from '../../services/customerService';
 import { formatTimestamp } from '../../utils/utils';
 
-const dummyInfo = [
-  { name: 'Name', value: 'Yuttapong Laksapto' },
-  { name: 'Sign up at', value: '12 Jan 2025, 12:30:55' },
-  { name: 'Email', value: 'yudev@gmail.com' },
-  { name: 'Phone', value: '0957983628' },
-  { name: 'Line ID', value: '-' },
-  { name: 'Address', value: '48 Sukhumvit 64/1 Bangkok 10260' },
-  { name: 'Shipping Address', value: '48 Sukhumvit 64/1 Bangkok 10260' },
-]
-
 export default function CustomerDetail() {
 
   const params = useParams();
@@ -32,7 +22,7 @@ export default function CustomerDetail() {
       setLoadData(true);
       try {
         const customer = await CustomerService.getOneCustomer(params.id);
-        //console.log(customer.data.RESULT_DATA);
+        console.log(customer.data.RESULT_DATA);
         const result = customer.data.RESULT_DATA;
         const ordersPaidResult = result.orders.filter(i => i.paymentStatus === 'PAID');
 
@@ -43,6 +33,7 @@ export default function CustomerDetail() {
 
         setCustomerData(result);
         setTotalExpense(tempTotalExpense);
+        setPaidOrders(ordersPaidResult);
       }
       catch(error) {
         console.log(error);
@@ -165,7 +156,7 @@ export default function CustomerDetail() {
               <div className='card mb-3'>
                 <div className='card-body'>
                   <header className='d-flex justify-content-between align-items-center'>
-                    <h5 className='mb-0'>YuuDev Interesting</h5>
+                    <h5 className='mb-0'>{customerData?.customerDetail?.firstName} Interesting</h5>
                   </header>
                   <div className='d-flex justify-content-center align-items-center' style={{height: 300}}>
                     <p className='mb-0'>"Pie Chart Here"</p>
@@ -188,15 +179,24 @@ export default function CustomerDetail() {
                     </thead>
                     <tbody>
                       {
-                        [...Array(3)].map((i, index) => (
-                          <tr key={`widthlist_row_${index + 1}`}>
-                            <td>Asus ROG Zephyrus G16 GU60</td>
-                            <td>20 Jan 2025, 15:30:55</td>
+                        customerData.wishlists.map((wish, index) => (
+                          <tr key={`customer_wishlist_row_${wish.id}`}>
+                            <td>{wish?.product?.name}</td>
+                            <td>{formatTimestamp(wish.assignedAt)}</td>
                           </tr>
                         ))
                       }
                     </tbody>
                   </table>
+                  <div className='w-100 d-flex justify-content-between align-items-center mt-3'>
+                    <button className='btn btn-link p-0'>
+                      <FontAwesomeIcon icon={faChevronLeft} />
+                    </button>
+                    <strong>Page 1/10</strong>
+                    <button className='btn btn-link p-0'>
+                      <FontAwesomeIcon icon={faChevronRight} />
+                    </button>
+                  </div>
                 </div>
               </div>
               
@@ -220,42 +220,37 @@ export default function CustomerDetail() {
                 </thead>
                 <tbody>
                   {
-                    [...Array(5)].map((i, index) => (
-                      <tr key={`sale_history_${index + 1}`}>
-                        <td>#42055896</td>
-                        <td>$2,500</td>
-                        <td>20 Jan 25, 12:30:55</td>
-                      </tr>
-                    ))
+                    paidOrders.map((order, index) => {
+                      if(index < 5) {
+                        return (
+                          <tr key={`order_history_${order.id}`}>
+                            <td>#{order.id}</td>
+                            <td>฿{parseFloat(order.total).toLocaleString('th-TH')}</td>
+                            <td>{formatTimestamp(order.createdAt)}</td>
+                          </tr>
+                        )
+                      }
+                    })
                   }
                 </tbody>
               </table>
-              <div className='w-100 d-flex justify-content-between align-items-center mt-3'>
-                <button className='btn btn-link p-0'>
-                  <FontAwesomeIcon icon={faChevronLeft} />
-                </button>
-                <strong>1 of 10</strong>
-                <button className='btn btn-link p-0'>
-                  <FontAwesomeIcon icon={faChevronRight} />
-                </button>
-              </div>
             </div>
           </div>
 
           <div className='card mb-3'>
             <div className='card-body'>
               <header className='d-flex justify-content-between align-items-center mb-3'>
-                <h5 className='mb-0'>Review by YuuDev</h5>
-                <small>Total 20 reviews</small>
+                <h5 className='mb-0'>Reviews by {customerData?.customerDetail?.firstName}</h5>
+                {/* <small>Total 20 reviews</small> */}
               </header>
               {
-                [...Array(3)].map((i, inex) => (
-                  <div className='card mb-2'>
+                customerData.createdReviews.map((review, index) => (
+                  <div key={`customer_review_${review.id}`} className='card mb-2'>
                     <div className='card-body'>
-                      <p>"Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quae aliquid autem assumenda."</p>
-                      <strong>Rating</strong> : 4.0<br />
-                      <strong>On Product</strong> : Asus ROG Zephyrus G16 GU60...<br />
-                      <strong>At</strong> : 12 Jan 2025, 12:20:33
+                      <p>"{review.message}"</p>
+                      <strong>Rating</strong> : {review.rating.toFixed(1)}<br />
+                      <strong>Product</strong> : {review.product.name}<br />
+                      <strong>At</strong> : {formatTimestamp(review.createdAt)}
                     </div>
                   </div>
                 ))
