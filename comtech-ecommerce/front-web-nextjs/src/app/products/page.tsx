@@ -1,9 +1,8 @@
 import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumbs";
 import PageHeader from "@/components/PageHeader/PageHeader";
-import Pagination from "@/components/Pagination/Pagination";
-import ProductBox from "@/components/ProductBox/ProductBox";
-import ProductListOption from "@/components/ProductList/ProductListOption/ProductListOption";
-import ProductListSorting from "@/components/ProductList/ProductListSorting/ProductListSorting";
+import ProductList from "@/components/Products/ProductList";
+import ProductListOption from "@/components/Products/ProductListOption/ProductListOption";
+import ProductListSorting from "@/components/Products/ProductListSorting/ProductListSorting";
 
 export default function ProductsPage() {
 
@@ -33,19 +32,8 @@ export default function ProductsPage() {
           {/* Product list */}
           <div className="col-sm-10">
             <div className="row">
-              <div className="col-12">
-                <ProductListSorting />
-              </div>
-              {
-                [...Array(10)].map((product, index) => (
-                  <div key={`product_list_item_${index + 1}`} className={`col-sm-3 mb-3 col-product`}>
-                    <ProductBox />
-                  </div>
-                ))
-              }
-              <div className="col-12">
-                <Pagination />
-              </div>
+              <ProductListSorting />
+              <ProductList />
             </div>
           </div>
         </div>

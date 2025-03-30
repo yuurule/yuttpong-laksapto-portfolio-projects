@@ -34,29 +34,29 @@ router.post('/auth/refresh', authController.refresh);
 router.post('/auth/logout', authenticate, authController.logout);
 
 // Product Brand
-router.get('/brand', authenticate, brandController.getAllBrand);
-router.get('/brand/:id', authenticate, brandController.getOneBrandById);
+router.get('/brand', brandController.getAllBrand);
+router.get('/brand/:id', brandController.getOneBrandById);
 router.post('/brand/create', authenticate, brandController.createNewBrand);
 router.put('/brand/:id', authenticate, brandController.updateBrand);
 router.delete('/brand/delete', authenticate, brandController.deleteBrands);
 
 // Category
-router.get('/category', authenticate, categoryController.getAllCategory);
-router.get('/category/:id', authenticate, categoryController.getOneCategoryById);
+router.get('/category', categoryController.getAllCategory);
+router.get('/category/:id', categoryController.getOneCategoryById);
 router.post('/category/create', authenticate, categoryController.createNewCategory);
 router.put('/category/:id', authenticate, categoryController.updateCategory);
 router.delete('/category/delete', authenticate, categoryController.deleteCategories);
 
 // Tag
-router.get('/tag', authenticate, tagController.getAllTag);
-router.get('/tag/:id', authenticate, tagController.getOneTagById);
+router.get('/tag', tagController.getAllTag);
+router.get('/tag/:id', tagController.getOneTagById);
 router.post('/tag/create', authenticate, tagController.createNewTag);
 router.put('/tag/:id', authenticate, tagController.updateTag);
 router.delete('/tag/delete', authenticate, tagController.deleteTags);
 
 // Product
-router.get('/product', authenticate, productController.getProducts);
-router.get('/product/:id', authenticate, productController.getOneProduct);
+router.get('/product', productController.getProducts);
+router.get('/product/:id', productController.getOneProduct);
 router.post('/product', authenticate, productController.createNewProduct);
 router.put('/product/:id', authenticate, productController.updateProduct);
 router.delete('/product/delete', authenticate, productController.moveProductToTrash);
@@ -68,8 +68,8 @@ router.post('/stock-action', authenticate, stockController.createNewStockAction)
 router.get('/stock-sell-action', authenticate, stockController.getAllStockSellAction);
 
 // Campaign
-router.get('/campaign', authenticate, campaignController.getCampaigns);
-router.get('/campaign/:id', authenticate, campaignController.getOneCampaignById);
+router.get('/campaign', campaignController.getCampaigns);
+router.get('/campaign/:id', campaignController.getOneCampaignById);
 router.post('/campaign', authenticate, campaignController.createCampaign);
 router.put('/campaign/update/:id', authenticate, campaignController.updateCampaign);
 router.put('/campaign/activate/:id', authenticate, campaignController.activateCampaign);
@@ -87,8 +87,8 @@ router.get('/customer', authenticate, customerController.getCustomers);
 router.get('/customer/:id', authenticate, customerController.getOneCustomer);
 
 // Review
-router.get('/review', authenticate, reviewController.getReviews);
-router.get('/review/:id', authenticate, reviewController.getOneReview);
+router.get('/review', reviewController.getReviews);
+router.get('/review/:id', reviewController.getOneReview);
 router.post('/review/create', authenticate, reviewController.createReview);
 router.put('/review/update/:id', authenticate, reviewController.updateReview);
 router.put('/review/approve/:id', authenticate, reviewController.approveReview);

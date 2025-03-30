@@ -1,39 +1,55 @@
 import styles from './RelatedProduct.module.scss';
 import ProductBox from '@/components/ProductBox/ProductBox';
-import Link from 'next/link';
+import { productService } from '@/services';
 
-export default function RelatedProduct() {
+export default async function RelatedProduct({
+  productId,
+  brand,
+  categories = []
+} : {
+  productId: number,
+  brand: number,
+  categories: number[],
+}) {
 
+  try {
+    const products = await productService.getProducts({
+      page: 1,
+      pageSize: 4,
+      brands: [brand],
+      categories: categories
+    });
+    const resultData = products.RESULT_DATA.filter((i:any) => i.id !== productId);
 
-
-  return (
-    <section id="related-products" className={`${styles.relatedProduct}`}>
-      
-      <div className='d-flex mb-5'>
-        <div className={`gradient-box ${styles.rowHeader}`}>
-          <p>Related<br />Products</p>
+    return (
+      <section id="related-products" className={`${styles.relatedProduct}`}>
+        
+        <div className='mb-5'>
+          <div className={`gradient-box ${styles.rowHeader}`}>
+            <p>Related<br />Products</p>
+          </div>
+          <div className='row'>
+            {
+              resultData.map((product: any, index: number) => {
+                return (
+                  <div key={`related_product_box_${product.id}`} className='col-sm-3'>
+                    <ProductBox 
+                      data={product}
+                    />
+                  </div>
+                )
+              })
+            }
+          </div>
         </div>
-        <div className='row'>
-          {
-            [...Array(4)].map((product, index) => {
-              return (
-                <div key={`related_product_box_${index + 1}`} className='col-sm-3'>
-                  <ProductBox />
-                </div>
-              )
-            })
-          }
-        </div>
-      </div>
+  
+      </section>
+    )
 
-      <div className={`demo-box d-flex align-items-center ${styles.campaignBox}`} style={{height: 250, paddingLeft: '5%'}}>
-        <div>
-          <span className='badge text-bg-danger mb-2'>Gamaing Notebook</span>
-          <strong className='h3 d-block'>Top Gaming Notebook</strong>
-          <p>Super Hi-end We Offer</p>
-        </div>
-      </div>
+  } catch(error) {
+    console.error('Failed to fetch product:', error);
+    return <div>ไม่สามารถดึงข้อมูลสินค้าได้</div>;
+  }
 
-    </section>
-  )
+  
 }

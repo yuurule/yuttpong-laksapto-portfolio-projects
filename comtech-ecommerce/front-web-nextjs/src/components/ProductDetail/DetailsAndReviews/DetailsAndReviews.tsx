@@ -1,4 +1,5 @@
 "use client";
+
 import { Tab, Tabs, Form } from 'react-bootstrap';
 import ReviewItem from '../ReviewItem/ReviewItem';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -6,7 +7,13 @@ import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRugular } from '@fortawesome/free-regular-svg-icons';
 import styles from './DetailsAndReviews.module.scss';
 
-export default function DetailsAndReviews() {
+export default function DetailsAndReviews({
+  detail = '',
+  reviews = [],
+}: {
+  detail: string | null,
+  reviews: any[] | null
+}) {
 
 
   return (
@@ -18,8 +25,7 @@ export default function DetailsAndReviews() {
       >
         <Tab eventKey="productDetail" title="Product Detail">
           <div className={`${styles.content} p-3`}>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse iste ab, necessitatibus, quibusdam hic autem facilis velit rerum vel adipisci fugit sit, placeat animi! Eius corrupti ab maxime aliquid vero. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse iste ab, necessitatibus, quibusdam hic autem facilis velit rerum vel adipisci fugit sit, placeat animi! Eius corrupti ab maxime aliquid vero.</p>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Esse iste ab, necessitatibus, quibusdam hic autem facilis velit rerum vel adipisci fugit sit, placeat animi! Eius corrupti ab maxime aliquid vero.</p>
+            <p>"{detail}"</p>
           </div>
         </Tab>
         <Tab eventKey="reviews" title="Reviews">
@@ -27,10 +33,22 @@ export default function DetailsAndReviews() {
             <div className='row'>
               <div className='col-sm-7'>
                 {
-                  [...Array(3)].map((review, index) => (
-                    <ReviewItem key={`review_item_${index + 1}`} />
-                  ))
+                  reviews !== null && reviews.length > 0
+                  ?
+                  <>
+                  {
+                    reviews.map((review: any, index: number) => (
+                      <ReviewItem 
+                        key={`review_item_${review?.id}`} 
+                        review={review}
+                      />
+                    ))
+                  }
+                  </>
+                  :
+                  <p className='ms-3 mt-3'>This product not have review yet.</p>
                 }
+                
               </div>
               <div className='col-sm-5'>
                 <div className={`${styles.addReview}`}>

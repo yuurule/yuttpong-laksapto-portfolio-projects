@@ -1,11 +1,11 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar } from '@fortawesome/free-solid-svg-icons';
 import styles from './ReviewItem.module.scss';
 import StarRating from "@/components/ProductBox/StarRating/StarRating";
 
-export default function ReviewItem() {
-
-
+export default function ReviewItem({
+  review
+} : {
+  review: any
+}) {
 
   return (
     <div className={`${styles.reviewItem}`}>
@@ -13,11 +13,11 @@ export default function ReviewItem() {
         <img src="/images/dummy-product.jpg" />
       </figure>
       <div className={`${styles.content}`}>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nobis quia pariatur, dignissimos incidunt maiores magni ut ipsam consequatur impedit porro unde nesciunt distinctio vel iure fugiat harum quasi, vero architecto.</p>
+        <p>"{review.message}"</p>
         <footer>
-          <strong>John Doh</strong>
-          <small>Mar 24 2025</small>
-          <StarRating rating={3.5} />
+          <strong>{review?.createdBy?.customerDetail?.firstName} {review?.createdBy?.customerDetail?.lastName}</strong>
+          <small>{review?.createdAt}</small>
+          <StarRating rating={review?.rating} />
         </footer>
       </div>
     </div>
