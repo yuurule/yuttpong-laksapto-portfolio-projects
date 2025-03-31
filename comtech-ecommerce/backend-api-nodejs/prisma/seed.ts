@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Role, OrderStatus, PaymentStatus } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { generateUuidBasedSku } from '../src/libs/utility';
 
@@ -350,13 +350,15 @@ async function main() {
           productId: 1,
           message: 'Good notebook for my game',
           rating: 4,
-          customerId: 1 
+          customerId: 1,
+          approved: true,
         },
         { 
           productId: 3,
           message: 'I want this',
           rating: 5,
-          customerId: 2 
+          customerId: 2,
+          approved: true,
         },
       ]
       for (const review of reviews) {
@@ -364,6 +366,7 @@ async function main() {
           data: {
             message: review.message,
             rating: review.rating,
+            approved: review.approved,
             product: { connect: { id: review.productId } },
             createdBy: { connect: { id: review.customerId } },
           }
@@ -388,6 +391,8 @@ async function main() {
         { 
           customerId: 1, 
           total: 79990,
+          paymentStatus: 'PAID',
+          status: 'COMPLETED',
           items: [{
             productId: 1,
             quantity: 1,
@@ -397,6 +402,8 @@ async function main() {
         { 
           customerId: 2, 
           total: 57990,
+          paymentStatus: 'PAID',
+          status: 'COMPLETED',
           items: [{
             productId: 3,
             quantity: 1,
@@ -409,6 +416,8 @@ async function main() {
           data: {
             customer: { connect: { id: order.customerId } },
             total: order.total,
+            paymentStatus: order.paymentStatus as PaymentStatus,
+            status: order.status as OrderStatus,
             orderItems: {
               create: order.items.map(i => ({
                 quantity: i.quantity,
