@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Outlet } from "react-router";
 import MainMenu from "../components/MainMenu/MainManu";
 import TopBarMenu from "../components/TopBarMenu/TopBarMenu";
@@ -5,11 +6,18 @@ import { ToastContainer } from 'react-toastify';
 
 const MainLayout = () => {
 
+  const [menuCollapse, setMenuCollapse] = useState(false);
+
+  const handleCollapseMenu = () => setMenuCollapse(prevState => !prevState);
+
   return (
     <div className="site-wrapper">
-      <MainMenu />
+      <MainMenu 
+        menuCollapse={menuCollapse}
+        handleCollapseMenu={handleCollapseMenu}
+      />
       <TopBarMenu />
-      <main className="main-content">
+      <main className={`main-content ${menuCollapse ? 'menu-collapse' : ''}`}>
         <Outlet />
       </main>
       <ToastContainer

@@ -1,28 +1,83 @@
 .mainMenu {
   width: 250px;
   box-shadow: 3px 0 12px rgba(0,0,0,0.15);
-  border-radius: 0 16px 16px 0;
+  border-radius: 0 32px 32px 0;
   height: 100%;
   position: fixed;
   top: 0;
   left: 0;
   z-index: 100;
   background-color: #FFF;
+  transition: all 0.4s;
+
+  .menuText {
+    position: absolute;
+    top: 8px;
+    left: 55px;
+    opacity: 1;
+    transition: all 0.2s;
+  }
+
+  &.collapse {
+    width: 70px;
+
+    ul {
+      margin: 30px 10px 0 10px;
+
+      .menuText {
+        left: 35px;
+        opacity: 0;
+        transition: all 0.2s;
+      }
+    }
+  }
 
   ul {
-
-    margin: 40px 0 0 40px;
+    transition: all 0.2s;
+    margin: 30px 15px 0 15px;
 
     li {
-      margin-bottom: 22px;
+      margin-bottom: 10px;
+      font-weight: bold;
+
+      &.menuBtn {
+        margin-bottom: 50px;
+
+        button {
+          padding: 0 15px;
+          text-decoration: none;
+          color: rgb(67, 67, 67);
+          position: relative;
+
+          .menuText {
+            top: 0;
+          }
+        }
+      }
 
       a {
         color: rgb(67, 67, 67);
-    
-        i, svg {
-          color: #c5c5c5;
-          width: 20px;
+        display: block;
+        padding: 8px 15px;
+        border-radius: 36px;
+        background-color: transparent;
+        transition: background-color 0.4s;
+        position: relative;
+
+        &.active {
+          background-color: var(--main-purple);
+          color: #FFF;
+
+          i, svg {
+            color: #FFF;
+          }
         }
+      }
+
+      i, svg {
+        color: #c5c5c5;
+        width: 20px;
+        margin-right: 20px;
       }
     }
   }
