@@ -32,6 +32,9 @@ export interface CustomerTokenPayload {
 }
 
 export interface CustomerAuthTokens {
+  user: {
+    id: number;
+  },
   accessToken: string;
   refreshToken: string;
 }

@@ -1,12 +1,22 @@
 "use client";
 
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import styles from '../Cart.module.scss';
+import { productService, cartService } from "@/services";
+import { useSession } from 'next-auth/react';
 
 export default function CartTable() {
 
+  const { status, data: session } = useSession();
 
+  const [cartItemList, setCartItemList] = useState([]);
+  const [refresh, setRefresh] = useState(0);
+
+  useEffect(() => {
+    
+  }, [refresh]);
 
   return (
     <table className={`table table-design ${styles.cartTable}`}>

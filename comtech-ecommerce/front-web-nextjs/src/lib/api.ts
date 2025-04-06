@@ -72,8 +72,11 @@ const API = {
     return getAPI(requiresAuth).put(url, data, config);
   },
 
-  delete: <T>(url: string, requiresAuth: boolean = false, config?: AxiosRequestConfig): Promise<T> => {
-    return getAPI(requiresAuth).delete(url, config);
+  delete: <T>(url: string, data?: any, requiresAuth: boolean = false, config?: AxiosRequestConfig): Promise<T> => {
+    return getAPI(requiresAuth).delete(url, {
+      ...config,
+      data: data
+    });
   },
 
   // สำหรับใช้ instance โดยตรง

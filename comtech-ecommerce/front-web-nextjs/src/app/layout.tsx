@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.scss";
+import AuthProvider from '@/components/AuthProvider';
 import MainHeader from "@/components/MainHeader/MainHeader";
 import MainFooter from "@/components/MainFooter/MainFooter";
 
@@ -11,7 +12,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ComTech Shopping Store",
+  title: "Comtech Shopping Store",
   description: "Shopping store for computer technology",
 };
 
@@ -26,9 +27,11 @@ export default function RootLayout({
         suppressHydrationWarning={true} 
         className={`${inter.className}`}
       >
-        <MainHeader />
-        {children}
-        <MainFooter />
+        <AuthProvider>
+          <MainHeader />
+          {children}
+          <MainFooter />
+        </AuthProvider>
       </body>
     </html>
   );

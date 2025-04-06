@@ -7,7 +7,11 @@ export class BrandService {
 
   async findAll() {
     try {
-      const brands = await prisma.brand.findMany();
+      const brands = await prisma.brand.findMany({
+        include: {
+          products: true
+        }
+      });
       return brands;
     }
     catch(error: any) {

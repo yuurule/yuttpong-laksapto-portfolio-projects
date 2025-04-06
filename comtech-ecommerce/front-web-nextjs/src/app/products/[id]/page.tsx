@@ -11,6 +11,7 @@ import ProductTags from "@/components/ProductTags/ProductTags";
 import styles from './ProductDetail.module.scss'
 import StarRating from "@/components/ProductBox/StarRating/StarRating";
 import { productService } from '@/services';
+import AddToCart from "@/components/ProductDetail/AddToCart/AddToCart";
 
 export default async function ProductDetailPage({
   params,
@@ -80,27 +81,17 @@ export default async function ProductDetailPage({
                     </div>
                   </div>
                 </div>
-                <div className={`${styles.addToCart}`}>
-                  <div>
-                    <div className={`input-group ${styles.inputGroup}`}>
-                      <button className="btn btn-outline-secondary" type="button" id="button-addon1">-</button>
-                      <input type="text" className="form-control" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1" />
-                      <button className="btn btn-outline-secondary" type="button" id="button-addon2">+</button>
-                    </div>
-                  </div>
-                  <div>
-                    <button className="btn design-btn gradient-btn px-4" title="Add to my cart">
-                      <FontAwesomeIcon icon={faShoppingCart} className="me-2" />Add to cart
-                    </button>
-                    <button className="btn design-btn gradient-outline-btn ms-2" title="Add to my wishlist">
-                      <FontAwesomeIcon icon={faHeart} />
-                    </button>
-                  </div>
-                </div>
+
+                <AddToCart
+                  productId={resultData.id}
+                  price={resultData.price} 
+                />
+                
                 <div className={`${styles.estimated}`}>
                   <ul>
                     <li>Estimated delivery time 14-30 days</li>
                     <li>18 months warranty at Genuine Warranty Center</li>
+                    <li>Price is already include vat 7%</li>
                   </ul>
                 </div>
                 <ProductTags tags={resultData?.tags} />

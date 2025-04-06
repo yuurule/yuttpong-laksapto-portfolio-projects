@@ -10,6 +10,7 @@ import * as exception from '../libs/errorException';
 const prisma = new PrismaClient();
 
 export class CustomerService {
+
   async register(email: string, password: string) {
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -123,7 +124,15 @@ export class CustomerService {
       },
     });
 
-    return { accessToken, refreshToken };
+    const result : CustomerAuthTokens = { 
+      user: {
+        id: customer.id,
+      }, 
+      accessToken, 
+      refreshToken 
+    };
+
+    return result;
   }
 
   async findAll() {

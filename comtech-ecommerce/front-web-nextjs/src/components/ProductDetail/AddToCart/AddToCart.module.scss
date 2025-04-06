@@ -1,0 +1,21 @@
+.addToCart {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+
+  .inputGroup {
+    width: 250px;
+    margin-right: 30px;
+
+    button {
+      border-radius: 0;
+      border: 1px solid var(--soft-gray);
+      padding-left: 15px;
+      padding-right: 15px;
+
+      &:hover {
+        background-color: var(--main-blue);
+      } 
+    }
+  }
+}

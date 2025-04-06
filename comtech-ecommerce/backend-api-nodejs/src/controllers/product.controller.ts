@@ -12,13 +12,17 @@ export class ProductController {
   async getProducts(req: Request, res: Response) {
     // pagination
     const page = parseInt(req.query.page as string || '1');
-    const pageSize = parseInt(req.query.pageSize as string || '10');
+    const pageSize = parseInt(req.query.pageSize as string || '12');
     const noPagination = parseBoolean(req.query.noPagination as string) || false;
+
     // filtering
     const search = req.query.search as string;
     const brandsId = req.query.brands as string;
     const categoriesId = req.query.categories as string;
     const tagsId = req.query.tags as string;
+
+    const campaigns = req.query.campaigns as string;
+
     // sorting
     const orderBy = req.query.orderBy as string || 'createdAt';
     const orderDir = req.query.orderDir as string || 'desc';

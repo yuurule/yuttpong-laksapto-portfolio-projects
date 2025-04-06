@@ -1,5 +1,6 @@
 export const renderLabelInput = (
-  text: string, isRequired?: boolean
+  text: string, 
+  isRequired?: boolean
 ) : React.ReactNode => (
   <>
     {text}

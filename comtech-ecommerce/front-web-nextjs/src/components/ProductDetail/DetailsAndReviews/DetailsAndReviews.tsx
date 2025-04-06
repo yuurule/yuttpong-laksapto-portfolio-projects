@@ -6,6 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRugular } from '@fortawesome/free-regular-svg-icons';
 import styles from './DetailsAndReviews.module.scss';
+import { useSession } from 'next-auth/react';
+import AddReview from '../AddReview';
 
 export default function DetailsAndReviews({
   detail = '',
@@ -15,6 +17,7 @@ export default function DetailsAndReviews({
   reviews: any[] | null
 }) {
 
+  const { status, data: session } = useSession();
 
   return (
     <div className={`${styles.detailsAndReviews}`}>
@@ -34,8 +37,7 @@ export default function DetailsAndReviews({
               <div className='col-sm-7'>
                 {
                   reviews !== null && reviews.length > 0
-                  ?
-                  <>
+                  ? <>
                   {
                     reviews.map((review: any, index: number) => (
                       <ReviewItem 
@@ -45,45 +47,23 @@ export default function DetailsAndReviews({
                     ))
                   }
                   </>
-                  :
-                  <p className='ms-3 mt-3'>This product not have review yet.</p>
+                  : <p className='ms-3 mt-3'>This product not have review yet.</p>
                 }
-                
               </div>
               <div className='col-sm-5'>
                 <div className={`${styles.addReview}`}>
                   <h6>Add a review</h6>
-                  <p>Your email address will not be published. Required are marked *</p>
-                  <Form className={`form-design`}>
-                    <Form.Group className='w-50 mb-3'>
-                      <Form.Label>Your Rating</Form.Label>
-                      <div className='d-flex align-items-center'>
-                        <Form.Range className='me-5' />
-                        <strong className='h4'>4.0</strong>
-                      </div>
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Control 
-                        as="textarea" 
-                        rows={4} 
-                        placeholder="Your review*"
-                        className='form-design'
-                      />
-                    </Form.Group>
-                    {/* <div className='row'>
-                      <div className='col-sm-6'>
-                        <Form.Group className="mb-3">
-                          <Form.Control placeholder="Name*" />
-                        </Form.Group>
-                      </div>
-                      <div className='col-sm-6'>
-                        <Form.Group className="mb-3">
-                          <Form.Control type="email" placeholder="Email*" />
-                        </Form.Group>
-                      </div>
-                    </div> */}
-                    <button type="submit" className='btn design-btn px-5'>SUBMIT</button>
-                  </Form>
+                  {
+                    status !== 'loading' &&
+                    !session?.user 
+                    ? // not login yet.
+                    <p className='text-center my-5 h5 opacity-25'>You must log in for review this product</p>
+                    : // already login
+                    <>
+                    <p>Your email address will not be published. Required are marked *</p>
+                    <AddReview />
+                    </>
+                  }
                 </div>
               </div>
             </div>

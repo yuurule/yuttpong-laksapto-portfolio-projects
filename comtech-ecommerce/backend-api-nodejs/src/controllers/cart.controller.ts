@@ -69,7 +69,10 @@ export class CartController {
 
   async updateCartItem(req: Request, res: Response) {
     const id = parseInt(req.params.id);
-    const { quantity } = req.body;
+    const { 
+      quantity, 
+      actionType='update' 
+    } = req.body;
 
     if(!isValidId(id)) {
       sendError(res, 400, `Cart item id must not zero or negative number`);
@@ -80,7 +83,7 @@ export class CartController {
     }
 
     try {
-      const updateCartItem = await cartService.update(id, quantity);
+      const updateCartItem = await cartService.update(id, quantity, actionType);
       sendResponse(res, 200, `Updating cart item ok`, updateCartItem)
     }
     catch (error: any) {

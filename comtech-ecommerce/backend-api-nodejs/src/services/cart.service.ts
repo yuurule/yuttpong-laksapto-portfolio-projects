@@ -66,14 +66,25 @@ export class CartService {
     }
   }
 
-  async update(cartItemId: number, quantity: number) {
+  async update(cartItemId: number, quantity: number, actionType: string) {
     try {
       const findCartItem = await prisma.cartItem.findUnique({ where: { id: cartItemId } });
       if(!findCartItem) throw new exception.NotFoundException(`Not found cart item with id ${cartItemId}`);
 
+      const updateQuantity = () => {
+        if(actionType === 'add') {
+          return findCartItem.quantity += quantity;
+        }
+        else {
+          return quantity;
+        }
+      }
+
       const updateCartItem = await prisma.cartItem.update({
         where: { id: cartItemId },
-        data: { quantity: quantity }
+        data: { 
+          quantity: updateQuantity()
+        }
       });
 
       return updateCartItem;

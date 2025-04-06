@@ -1,4 +1,20 @@
+export interface ProductQueryParams {
+  page: number;
+  pageSize: number;
+  brands?: number[];
+  categories?: number[];
+  tags?: number[];
+  search?: string;
+  orderBy?: string;
+  orderDir?: string;
+  onSale?: boolean;
+  campaigns?: number[];
+  price?: number[];
+}
+
 export interface TextInputProps {
+  handleOnChange?: Function,
+  type?: string,
   labelText?: string | React.ReactNode,
   isRequired?: boolean,
   placeHolder?: string,
@@ -7,12 +23,4 @@ export interface TextInputProps {
   rows?: number,
   min?: number,
   max?: number | null,
-}
-
-export interface ProductListOptionProps {
-  title: string,
-  options: {
-    name: string,
-    inStock?: number | null
-  }[]
 }

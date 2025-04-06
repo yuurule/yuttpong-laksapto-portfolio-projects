@@ -18,6 +18,11 @@ export const productService = {
     return API.get<any>(url, false);
   },
 
+  getCategories: async (): Promise<any> => {
+    const url = `/api/category`;
+    return API.get<any>(url, false);
+  },
+
   getProducts: async ({
     page = 1,
     pageSize = 12,

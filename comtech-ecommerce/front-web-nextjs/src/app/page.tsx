@@ -36,6 +36,13 @@ export default function HomePage() {
         
         <section id="recommendCampaign">
           <img src="/images/dummy-hero-slide.jpg" className='img-fluid' />
+          {
+            /*
+            - Best deal of the week (ไปที่สินค้า 1 ตัวที่น่าสนใจที่สุดที่กำลังลดราคา)
+            - MSI gaming nootbook (ไปที่สินค้าล่าสุดใน brand msi หมวดหมู่ gaming)
+            - Discount 50% on working dell (ไปที่ campaign dell, working ลด 50%)
+            */
+          }
         </section>
 
         <section id="services" className={`${styles.ourServices}`}>
@@ -85,6 +92,13 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+        {
+          /*
+          - ไปที่สินค้าล่าสุดในหมวดหมู่ Working ราคาเบา
+          - ไปที่สินค้าล่าสุดในหมวดหมู่ Gaming ระดับ hi-end
+          - ไปที่สินค้าล่าสุดในหมวดหมู่ Student บางเบา ราคาย่อมเยาว์
+          */
+        }
 
         <section id="new-arrival" className={`${styles.newArrival}`}>
           <div className='row'>
@@ -93,6 +107,9 @@ export default function HomePage() {
                 <h3 className={`${styles.heading}`}>Deals of the Day</h3>
               </header>
               <DealOfTheDay />
+              {
+                /* ไปที่สินค้า 1 ตัวที่น่าสนใจและกำลังลดราคา */
+              }
             </div>
             <div className='col-sm-8'>
               <header>
@@ -113,6 +130,10 @@ export default function HomePage() {
             <p>Super Hi-end We Offer</p>
           </div>
         </div>
+        {
+          /* ไปที่สินค้าทั้งหมดที่กำลังลดราคาจากมากไปน้อย */
+        }
+
       </div>
     </main>
   );
