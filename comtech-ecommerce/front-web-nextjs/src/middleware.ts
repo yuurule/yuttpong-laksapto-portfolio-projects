@@ -1,5 +1,5 @@
 import { withAuth } from "next-auth/middleware";
-//export { default } from 'next-auth/middleware';
+export { default } from 'next-auth/middleware';
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
@@ -46,6 +46,7 @@ import { getToken } from "next-auth/jwt";
 
 export const config = {
   matcher: [
+    '/cart',
     '/checkout', 
     '/my-account/:path*'
   ],

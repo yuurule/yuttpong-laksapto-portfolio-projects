@@ -37,7 +37,7 @@ export const cartService = {
     const requestBody = {
       cartItemsId: cartItemsId
     }
-    const url = `/api/cart/customer/delete`;
+    const url = `/api/cart/delete`;
     return API.delete<any>(url, requestBody, true);
   },
 

@@ -1,20 +1,21 @@
-import React from "react";
 import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumbs";
 import PageHeader from "@/components/PageHeader/PageHeader";
-import CheckoutForm from "@/components/Checkout/CheckoutForm";
+import CartTable from "@/components/Cart/CartTable";
 
-export default function CheckoutPage() {
+export default function CartPage() {
+
+
 
   return (
-    <main className="">
+    <main>
       <Breadcrumbs />
       <div className='container'>
         <div className="row">
           <header className="col-12">
-            <PageHeader pageTitle="Checkout" />
+            <PageHeader pageTitle="Cart" />
           </header>
+          <CartTable />
         </div>
-        <CheckoutForm />
       </div>
     </main>
   )

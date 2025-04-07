@@ -1,5 +1,5 @@
 "use client";
-import styles from '../Cart.module.scss';
+import styles from './Cart.module.scss';
 
 export default function CartTotal() {
 

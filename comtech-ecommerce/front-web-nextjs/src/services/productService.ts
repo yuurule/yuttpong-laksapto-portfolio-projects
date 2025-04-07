@@ -3,6 +3,7 @@ import API from '@/lib/api';
 interface GetProductsParams {
   page?: number;
   pageSize?: number;
+  noPagination?: boolean;
   brands?: number[];
   orderBy?: string;
   orderDir?: string;
@@ -26,6 +27,7 @@ export const productService = {
   getProducts: async ({
     page = 1,
     pageSize = 12,
+    noPagination = false,
     brands = [],
     orderBy = 'createdAt',
     orderDir = 'desc',
@@ -34,7 +36,7 @@ export const productService = {
     tags,
   }: GetProductsParams = {}): Promise<any> => {
 
-    let url = `/api/product?page=${page}&pageSize=${pageSize}&orderBy=${orderBy}&orderDir=${orderDir}`;
+    let url = `/api/product?page=${page}&pageSize=${pageSize}&noPagination=${noPagination}&orderBy=${orderBy}&orderDir=${orderDir}`;
 
     if (brands && brands.length > 0) {
       url += `&brands=${brands.join(',')}`;

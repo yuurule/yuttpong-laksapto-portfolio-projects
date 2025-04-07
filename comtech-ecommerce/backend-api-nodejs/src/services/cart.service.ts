@@ -25,7 +25,20 @@ export class CartService {
       if(!findCustomer) throw new exception.NotFoundException(`Not found customer with id ${customerId}`);
 
       const cartItems = await prisma.cartItem.findMany({
-        where: { customerId: customerId }
+        where: { customerId: customerId },
+        include: {
+          product: {
+            include: {
+              images: true,
+              inStock: true,
+              campaignProducts: {
+                include: {
+                  campaign: true
+                }
+              }
+            }
+          }
+        }
       });
 
       return cartItems;
