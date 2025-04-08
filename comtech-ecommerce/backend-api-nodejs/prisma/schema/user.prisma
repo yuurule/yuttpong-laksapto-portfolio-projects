@@ -97,6 +97,10 @@ model CustomerDetail {
   lastName      String?
   phone         String?
   lineId        String?
+  region        String?
+  street        String?
+  postcode      String?
+  city          String?
 
   customer      Customer @relation(fields: [customerId], references: [id])
   

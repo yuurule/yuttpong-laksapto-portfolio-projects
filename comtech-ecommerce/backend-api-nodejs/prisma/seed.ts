@@ -241,7 +241,7 @@ async function main() {
             publish: true,
             inStock: {
               create: {
-                inStock: 0
+                inStock: 100
               }
             },
             categories: {

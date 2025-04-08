@@ -151,6 +151,16 @@ export interface createCartItemDto {
 // Order
 export interface createOrderDto {
   customerId: number;
+  shippingAddress?: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    region: string;
+    street: string;
+    postcode: string;
+    city: string;
+  };
+  note?: string;
   total: number;
   items: {
     productId: number;

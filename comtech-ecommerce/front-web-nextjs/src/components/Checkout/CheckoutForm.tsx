@@ -15,7 +15,6 @@ const formSchema = z.object({
   postcode: z.string().min(1, {message: 'Required'}),
   city: z.string().min(1, {message: 'Required'}),
   phone: z.string().min(1, {message: 'Required'}),
-  email: z.string().min(1, {message: 'Required'}),
   note: z.string(),
   nameOnCard: z.string(),
   cardNumber: z.string(),
@@ -120,17 +119,6 @@ export default function CheckoutForm() {
                   className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
                 />
                 {errors.phone && <small className="invalid-feedback">{errors.phone.message}</small>}
-              </div>
-            </div>
-            <div className="col-sm-6">
-              <div className="form-group position-relative">
-                <label className="form-label">Email address</label>
-                <input
-                  type="email"
-                  {...register('email')}
-                  className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                />
-                {errors.email && <small className="invalid-feedback">{errors.email.message}</small>}
               </div>
             </div>
             <div className="col-sm-12">

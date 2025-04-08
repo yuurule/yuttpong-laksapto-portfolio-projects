@@ -5,6 +5,7 @@ model Order {
   paymentIntent   String? // Stripe payment intent ID
   customerId      Int
   total           Decimal @db.Decimal(18, 2)
+  note            String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   updatePaymentAt   DateTime?

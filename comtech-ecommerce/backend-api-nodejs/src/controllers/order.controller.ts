@@ -37,7 +37,13 @@ export class OrderController {
   }
 
   async createOrder(req: Request, res: Response) {
-    const { customerId, total, items } = req.body;
+    const { 
+      customerId,
+      shippingAddress,
+      note,
+      total, 
+      items 
+    } = req.body;
 
     if(!isValidHaveValue([customerId, total, items])) {
       sendError(res, 400, `customerId, total and items is required`);
@@ -64,8 +70,21 @@ export class OrderController {
 
     const data : createOrderDto = {
       customerId: customerId,
+      note: note,
       total: total,
       items: items
+    }
+
+    if(shippingAddress) {
+      data.shippingAddress = {
+        firstName: shippingAddress.firstName,
+        lastName: shippingAddress.lastName,
+        phone: shippingAddress.phone,
+        region: shippingAddress.region,
+        street: shippingAddress.street,
+        postcode: shippingAddress.postcode,
+        city: shippingAddress.city,
+      }
     }
 
     try {
