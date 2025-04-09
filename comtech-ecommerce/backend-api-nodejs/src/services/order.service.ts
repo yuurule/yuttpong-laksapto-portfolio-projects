@@ -106,22 +106,6 @@ export class OrderService {
 
       const transaction = await prisma.$transaction(async tx => {
 
-        if(dto.shippingAddress) {
-          await tx.customerDetail.update({
-            where: { 
-              customerId: dto.customerId },
-            data: {
-              firstName: dto.shippingAddress.firstName,
-              lastName: dto.shippingAddress.lastName,
-              region: dto.shippingAddress.region,
-              street: dto.shippingAddress.street,
-              postcode: dto.shippingAddress.postcode,
-              city: dto.shippingAddress.city,
-              phone: dto.shippingAddress.phone,
-            }
-          })
-        }
-
         // reserve product in stock
         dto.items.map(async (i, index) => {
           const dataDto = {
@@ -138,7 +122,6 @@ export class OrderService {
           data: {
             customer: { connect: { id: dto.customerId } },
             total: dto.total,
-            note: dto.note,
             orderItems: {
               create: dto.items.map(item => {
                 const itemData : any = {
@@ -172,6 +155,9 @@ export class OrderService {
   }
 
   async updatePayment(orderId: number, paymentStatus: string) {
+
+    // PAID or CANCEL
+
     try {
       const findOrder = await prisma.order.findUnique({ where: { id: orderId } });
       if(!findOrder) throw new exception.NotFoundException(`Not found order with id ${orderId}`);

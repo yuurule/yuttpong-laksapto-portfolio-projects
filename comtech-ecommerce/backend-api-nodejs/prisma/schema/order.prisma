@@ -35,6 +35,7 @@ model OrderItem {
 enum OrderStatus {
   PENDING
   PAID
+  CANCEL
   FAILED
   DELIVERING
   COMPLETED
@@ -43,5 +44,6 @@ enum OrderStatus {
 enum PaymentStatus {
   PENDING
   PAID
+  CANCEL
   FAILED
 }

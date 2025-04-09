@@ -132,7 +132,12 @@ export class StockService {
       const transaction = await prisma.$transaction(async (tx) => {
 
         let currentInStock = findProductInStock.inStock;
-        if(dto.actionType === StockSellAction.SELL || dto.actionType === StockSellAction.RESERVE) {
+        let currentTotalSale = findProductInStock.totalSaleQuantity;
+        
+        if(dto.actionType === StockSellAction.SELL) {
+          currentTotalSale += dto.quantity;
+        }
+        else if(dto.actionType === StockSellAction.RESERVE) {
           currentInStock -= dto.quantity;
         }
         else if(dto.actionType === StockSellAction.CANCELRESERVE) {
@@ -141,7 +146,10 @@ export class StockService {
 
         const inStock = await tx.inStock.update({
           where: { productId: dto.productId },
-          data: { inStock: currentInStock }
+          data: { 
+            inStock: currentInStock,
+            totalSaleQuantity: currentTotalSale,
+          }
         })
 
         const newStockSellAction = await tx.stockSellEvent.create({

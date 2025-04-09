@@ -39,8 +39,6 @@ export class OrderController {
   async createOrder(req: Request, res: Response) {
     const { 
       customerId,
-      shippingAddress,
-      note,
       total, 
       items 
     } = req.body;
@@ -70,21 +68,8 @@ export class OrderController {
 
     const data : createOrderDto = {
       customerId: customerId,
-      note: note,
       total: total,
       items: items
-    }
-
-    if(shippingAddress) {
-      data.shippingAddress = {
-        firstName: shippingAddress.firstName,
-        lastName: shippingAddress.lastName,
-        phone: shippingAddress.phone,
-        region: shippingAddress.region,
-        street: shippingAddress.street,
-        postcode: shippingAddress.postcode,
-        city: shippingAddress.city,
-      }
     }
 
     try {
@@ -98,10 +83,13 @@ export class OrderController {
   }
 
   async updatePayment(req: Request, res: Response) {
-    const id = parseInt(req.params.id);
-    const { paymentStatus } = req.body;
+    const orderId = parseInt(req.params.id);
+    const { 
+      shippingAddress,
+      paymentStatus // PAID, CANCEL, FAILED
+    } = req.body;
 
-    if(!isValidId(id)) {
+    if(!isValidId(orderId)) {
       sendError(res, 400, `Order id must not zero or negative number`);
     }
 
@@ -110,7 +98,7 @@ export class OrderController {
     }
 
     try {
-      const updatePayment = await orderService.updatePayment(id, paymentStatus);
+      const updatePayment = await orderService.updatePayment(orderId, paymentStatus);
       sendResponse(res, 200, `Updating order payment ok`, updatePayment)
     }
     catch (error: any) {
