@@ -10,6 +10,7 @@ import { productService } from '@/services';
 
 export default function BrandsDropdown() {
 
+  const [show, setShow] = useState(false);
   const [brandList, setBrandList] = useState([]);
 
   useEffect(() => {
@@ -26,26 +27,40 @@ export default function BrandsDropdown() {
     fetchBrands();
   }, []);
 
+  const handleClose = () => {
+    setShow(false);
+  };
+
   return (
     <>
     {
       brandList.length > 0
       ?
-      <Dropdown className={`${styles.dropdownBrands}`}>
-        <Dropdown.Toggle className={`btn-link p-0 ${styles.btn}`} id="dropdown-brands">
+      <Dropdown 
+        show={show} 
+        onToggle={(isOpen) => setShow(isOpen)} 
+        className={`${styles.dropdownBrands}`}
+      >
+        <Dropdown.Toggle 
+          className={`btn-link p-0 ${styles.btn}`} 
+          style={{backgroundColor: '#FFF'}}
+          id="dropdown-brands"
+        >
           <FontAwesomeIcon icon={faBars} className='me-3' />Shop Brands
         </Dropdown.Toggle>
 
         <Dropdown.Menu className={`${styles.menu}`}>
           {
             brandList.map((brand: any) => (
-              <Link 
-                key={`brand_item_${brand?.id}`}
-                href="/products"
-                className='dropdown-item'
-              >
-                {brand?.name}
-              </Link>
+              <div onClick={handleClose} key={`brand_item_${brand.id}`}>
+                <Link 
+                  href={`/products?brands=${brand.id}`}
+                  className='dropdown-item'
+                  onClick={() => {}}
+                >
+                  {brand.name}
+                </Link>
+              </div>
             ))
           }
         </Dropdown.Menu>

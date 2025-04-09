@@ -29,27 +29,52 @@ export default function ProductListOption() {
     { label: '30,000-50,000 บาท', value: 4 },
     { label: 'มากกว่า 50,000 บาท', value: 5 },
   ]);
-  const [selectBrands, setSelectBrands] = useState(brands ? brands.split(',') : []);
-  const [selectCategories, setSelectCategories] = useState(categories ? categories.split(',') : []);
+  const [selectBrands, setSelectBrands] = useState<number[]>([]);
+  const [selectCategories, setSelectCategories] = useState<number[]>([]);
   const [selectPrice, setSelectPrice] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoadData(true);
       try {
-        const brands = await productService.getBrands();
-        const categories = await productService.getCategories();
+        const brandsData = await productService.getBrands();
+        const categoriesData = await productService.getCategories();
 
-        setBrandList(brands.RESULT_DATA.map((i: any) => ({
+        setBrandList(brandsData.RESULT_DATA.map((i: any) => ({
           id: i.id,
           name: i.name,
           productAmount: i.products.length
         })));
-        setCategoryList(categories.RESULT_DATA.map((i: any) => ({
+        setCategoryList(categoriesData.RESULT_DATA.map((i: any) => ({
           id: i.id,
           name: i.name,
           productAmount: i.products.length
         })));
+
+        if(brands) {
+          if(brands === 'all') setSelectBrands(brandsData.RESULT_DATA.map((i: any) => (i.id)));
+          else setSelectBrands(brands.split(',').map(i => (parseInt(i))));
+        }
+        else setSelectBrands([]);
+
+        if(categories) {
+          if(categories === 'all') setSelectCategories(categoriesData.RESULT_DATA.map((i: any) => (i.id)));
+          else setSelectCategories(categories.split(',').map(i => (parseInt(i))));
+        }
+        else setSelectCategories([]);
+
+        if(price) {
+          let resultSelectPrice = 1;
+          switch(price) {
+            case 'all': resultSelectPrice = 1; break;
+            case '0,15000': resultSelectPrice = 2; break;
+            case '15000,30000': resultSelectPrice = 3; break;
+            case '30000,50000': resultSelectPrice = 4; break;
+            case '50000,300000': resultSelectPrice = 5; break;
+          }
+
+          setSelectPrice(resultSelectPrice);
+        }
       }
       catch(error) {
         console.error(`Fecth data failed due to: ${error}`);
@@ -58,11 +83,11 @@ export default function ProductListOption() {
     }
 
     fetchData();
-  }, []);
+  }, [searchParams]);
 
   const checkSelectBrand = (brandId: number) => {
     if(brands) {
-      const findBrandId = selectBrands.find(i => parseInt(i) === brandId);
+      const findBrandId = selectBrands.find(i => i === brandId);
       if(findBrandId) {
         return true;
       }
@@ -72,7 +97,7 @@ export default function ProductListOption() {
 
   const checkSelectCategory = (categoryId: number) => {
     if(categories) {
-      const findCategoryId = selectCategories.find(i => parseInt(i) === categoryId);
+      const findCategoryId = selectCategories.find(i => i === categoryId);
       if(findCategoryId) {
         return true;
       }
@@ -80,7 +105,7 @@ export default function ProductListOption() {
     return false;
   }
 
-  const handleSelectCheckbox = (values: string[], checkboxType: string) => {
+  const handleSelectCheckbox = (values: number[], checkboxType: string) => {
     let resultUrl = `/products?`;
     
     if(checkboxType === 'brands') {
@@ -100,11 +125,11 @@ export default function ProductListOption() {
     if(checkboxType === 'price') {
       const priceValue = values[0];
       switch(priceValue) {
-        case '1': resultUrl += ``; break;
-        case '2': resultUrl += `price=0,15000&`; break;
-        case '3': resultUrl += `price=15000,30000&`; break;
-        case '4': resultUrl += `price=30000,50000&`; break;
-        case '5': resultUrl += `price=50000,300000&`; break;
+        case 1: resultUrl += `price=all&`; break;
+        case 2: resultUrl += `price=0,15000&`; break;
+        case 3: resultUrl += `price=15000,30000&`; break;
+        case 4: resultUrl += `price=30000,50000&`; break;
+        case 5: resultUrl += `price=50000,300000&`; break;
       }
     }
     else {
@@ -128,7 +153,7 @@ export default function ProductListOption() {
       <div className={`${styles.productListOption}`}>
         <h5 className={`${styles.title}`}>Brands</h5>
         {
-          brandList.map((brand:any, index:number) => (
+          !loadData && brandList.map((brand:any, index:number) => (
             <div key={`product_list_option_brands_${brand.id}`} className={`form-check ${styles.formCheck}`}>
               <input 
                 className="form-check-input" 
@@ -137,13 +162,13 @@ export default function ProductListOption() {
                 checked={checkSelectBrand(brand.id)}
                 onChange={(e: any) => {
                   const tempSelectValues = [...selectBrands];
-                  let result: string[];
+                  let result: number[];
                   if(e.target.checked) {
                     tempSelectValues.push(e.target.value);
                     result = tempSelectValues;
                   }
                   else {
-                    result = tempSelectValues.filter(i => i !== e.target.value);
+                    result = tempSelectValues.filter(i => i !== parseInt(e.target.value));
                   }
                   setSelectBrands(result);
                   handleSelectCheckbox(result, 'brands');
@@ -162,7 +187,7 @@ export default function ProductListOption() {
       <div className={`${styles.productListOption}`}>
         <h5 className={`${styles.title}`}>Category</h5>
           {
-            categoryList.map((category:any, index:number) => (
+            !loadData && categoryList.map((category:any, index:number) => (
               <div key={`product_list_option_categories_${category.id}`} className={`form-check ${styles.formCheck}`}>
                 <input 
                   className="form-check-input" 
@@ -171,13 +196,13 @@ export default function ProductListOption() {
                   checked={checkSelectCategory(category.id)}
                   onChange={(e: any) => {
                     const tempSelectValues = [...selectCategories];
-                    let result: string[];
+                    let result: number[];
                     if(e.target.checked) {
                       tempSelectValues.push(e.target.value);
                       result = tempSelectValues;
                     }
                     else {
-                      result = tempSelectValues.filter(i => i !== e.target.value);
+                      result = tempSelectValues.filter(i => i !== parseInt(e.target.value));
                     }
                     setSelectCategories(result);
                     handleSelectCheckbox(result, 'categories');
@@ -196,17 +221,17 @@ export default function ProductListOption() {
       <div className={`${styles.productListOption}`}>
         <h5 className={`${styles.title}`}>Price</h5>
         {
-          prices.map((price: any, index: number) => (
+          !loadData && prices.map((price: any, index: number) => (
             <div key={`product_list_option_prices_${index + 1}`} className={`form-check ${styles.formCheck}`}>
               <input 
                 className="form-check-input" 
                 type="radio" 
                 name="priceFilter"
                 value={price.value} 
-                defaultChecked={selectPrice === price.value}
+                checked={selectPrice === price.value}
                 onChange={(e: any) => {
                   setSelectPrice(e.target.value);
-                  handleSelectCheckbox(e.target.value, 'price');
+                  handleSelectCheckbox([parseInt(e.target.value)], 'price');
                 }}
               />
               <label className="form-check-label" htmlFor="flexCheckDefault">

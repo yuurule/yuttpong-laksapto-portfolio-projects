@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './MainHeader.module.scss';
 import Link from 'next/link';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,11 +11,29 @@ import MyAccountOrSignin from './MyAccountOrSignin';
 import MyCart from './MyCart';
 import BrandsDropdown from './BrandsDropdown';
 import WishlistAmount from './WishlistAmount';
+import { productService } from '@/services';
 
 export default function MainHeader() {
 
+  const [loadData, setLoadData] = useState(false);
+  const [categoryList, setCategoryList] = useState([]);
+
   useEffect(() => {
     require('bootstrap/dist/js/bootstrap.bundle.min.js');
+
+    const fetchCategory = async () => {
+      setLoadData(true);
+      try {
+        const categories = await productService.getCategories();
+        setCategoryList(categories.RESULT_DATA);
+      } 
+      catch(error) {
+        console.error(`Get category is failed due to reason: ${error}`);
+      }
+      finally { setLoadData(false); }
+    }
+
+    fetchCategory();
   }, []);
 
   return (
@@ -30,9 +48,9 @@ export default function MainHeader() {
               </Dropdown.Toggle>
 
               <Dropdown.Menu className={`${styles.menu}`}>
-                <Dropdown.Item href="#/action-1">English</Dropdown.Item>
-                <Dropdown.Item href="#/action-2">Thai</Dropdown.Item>
-                <Dropdown.Item href="#/action-3">Japan</Dropdown.Item>
+                <Dropdown.Item>English</Dropdown.Item>
+                <Dropdown.Item>Thai</Dropdown.Item>
+                <Dropdown.Item>Japan</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
             <p className='mb-0'>Free Shipping Every Order Over $100</p>
@@ -40,14 +58,13 @@ export default function MainHeader() {
           <div className={`${styles.mainUtilMenu}`}>
             <ul className='list-inline mb-0'>
               <li className='list-inline-item'>
-                <Link href="/products" className={styles.textYellow}>
+                <Link href="/products?brands=all&onSale=true" className={styles.textYellow}>
                   <FontAwesomeIcon icon={faBoltLightning} className='me-2' />Flash Sale
                 </Link>
               </li>
-              <li className='list-inline-item'><Link href="/my-account/orders">Tracking Order</Link></li>
-              <li className='list-inline-item'><Link href="#">About</Link></li>
-              <li className='list-inline-item'><Link href="#">Contact</Link></li>
-              <li className='list-inline-item'><Link href="#">Blog</Link></li>
+              <li className='list-inline-item'><Link href="">About</Link></li>
+              <li className='list-inline-item'><Link href="">Contact</Link></li>
+              <li className='list-inline-item'><Link href="">Blog</Link></li>
             </ul>
           </div>
         </div>
@@ -79,18 +96,27 @@ export default function MainHeader() {
             <BrandsDropdown />
             <nav className={`${styles.mainMenu}`}>
               <ul className="list-inline mb-0">
-                <li className="list-inline-item"><Link href="/">home</Link></li>
-                <li className="list-inline-item"><Link href="/products">working</Link></li>
-                <li className="list-inline-item"><Link href="/products">gaming</Link></li>
-                <li className="list-inline-item"><Link href="/products">light & slim</Link></li>
-                {/* <li className="list-inline-item"><Link href="/products">top sell</Link></li> */}
-                <li className="list-inline-item"><Link href="/products">sales off</Link></li>
+                <li className="list-inline-item">
+                  <Link href="/">home</Link>
+                </li>
+                {
+                  !loadData && categoryList.map((i: any) => {
+                    return (
+                      <li key={`category_${i.id}`} className="list-inline-item">
+                        <Link href={`/products?brands=all&categories=${i.id}`}>{i.name}</Link>
+                      </li>
+                    )
+                  })
+                }
+                <li className="list-inline-item">
+                  <Link href="/products?brands=all&campaigns=all&campaigns=all">sales off</Link>
+                </li>
               </ul>
             </nav>
           </div>
           <div className={`${styles.wishList}`}>
             <WishlistAmount />
-            <Link href="/products" className={`${styles.todayDeals}`}>Today's Deal!</Link>
+            <Link href="/products?brands=all&todayDeal=true" className={`${styles.todayDeals}`}><strong>Today's Deal!</strong></Link>
           </div>
         </div>
       </div>

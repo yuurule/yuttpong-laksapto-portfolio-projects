@@ -28,14 +28,32 @@ export default function ProductList() {
     const fecthProducts = async () => {
       setLoadData(true);
       try {
+        const brandsData = await productService.getBrands();
+        const categoriesData = await productService.getCategories();
+        const tagsData = await productService.getCategories();
+        const campaignsData = await productService.getCategories();
+
         let productQueryParams: ProductQueryParams = {
           page: 1,
           pageSize: 16,
         }
-        if(brands) productQueryParams.brands = brands.split(',').map(i => (parseInt(i)));
-        if(categories) productQueryParams.categories = categories.split(',').map(i => (parseInt(i)));
-        if(tags) productQueryParams.tags = tags.split(',').map(i => (parseInt(i)));
-        if(campaigns) productQueryParams.campaigns = campaigns.split(',').map(i => (parseInt(i)));
+        
+        if(brands) {
+          if(brands === 'all') productQueryParams.brands = brandsData.RESULT_DATA.map((i: any) => (i.id));
+          else productQueryParams.brands = brands.split(',').map(i => (parseInt(i)));
+        }
+        if(categories) {
+          if(categories === 'all') productQueryParams.categories = categoriesData.RESULT_DATA.map((i: any) => (i.id));
+          else productQueryParams.categories = categories.split(',').map(i => (parseInt(i)));
+        }
+        if(tags) {
+          if(tags === 'all') productQueryParams.tags = tagsData.RESULT_DATA.map((i: any) => (i.id));
+          else productQueryParams.tags = tags.split(',').map(i => (parseInt(i)));
+        }
+        if(campaigns) {
+          if(campaigns === 'all') productQueryParams.campaigns = campaignsData.RESULT_DATA.map((i: any) => (i.id));
+          else productQueryParams.campaigns = campaigns.split(',').map(i => (parseInt(i)));
+        }
         if(price) productQueryParams.price = price.split(',').map(i => (parseInt(i)));
         if(orderBy) productQueryParams.orderBy = orderBy;
         if(orderDir) productQueryParams.orderDir = orderDir;
