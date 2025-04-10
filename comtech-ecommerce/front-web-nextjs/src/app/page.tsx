@@ -104,7 +104,7 @@ export default function HomePage() {
           <div className='row'>
             <div className='col-sm-4'>
               <header>
-                <h3 className={`${styles.heading}`}>Deals of the Day</h3>
+                <h3 className={`${styles.heading}`}>Deals of the Week</h3>
               </header>
               <DealOfTheDay />
               {

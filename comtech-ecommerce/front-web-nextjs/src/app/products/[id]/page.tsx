@@ -24,7 +24,12 @@ export default async function ProductDetailPage({
     const product = await productService.getOneProduct(id);
     const resultData = product.RESULT_DATA;
 
-    //console.log(resultData)
+    console.log(resultData)
+
+    const calculateProductPrice = () => {
+      let result = 0;
+      //if(resultData.)
+    }
 
     return (
       <main className={`${styles.productDetail}`}>

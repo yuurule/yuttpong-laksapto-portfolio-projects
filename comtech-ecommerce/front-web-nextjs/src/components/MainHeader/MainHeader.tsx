@@ -8,7 +8,7 @@ import { faBoltLightning, faHeadphones, faLanguage } from '@fortawesome/free-sol
 import { Dropdown } from 'react-bootstrap';
 import SearchProduct from './SearchProduct';
 import MyAccountOrSignin from './MyAccountOrSignin';
-import MyCart from './MyCart';
+import MyCart from './MyCart/MyCart';
 import BrandsDropdown from './BrandsDropdown';
 import WishlistAmount from './WishlistAmount';
 import { productService } from '@/services';

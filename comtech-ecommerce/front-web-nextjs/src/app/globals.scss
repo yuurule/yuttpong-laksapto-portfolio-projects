@@ -147,3 +147,11 @@ button {
 .dropdown-no-icon .dropdown-toggle::after {
   display: none !important;
 }
+
+.my-dropdown {
+  width: 250px;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}

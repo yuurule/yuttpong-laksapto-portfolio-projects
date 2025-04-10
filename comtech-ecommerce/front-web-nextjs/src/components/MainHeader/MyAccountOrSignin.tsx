@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { signOut } from 'next-auth/react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faSignOutAlt, faUser} from '@fortawesome/free-solid-svg-icons';
 import styles from './MainHeader.module.scss';
 import Link from 'next/link';
 import { Dropdown } from 'react-bootstrap';
@@ -14,6 +14,8 @@ export default function MyAccountOrSignin() {
 
   const { status, data: session } = useSession();
   const [showSignIn, setShowSignIn] = useState(false);
+
+  console.log(session);
   
   const handleToggleSignIn = () => setShowSignIn(prevState => !prevState);
 
@@ -30,19 +32,38 @@ export default function MyAccountOrSignin() {
             onClick={handleToggleSignIn}
           >Sign in</button>
           :
-          <Link href="/auth/signin">
-            <FontAwesomeIcon icon={faUser} />
-            <div>
-              <strong className={`${styles.title}`}>My Account</strong>
-              <span>yuurule</span>
-            </div>
+          <>
+          <Dropdown>
+            <Dropdown.Toggle 
+              id="dropdown-my-account"
+              className={`px-0 position-relative d-flex align-items-center`}
+              style={{backgroundColor: '#FFF', border: 'none', color: '#2a2a2a'}}
+            >
+              <FontAwesomeIcon icon={faUser} style={{marginRight: '5px'}} />
+              {/* <div>
+                <strong className={`${styles.title}`}>My Account</strong>
+                <span>{session?.user.id}</span>
+              </div> */}
+            </Dropdown.Toggle>
 
-            {/* <button onClick={() => {
-  //           signOut({
-  //             callbackUrl: '/'
-  //           })
-  //         }}>sign out</button> */}
-          </Link>
+            <Dropdown.Menu className='my-dropdown px-2 pt-2' style={{width: '180px'}}>
+              <Link href="/my-account" className='dropdown-item mb-1'>My account</Link>
+              <Link href="/my-account/wishlists" className='dropdown-item mb-1'>Wishlist</Link>
+              <Link href="/my-account/orders" className='dropdown-item mb-1'>Orders</Link>
+              <Link href="/my-account/reviews" className='dropdown-item'>Reviews</Link>
+              <hr />
+              <button 
+                type="button"
+                className='dropdown-item mb-3'
+                style={{color: 'red'}}
+                onClick={() => {
+                  signOut({
+                    callbackUrl: '/'
+                  })
+              }}><FontAwesomeIcon icon={faSignOutAlt} style={{fontSize: '15px', color: 'red'}} />Sign out</button>
+            </Dropdown.Menu>
+          </Dropdown>
+          </>
       }
     </div>
 

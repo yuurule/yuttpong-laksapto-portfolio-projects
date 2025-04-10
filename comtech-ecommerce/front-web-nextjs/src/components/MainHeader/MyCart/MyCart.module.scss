@@ -1,0 +1,39 @@
+.cartItem {
+
+  display: flex;
+  margin: 10px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding-bottom: 10px;
+
+  &:last-of-type {
+    margin: 10px 0 0;
+  }
+
+  .image {
+    width: 60px;
+    height: auto;
+    margin: 0 10px;
+  }
+
+  .name {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  .price {
+    font-size: 0.8rem;
+  }
+
+  .name, .price {
+    margin-bottom: 0;
+  }
+}
+
+.goToCart {
+  color: #FFF !important;
+
+  svg, i {
+    color: #FFF !important;
+    font-size: 0.94rem !important;
+  }
+}
