@@ -11,16 +11,44 @@ export class ProductService {
     page: number, 
     pageSize: number, 
     noPagiation: boolean, 
+    orderBy: string = 'createdAt',
+    orderDir: string = 'desc',
     search?: string,
     brands?: number[],
     categories?: number[],
     tags?: number[],
-    orderBy: string = 'crratedAt',
-    orderDir: string = 'desc',
+    onSale?: boolean,
+    topSale?: string,
+    campaigns?: number[],
   ) {
     try {
 
       let where: Prisma.ProductWhereInput = {};
+
+      // const salesData = await prisma.orderItem.groupBy({
+      //   by: ['productId'],
+      //   _sum: {
+      //     quantity: true
+      //   }
+      // });
+
+      // if(topSale) {
+      //   if(topSale === 'desc') {
+      //     salesData.sort((a, b) => {
+      //       return (b._sum.quantity || 0) - (a._sum.quantity || 0);
+      //     });
+      //   }
+      //   else if(topSale === 'asc') {
+      //     salesData.sort((a, b) => {
+      //       return (a._sum.quantity || 0) - (b._sum.quantity || 0);
+      //     });
+      //   }
+      //   const productIds = salesData.map(item => item.productId);
+      //   console.log(productIds);
+      //   where.id = {
+      //     in: productIds
+      //   }
+      // }
 
       if(brands) {
         if(brands.length === 0) where.brandId = -1;
@@ -60,6 +88,55 @@ export class ProductService {
         }
       }
 
+      if(campaigns) {
+        if(campaigns.length === 0) where.campaignProducts = {}
+        else {
+          where.campaignProducts = {
+            some: {
+              campaignId: {
+                in: campaigns
+              }
+            }
+          }
+        }
+      }
+
+      if(onSale) {
+        where.campaignProducts = {
+          some: {}
+        }
+      }
+
+      const totalProducts = await prisma.product.findMany({
+        where,
+        include: {
+          specs: true,
+          categories: { include: { category: { select: { id: true, name: true } } } },
+          tags: { include: { tag: { select: { id: true, name: true } } } },
+          images: true,
+          inStock: true,
+          stockSellEvents: {
+            where: {
+              action: StockSellAction.SELL
+            } 
+          },
+          reviews: {
+            orderBy: {
+              createdAt: 'desc'
+            }
+          },
+          orderItems: true,
+          campaignProducts: {
+            include: {
+              campaign: true
+            }
+          }
+        }
+      });
+
+      const totalPages = Math.ceil(totalProducts.length / pageSize);
+      let topSaleTotalPages = 1;
+
       const products = await prisma.product.findMany({
         where,
         include: {
@@ -73,7 +150,11 @@ export class ProductService {
               action: StockSellAction.SELL
             } 
           },
-          reviews: true,
+          reviews: {
+            orderBy: {
+              createdAt: 'desc'
+            }
+          },
           orderItems: true,
           campaignProducts: {
             include: {
@@ -81,13 +162,100 @@ export class ProductService {
             }
           }
         },
-        skip: !noPagiation ? (page - 1) * pageSize : undefined,
-        take: !noPagiation ? pageSize : undefined,
         orderBy: {
           [orderBy]: orderDir
-        }
+        },
+        skip: !noPagiation ? (page - 1) * pageSize : undefined,
+        take: !noPagiation ? pageSize : undefined,
       });
-      return products;
+
+      let resultProducts;
+
+      if(topSale) {
+        const allProducts = await prisma.product.findMany({
+          where,
+          include: {
+            specs: true,
+            categories: { include: { category: { select: { id: true, name: true } } } },
+            tags: { include: { tag: { select: { id: true, name: true } } } },
+            images: true,
+            inStock: true,
+            stockSellEvents: {
+              where: {
+                action: StockSellAction.SELL
+              } 
+            },
+            reviews: {
+              orderBy: {
+                createdAt: 'desc'
+              }
+            },
+            orderItems: true,
+            campaignProducts: {
+              include: {
+                campaign: true
+              }
+            }
+          }
+        });
+
+        // Calculate sale quantity
+        let salesData = [];
+        for(let i = 0; i < allProducts.length; i++) {
+          let totalQuantity = 0;
+          allProducts[i].orderItems.map(x => totalQuantity += x.quantity);
+          if(totalQuantity > 0) {
+            salesData.push({
+              id: allProducts[i].id,
+              quantity: totalQuantity,
+            });
+          }
+        }
+
+        // Sorting
+        if(topSale === 'desc') { // มากไปน้อย
+          salesData.sort((a: any, b: any) => {
+            return (b.quantity || 0) - (a.quantity || 0);
+          });
+        }
+        else if(topSale === 'asc') { // น้อยไปมาก
+          salesData.sort((a: any, b: any) => {
+            return (a.quantity || 0) - (b.quantity || 0);
+          });
+        }
+
+        // Find all product have sale quanity with sorting by sale quantity
+        const productsData = salesData.map((i: any) => {
+          return allProducts.find(x => x.id === i.id);
+        });
+
+        // Manual calculate pagination
+        let resultDataPage = [];
+        
+        let startIndex = page === 1 ? 1 : ((page - 1) * pageSize) + 1;
+        let endIndex = page * pageSize;
+        for(let i = 0; i < productsData.length; i++) {
+          if(i + 1 >= startIndex && i + 1 <= endIndex) {
+            resultDataPage.push(productsData[i]);
+          }
+        }
+
+        topSaleTotalPages = Math.ceil(productsData.length / pageSize);
+        resultProducts = resultDataPage;
+      }
+      else {
+        resultProducts = products;
+      }
+
+      return {
+        data: resultProducts,
+        meta: {
+          totalItems: topSale ? resultProducts.length : totalProducts.length,
+          totalPages: topSale ? topSaleTotalPages : totalPages,
+          currentPage: page,
+          pageSize
+        }
+      };
     }
     catch(error: any) {
       if(error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -124,6 +292,9 @@ export class ProductService {
                   }
                 }
               }
+            },
+            orderBy: {
+              createdAt: 'desc'
             }
           },
           orderItems: true,

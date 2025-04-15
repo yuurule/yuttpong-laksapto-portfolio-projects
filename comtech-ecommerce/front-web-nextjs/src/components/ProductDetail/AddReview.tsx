@@ -1,60 +1,105 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { Form } from 'react-bootstrap';
+import { useSession } from 'next-auth/react';
+import { useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useRouter, usePathname } from 'next/navigation';
+import { toast } from 'react-toastify';
+import { addReviewAction } from '@/lib/actions';
 
-export default function AddReview() {
+const formSchema = z.object({
+  rating: z.number().nonnegative(),
+  message: z.string().min(1, {message: 'Required'}),
+});
 
-  const [rating, setRating] = useState<number>(0);
-  const [message, setMessage] = useState('');
+export default function AddReview({ 
+  productId
+}: { 
+  productId: number
+}) {
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
+  const { status, data: session } = useSession();
 
-    console.log(rating, message);
+  const {
+      register,
+      handleSubmit,
+      reset,
+      control,
+      formState: { errors, isSubmitting }
+    } = useForm({
+      resolver: zodResolver(formSchema),
+      defaultValues: {
+        rating: 5,
+        message: ""
+      }
+    });
+
+  const formValue = useWatch({ control })
+
+  const onSubmit = async (data: any) => {
+    
+    if(session?.user.id && session?.accessToken) {
+      const result: any = await addReviewAction({ 
+        productId: productId,
+        rating: data.rating,
+        message: data.message,
+        customerId: parseInt(session.user.id),
+        accessToken: session.accessToken,
+      });
+
+      if(result.success) {
+        reset();
+        toast.success(result.message);
+      }
+      else toast.error(result.message);
+    }
+    else {
+      toast.error(`Unauthorized, User id is required`)
+    }
   } 
 
   return(
-    <Form 
-      className={`form-design`}
-      onSubmit={handleSubmit}
-    >
-      <Form.Group className='w-50 mb-3'>
-        <Form.Label>Your Rating</Form.Label>
-        <div className='d-flex align-items-center'>
-          <div style={{width: 200, marginRight: 15}}>
-            <Form.Range 
-              className='w-100' 
-              step={1} 
-              min={0} 
-              max={5} 
-              defaultValue={0}
-              onChange={(e) => {
-                setRating(parseInt(e.target.value));
-              }}
-            />
+    <form onSubmit={handleSubmit(onSubmit)} className="form-design">
+      <div className='row'>
+        <div className='col-sm-6 mb-3'>
+          <div className="form-group">
+            <label className="form-label">Your rating</label>
+            <div className='d-flex align-items-center'>
+              <input
+                type="range"
+                step="1"
+                min="0"
+                max="5"
+                {...register('rating', { valueAsNumber: true })}
+                className={`w-100 me-4 ${errors.rating ? 'is-invalid' : ''}`}
+                style={{border: 'none'}}
+              />
+              <strong className='h4'>{ formValue.rating }</strong>
+            </div>
+            {errors.rating && <small className="invalid-feedback">{errors.rating.message}</small>}
           </div>
-          <strong className='h4'>{ rating }</strong>
         </div>
-      </Form.Group>
-      <Form.Group className="mb-3">
-        <Form.Control 
-          as="textarea" 
-          rows={4} 
-          placeholder="Your review*"
-          className='form-design'
-          value={message}
-          onChange={(e) => {
-            setMessage(e.target.value)
-          }}
-        />
-      </Form.Group>
-      <button 
-        type="submit" 
-        className='btn design-btn px-5'
-      >
-        SUBMIT
-      </button>
-    </Form>
+        <div className='col-sm-12 mb-3'>
+          <div className="form-group">
+            <textarea
+              rows={5}
+              placeholder='Your review'
+              {...register('message')}
+              className={`form-control ${errors.message ? 'is-invalid' : ''}`}
+            ></textarea>
+            {errors.message && <small className="invalid-feedback">{errors.message.message}</small>}
+          </div>
+        </div>
+        <div className='col-12'>
+          <button 
+            type="submit"
+            className="btn design-btn px-5"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </form>
   )
 }

@@ -24,16 +24,19 @@ export interface AuthTokens {
 export interface Customer {
   id: number;
   email: string;
+  displayName: string;
 }
 
 export interface CustomerTokenPayload {
   customerId: number;
   email: string;
+  displayName: string;
 }
 
 export interface CustomerAuthTokens {
   user: {
     id: number;
+    displayName: string;
   },
   accessToken: string;
   refreshToken: string;

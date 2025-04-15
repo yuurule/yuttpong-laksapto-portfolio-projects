@@ -12,6 +12,7 @@ import styles from './ProductDetail.module.scss'
 import StarRating from "@/components/ProductBox/StarRating/StarRating";
 import { productService } from '@/services';
 import AddToCart from "@/components/ProductDetail/AddToCart/AddToCart";
+import { moneyFormat } from "@/utils/rendering";
 
 export default async function ProductDetailPage({
   params,
@@ -23,12 +24,34 @@ export default async function ProductDetailPage({
     const { id } = await params;
     const product = await productService.getOneProduct(id);
     const resultData = product.RESULT_DATA;
+    //console.log(product.RESULT_DATA)
 
-    console.log(resultData)
+    const calculateTotalRating = () => {
+      const reviews = resultData.reviews;
+      let resultRating = 0;
+      if(reviews.length > 0) {
+        reviews.map((i: any) => resultRating += i.rating);
+        return resultRating / reviews.length;
+      }
+      else {
+        return resultRating;
+      }
+    }
 
     const calculateProductPrice = () => {
-      let result = 0;
-      //if(resultData.)
+      let realPrice = parseFloat(resultData.price);
+      let sellPrice = 0;
+      let discount = 0;
+
+      if(resultData.campaignProducts.length > 0) {
+        discount = resultData.campaignProducts[0].campaign.discount;
+        sellPrice = realPrice - ((realPrice * discount) / 100);
+      }
+      else {
+        sellPrice = realPrice;
+      }
+
+      return { realPrice, sellPrice, discount };
     }
 
     return (
@@ -45,24 +68,31 @@ export default async function ProductDetailPage({
             <div className="col-sm-6">
               <div className={`${styles.content}`}>
                 <header>
-                  {/* <ProductCategory /> */}
                   <h2 className={`${styles.productName}`}>{resultData?.name}</h2>
-                  <div className="d-flex">
-                    <StarRating rating={4} />
-                    <small className="d-inline-block ms-3">(4.4) 15 Reviews</small>
+                  <div className="d-flex align-items-center mb-2">
+                    <StarRating rating={calculateTotalRating()} />
+                    <small className="d-inline-block ms-3">({resultData.reviews.length} review{resultData.reviews.length > 1 ? 's' : null})</small>
                     <div>
                       {
-                        resultData?.inStock.inStock > 0
-                        ? <span className={`${styles.inStock}`}>in stock</span>
-                        : <span className={`${styles.inStock}`}>out of stock</span>
+                        resultData.inStock.inStock > 0
+                        ? <span className={`${styles.inStock}`}>{resultData.inStock.inStock} in stock</span>
+                        : <span className={`${styles.inStock} ${styles.out}`}>out of stock</span>
                       }
                     </div>
                   </div>
                 </header>
                 <div className={`${styles.price}`}>
-                  <p>$1,528.99</p>
-                  <small><s>$1,729.99</s></small>
-                  <small className="ms-2">(-7%)</small>
+                  {
+                    calculateProductPrice().discount === 0
+                    ?
+                    <p>฿{moneyFormat(calculateProductPrice().sellPrice, 2, 2)}</p>
+                    :
+                    <>
+                    <p>฿{moneyFormat(calculateProductPrice().sellPrice, 2, 2)}</p>
+                    <small><s>฿{moneyFormat(calculateProductPrice().realPrice, 2, 2)}</s></small>
+                    <small className="ms-2">(-{calculateProductPrice().discount}%)</small>
+                    </>
+                  }
                 </div>
                 <div className={`${styles.specs}`}>
                   <div className="row">
@@ -87,10 +117,18 @@ export default async function ProductDetailPage({
                   </div>
                 </div>
 
-                <AddToCart
-                  productId={resultData.id}
-                  price={resultData.price} 
-                />
+                {
+                  resultData.inStock.inStock > 0
+                  ?
+                  <AddToCart
+                    productId={resultData.id}
+                    price={calculateProductPrice().sellPrice}
+                    currentInStock={resultData.inStock.inStock}
+                  />
+                  :
+                  <span className="alert alert-danger d-inline-block">Sorry, this product is out of stock</span>
+                }
+                
                 
                 <div className={`${styles.estimated}`}>
                   <ul>
@@ -104,8 +142,9 @@ export default async function ProductDetailPage({
             </div>
             <div className="col-sm-12">
               <DetailsAndReviews 
+                productId={parseInt(id)}
                 detail={resultData?.description}
-                reviews={resultData?.reviews.filter((i: any) => i.approved === true)}
+                reviews={resultData?.reviews}
               />
             </div>
             <div className="col-sm-12">

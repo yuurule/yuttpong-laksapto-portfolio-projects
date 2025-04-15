@@ -109,7 +109,7 @@ export default function MainHeader() {
                   })
                 }
                 <li className="list-inline-item">
-                  <Link href="/products?brands=all&campaigns=all&campaigns=all">sales off</Link>
+                  <Link href="/products?brands=all&categories=all&onSale=true">sales off</Link>
                 </li>
               </ul>
             </nav>

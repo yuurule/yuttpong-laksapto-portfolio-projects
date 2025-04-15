@@ -10,8 +10,8 @@ export class CustomerController {
 
   async register(req: Request, res: Response) {
     try {
-      const { email, password } = req.body;
-      const tokens = await customerService.register(email, password);
+      const { email, password, displayName } = req.body;
+      const tokens = await customerService.register(email, password, displayName);
       res.json(tokens);
     } catch (error: any) {
       res.status(400).json({ message: error.message });

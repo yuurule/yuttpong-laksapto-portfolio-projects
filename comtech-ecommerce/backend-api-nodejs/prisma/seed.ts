@@ -178,13 +178,15 @@ async function main() {
       ]
       const customers = [
         {
-          email: 'cs1@example.com',
-          password: await hashPassword('passcs1'),
+          email: 'user1@mail.com',
+          password: await hashPassword('123456'),
+          displayName: 'John Doh',
           lastActive: new Date(),
         },
         {
-          email: 'cs2@example.com',
-          password: await hashPassword('passcs1'),
+          email: 'user2@mail.com',
+          password: await hashPassword('123456'),
+          displayName: 'Elena2025',
           lastActive: new Date(),
         },
       ];

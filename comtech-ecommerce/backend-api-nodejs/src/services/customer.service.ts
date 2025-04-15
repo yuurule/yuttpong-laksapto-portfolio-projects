@@ -11,14 +11,25 @@ const prisma = new PrismaClient();
 
 export class CustomerService {
 
-  async register(email: string, password: string) {
+  async register(email: string, password: string, displayName: string) {
     try {
+      const checkEmailDuplicate = await prisma.customer.findUnique({
+        where: {
+          email: email
+        }
+      });
+
+      if(checkEmailDuplicate) {
+        throw new exception.DuplicateException(`This email is already used, try other email`);
+      }
+
       const hashedPassword = await bcrypt.hash(password, 10);
   
       const customer = await prisma.customer.create({
         data: {
           email,
           password: hashedPassword,
+          displayName,
           lastActive: new Date(),
           customerDetail: {
             create: {}
@@ -30,7 +41,11 @@ export class CustomerService {
       return tokens;
     }
     catch (error: any) {
-      throw error;
+      if(error instanceof exception.DuplicateException) throw error;
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error delete categories due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }
   }
   
@@ -100,6 +115,7 @@ export class CustomerService {
     const payload: CustomerTokenPayload = {
       customerId: customer.id,
       email: customer.email,
+      displayName: customer.displayName,
     };
 
     const accessToken = jwt.sign(
@@ -127,6 +143,7 @@ export class CustomerService {
     const result : CustomerAuthTokens = { 
       user: {
         id: customer.id,
+        displayName: customer.displayName,
       }, 
       accessToken, 
       refreshToken 

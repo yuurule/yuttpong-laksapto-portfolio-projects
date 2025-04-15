@@ -20,8 +20,9 @@ export class ProductController {
     const brandsId = req.query.brands as string;
     const categoriesId = req.query.categories as string;
     const tagsId = req.query.tags as string;
-
-    const campaigns = req.query.campaigns as string;
+    const onSale = parseBoolean(req.query.onSale as string) || false;
+    const campaignsId = req.query.campaigns as string;
+    const topSale = req.query.topSale as string;
 
     // sorting
     const orderBy = req.query.orderBy as string || 'createdAt';
@@ -60,9 +61,20 @@ export class ProductController {
       })
     }
 
+    let campaigns : number[] = [];
+    if(campaignsId) {
+      campaigns = campaignsId.split(',').map(id => {
+        const parsed = parseInt(id.trim(), 10);
+        if(!isValidId(parsed)) {
+          sendError(res, 400, `Campaign id must not zero or negative number`);
+        }
+        return parsed;
+      })
+    }
+
     try {
-      const products = await productService.findAll(page, pageSize, noPagination, search, brands, categories, tags, orderBy, orderDir);
-      sendResponse(res, 200, `Get all product ok`, products);
+      const products = await productService.findAll(page, pageSize, noPagination, orderBy, orderDir, search, brands, categories, tags, onSale, topSale, campaigns);
+      sendResponse(res, 200, `Get all product ok`, products.data, products.meta);
     }
     catch (error: any) {
       console.error('Get all product error: ', error);

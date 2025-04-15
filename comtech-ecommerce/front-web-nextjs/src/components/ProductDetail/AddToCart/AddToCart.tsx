@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './AddToCart.module.scss';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
@@ -9,16 +9,23 @@ import SignInDialog from '@/components/SignIn/SignInDialog';
 import { Form } from 'react-bootstrap';
 import { cartService } from '@/services';
 import { useSession } from 'next-auth/react';
+import useStore from '@/store';
+import { addWishlistAction, removeWishlistsAction } from '@/lib/actions';
+import { toast } from 'react-toastify';
+import WishlistButton from '../WishlistButton';
 
 export default function AddToCart({
   productId,
   price,
+  currentInStock
 }: {
   productId: number,
-  price: number
+  price: number,
+  currentInStock: number
 }) {
 
   const { status, data: session } = useSession();
+  const incrementRefreshCart = useStore((state) => state.incrementRefreshCart);
   const [quantity, setQuantity] = useState(0);
   const [showSignIn, setShowSignIn] = useState(false);
   const [onSubmit, setOnSubmit] = useState(false);
@@ -27,8 +34,9 @@ export default function AddToCart({
 
   const handleAddRemoveQuantity = (actionType: string) => {
     if(actionType === 'add') {
-      // check in stock before add later...
-      setQuantity(prevState => prevState + 1);
+      if(quantity < currentInStock) {
+        setQuantity(prevState => prevState + 1);
+      }
     }
     else if(actionType === 'remove') {
       if(quantity > 0) {
@@ -58,6 +66,7 @@ export default function AddToCart({
                 await cartService.updateItemInCart(findProductInCart.id, quantity, 'add')
                   .then(result => {
                     console.log(`Add more quantity in cart for one product is successfully`);
+                    incrementRefreshCart();
                     setQuantity(0);
                   });
               }
@@ -66,6 +75,7 @@ export default function AddToCart({
                 await cartService.addToCart(session.user.id, productId, quantity)
                   .then(result => {
                     console.log(`Add to cart is successfully`);
+                    incrementRefreshCart();
                     setQuantity(0);
                   });
               }
@@ -105,7 +115,7 @@ export default function AddToCart({
           <button 
             className="btn btn-outline-secondary" 
             type="button"
-            disabled={onSubmit}
+            disabled={onSubmit || quantity === currentInStock}
             onClick={() => handleAddRemoveQuantity('add')}
           >+</button>
         </div>
@@ -120,9 +130,12 @@ export default function AddToCart({
         >
           <FontAwesomeIcon icon={faShoppingCart} className="me-2" />Add to cart
         </button>
-        <button className="btn design-btn gradient-outline-btn ms-2" title="Add to my wishlist">
-          <FontAwesomeIcon icon={heartRegular} />
-        </button>
+        
+        <WishlistButton
+          handleToggleSignIn={handleToggleSignIn}
+          productId={productId}
+        />
+
       </div>
     </div>
 

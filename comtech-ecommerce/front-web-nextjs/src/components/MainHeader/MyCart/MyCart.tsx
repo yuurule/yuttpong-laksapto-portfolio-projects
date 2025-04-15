@@ -11,14 +11,17 @@ import { Dropdown } from 'react-bootstrap';
 import SignInDialog from '@/components/SignIn/SignInDialog';
 import { cartService } from '@/services';
 import { moneyFormat } from '@/utils/rendering';
+import useStore from '@/store';
 
 export default function MyCart() {
 
   const { status, data: session } = useSession();
+  const refreshCartStore = useStore((state) => state.refreshCart);
   const [loadData, setLoadData] = useState(false);
   const [error, setLoadError] = useState<string | null>(null);
   const [showSignIn, setShowSignIn] = useState(false);
   const [cartItems, setCartItem] = useState([]);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
     const fetchCartData = async () => {
@@ -38,14 +41,16 @@ export default function MyCart() {
     } 
 
     fetchCartData();
-  }, [status]);
+  }, [status, refreshCartStore]);
 
   const handleToggleSignIn = () => setShowSignIn(prevState => !prevState);
+
+  const handleClose = () => setShow(false);
 
   const renderCartMenu = () => {
     return (
       <>
-      <span className={`${styles.digitSign}`}>{cartItems.length}</span>
+      <span className={`${styles.digitSign}`}>{countItemQuantity(cartItems)}</span>
       <FontAwesomeIcon icon={faShoppingCart} />
       <div>
         <strong className={`${styles.title}`}>My Cart</strong>
@@ -53,6 +58,15 @@ export default function MyCart() {
       </div>
       </>
     )
+  }
+
+  const countItemQuantity = (items: any) => {
+    let resultQuantity = 0;
+    items.map((i: any) => {
+      resultQuantity += i.quantity
+    });
+
+    return resultQuantity;
   }
 
   const calculateTotalCart = (items: any) => {
@@ -68,7 +82,7 @@ export default function MyCart() {
         sellPrice = realPrice;
       }
 
-      resultTotal += sellPrice;
+      resultTotal += sellPrice * i.quantity;
     });
 
     return resultTotal;
@@ -91,7 +105,8 @@ export default function MyCart() {
     <>
     <div className={`${styles.infoWithIcon} dropdown-no-icon`}>
       {
-        status !== 'loading' &&
+        status !== 'loading'
+        ?
           !session?.user
           ?
           <button
@@ -102,7 +117,10 @@ export default function MyCart() {
             { renderCartMenu() }
           </button>
           :
-          <Dropdown>
+          <Dropdown
+            show={show} 
+            onToggle={(isOpen) => setShow(isOpen)}
+          >
             <Dropdown.Toggle 
               className={`px-0 position-relative d-flex align-items-center`} 
               style={{backgroundColor: '#FFF', border: 'none', color: '#2a2a2a'}}
@@ -130,7 +148,11 @@ export default function MyCart() {
                         </div>
                       ))
                     }
-                    <Link href="/cart" className={`btn design-btn w-100 text-center d-block ${stylesCart.goToCart}`}>
+                    <Link 
+                      href="/cart" 
+                      className={`btn design-btn w-100 text-center d-block ${stylesCart.goToCart}`}
+                      onClick={handleClose}
+                    >
                       <FontAwesomeIcon icon={faShoppingCart} className='me-2' />Go to cart
                     </Link>
                     </>
@@ -141,6 +163,7 @@ export default function MyCart() {
               }
             </Dropdown.Menu>
           </Dropdown>
+        : null
       }
     </div>
 

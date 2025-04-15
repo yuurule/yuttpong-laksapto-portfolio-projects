@@ -9,7 +9,7 @@ export default function StarRating({ rating = 0 } :{ rating : number }) {
   return (
     <div className={`${styles.rating}`}>
       <FontAwesomeIcon icon={faStar} className='me-1' />
-      <small>{rating}</small>
+      <small className='mx-0'>{rating}</small>
     </div>
   )
 }

@@ -6,6 +6,7 @@ import "./globals.scss";
 import AuthProvider from '@/components/AuthProvider';
 import MainHeader from "@/components/MainHeader/MainHeader";
 import MainFooter from "@/components/MainFooter/MainFooter";
+import { ToastContainer } from 'react-toastify';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -32,6 +33,13 @@ export default function RootLayout({
           {children}
           <MainFooter />
         </AuthProvider>
+
+        <ToastContainer
+          theme="light"
+          autoClose={3000}
+          closeOnClick={true}
+          newestOnTop={true}
+        />
       </body>
     </html>
   );

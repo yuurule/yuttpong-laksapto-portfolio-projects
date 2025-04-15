@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClose } from '@fortawesome/free-solid-svg-icons';
+import { faClose, faRefresh } from '@fortawesome/free-solid-svg-icons';
 import styles from './Cart.module.scss';
 import { cartService } from "@/services";
 import { useSession } from 'next-auth/react';
@@ -10,10 +10,13 @@ import { moneyFormat } from '@/utils/rendering';
 import Link from "next/link";
 import { MoneyValueCartTableProps } from '@/types/PropsType';
 import { calculateUsePrice, calculateSubtotal } from '@/utils/utils';
+import useStore from '@/store';
+import { toast } from 'react-toastify';
 
 export default function CartTable() {
 
   const { status, data: session } = useSession();
+  const incrementRefreshCart = useStore((state) => state.incrementRefreshCart);
   const [loadData, setLoadData] = useState(false);
   const [cartItemList, setCartItemList] = useState([]);
   const [refresh, setRefresh] = useState(0);
@@ -24,6 +27,7 @@ export default function CartTable() {
     vatTotal: 0,
     total: 0,
   });
+  const [onSubmit, setOnSubmit] = useState(false);
 
   useEffect(() => {
     const fecthCartItems = async () => {
@@ -31,7 +35,6 @@ export default function CartTable() {
       try {
         if(status !== 'loading' && session?.user.id) {
           const cartItems = await cartService.getCartByCustomer(session.user.id);
-          //console.log(cartItems.RESULT_DATA)
           setCartItemList(cartItems.RESULT_DATA);
           calculateMoneyValue(cartItems.RESULT_DATA);
         }
@@ -82,18 +85,33 @@ export default function CartTable() {
   const handleEditItem = async (
     actionType: string, 
     cartItemId: number, 
-    currentQuantity: number
+    currentQuantity: number,
+    currentInStock?: number,
   ) => {
     setLoadData(true);
     try {
-      const newQuantity = actionType === 'add' ? currentQuantity + 1 : currentQuantity - 1;
+      let newQuantity = 0;
+      if(actionType === 'add') {
+        if(currentQuantity === currentInStock) {
+          throw new Error(`product in stock is not have enough.`);
+        }
+        else newQuantity = currentQuantity + 1;
+      }
+      if(actionType === 'remove') {
+        if(currentQuantity === 1) {
+          throw new Error(`quantity must not zero or negative value.`);
+        }
+        else newQuantity = currentQuantity - 1;
+      }
       await cartService.updateItemInCart(cartItemId, newQuantity, 'update')
         .then(result => {
+          incrementRefreshCart();
           setRefresh(prevState => prevState + 1);
         });
     }
     catch(error) {
-      console.error(`Edit item in cart is failed due to reason: ${error}`)
+      toast.error(`Edit item in cart is failed due to reason: ${error}`);
+      console.log(`Edit item in cart is failed due to reason: ${error}`);
     }
     finally { setLoadData(false); }
   }
@@ -107,9 +125,23 @@ export default function CartTable() {
         });
     }
     catch(error) {
-      console.error(`Delete item in cart is failed due to reason: ${error}`)
+      toast.error(`Delete item in cart is failed due to reason: ${error}`);
+      console.log(`Delete item in cart is failed due to reason: ${error}`)
     }
     finally { setLoadData(false); }
+  }
+
+  const handlePlaceOrder = async () => {
+    setOnSubmit(true);
+    try {
+      console.log(cartItemList);
+      console.log(moneyValue)
+    }
+    catch(error) {
+      console.log(`Place order is failed due to reason: ${error}`);
+      toast.error(`Place order is failed due to reason: ${error}`);
+    }
+    finally { setOnSubmit(false); }
   }
 
   return (
@@ -162,9 +194,9 @@ export default function CartTable() {
                       <button 
                         className="btn btn-outline-secondary" 
                         type="button"
-                        disabled={loadData}
+                        disabled={loadData || item.quantity === item.product.inStock.inStock}
                         onClick={(e) => {
-                          handleEditItem('add', item.id, item.quantity);
+                          handleEditItem('add', item.id, item.quantity, item.product.inStock.inStock);
                         }}
                       >+</button>
                     </div>
@@ -189,7 +221,7 @@ export default function CartTable() {
         </tbody>
       </table>
       <div className="d-flex justify-content-end">
-        <Link href="/products?brands=1,2,3,4,5,6,7" className="btn design-btn px-4">
+        <Link href="/products?brands=all&categories=all" className="btn design-btn px-4">
           Continue Shopping
         </Link>
       </div>
@@ -224,9 +256,14 @@ export default function CartTable() {
             </tbody>
           </table>
         </div>
-        <Link href="/checkout" className="w-100 btn design-btn gradient-btn py-3">
-          Proceed to checkout
-        </Link>
+        <button
+          type="button"
+          disabled={onSubmit}
+          className="w-100 btn design-btn gradient-btn py-3"
+          onClick={handlePlaceOrder}
+        >
+          {onSubmit ? <FontAwesomeIcon icon={faRefresh} className='text-light' /> : 'Place Order'}
+        </button>
       </div>
     </div>
     </>

@@ -5,6 +5,9 @@ interface GetProductsParams {
   pageSize?: number;
   noPagination?: boolean;
   brands?: number[];
+  onSale?: boolean;
+  topSale?: string;
+  campaigns?: number[];
   orderBy?: string;
   orderDir?: string;
   search?: string;
@@ -29,6 +32,9 @@ export const productService = {
     pageSize = 12,
     noPagination = false,
     brands = [],
+    onSale = false,
+    topSale,
+    campaigns,
     orderBy = 'createdAt',
     orderDir = 'desc',
     search,
@@ -36,7 +42,7 @@ export const productService = {
     tags,
   }: GetProductsParams = {}): Promise<any> => {
 
-    let url = `/api/product?page=${page}&pageSize=${pageSize}&noPagination=${noPagination}&orderBy=${orderBy}&orderDir=${orderDir}`;
+    let url = `/api/product?page=${page}&pageSize=${pageSize}&noPagination=${noPagination}`;
 
     if (brands && brands.length > 0) {
       url += `&brands=${brands.join(',')}`;
@@ -54,11 +60,30 @@ export const productService = {
       url += `&tags=${tags.join(',')}`;
     }
 
+    if(onSale) {
+      url += `&onSale=true`;
+    }
+
+    if(topSale) {
+      url += `&topSale=${topSale}`;
+    }
+
+    if (campaigns && campaigns.length > 0) {
+      url += `&campaigns=${campaigns.join(',')}`;
+    }
+
+    url += `&orderBy=${orderBy}&orderDir=${orderDir}`;
+
     return API.get<any>(url, false);
   },
 
   getOneProduct: async (id: string): Promise<any> => {
     let url = `/api/product/${id}`;
+    return API.get<any>(url, false);
+  },
+
+  getCampaigns: async (): Promise<any> => {
+    const url = `/api/campaign`;
     return API.get<any>(url, false);
   },
 

@@ -14,9 +14,9 @@ export default function ReviewItem({
       </figure>
       <div className={`${styles.content}`}>
         <p>"{review.message}"</p>
-        <footer>
-          <strong>{review?.createdBy?.customerDetail?.firstName} {review?.createdBy?.customerDetail?.lastName}</strong>
-          <small>{review?.createdAt}</small>
+        <footer className='d-flex align-items-center'>
+          <strong>{review.createdBy.displayName}</strong>
+          <small>{review.createdAt}</small>
           <StarRating rating={review?.rating} />
         </footer>
       </div>

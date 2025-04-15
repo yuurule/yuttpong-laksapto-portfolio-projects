@@ -24,22 +24,24 @@ export default async function RelatedProduct({
     return (
       <section id="related-products" className={`${styles.relatedProduct}`}>
         
-        <div className='mb-5'>
+        <div className='mb-5 d-flex'>
           <div className={`gradient-box ${styles.rowHeader}`}>
             <p>Related<br />Products</p>
           </div>
-          <div className='row'>
-            {
-              resultData.map((product: any, index: number) => {
-                return (
-                  <div key={`related_product_box_${product.id}`} className='col-sm-3'>
-                    <ProductBox 
-                      data={product}
-                    />
-                  </div>
-                )
-              })
-            }
+          <div className={`${styles.productList}`}>
+            <div className='row'>
+              {
+                resultData.map((product: any, index: number) => {
+                  return (
+                    <div key={`related_product_box_${product.id}`} className='col-sm-3'>
+                      <ProductBox 
+                        data={product}
+                      />
+                    </div>
+                  )
+                })
+              }
+            </div>
           </div>
         </div>
   

@@ -15,6 +15,17 @@ export class WishlistService {
       const findProduct = await prisma.product.findUnique({ where: { id: productId } });
       if(!findProduct) throw new exception.NotFoundException(`Not found product with id ${productId}`);
 
+      const checkDuplicateWishlist = await prisma.wishlist.findMany({
+        where: {
+          productId: productId,
+          customerId: customerId
+        }
+      });
+
+      if(checkDuplicateWishlist.length > 0) {
+        return;
+      }
+
       const addWishlist = await prisma.wishlist.create({
         data: {
           customer: { connect: { id: customerId } },
@@ -23,6 +34,7 @@ export class WishlistService {
       });
 
       return addWishlist;
+      
     }
     catch(error: any) {
       if(error instanceof exception.NotFoundException) throw error;

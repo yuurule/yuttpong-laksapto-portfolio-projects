@@ -9,6 +9,7 @@ export interface ProductQueryParams {
   orderBy?: string;
   orderDir?: string;
   onSale?: boolean;
+  topSale?: string;
   campaigns?: number[];
   price?: number[];
 }

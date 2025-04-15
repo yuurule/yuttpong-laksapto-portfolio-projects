@@ -18,11 +18,15 @@ export default function ProductList() {
   const orderDir = searchParams.get('orderDir');
   const campaigns = searchParams.get('campaigns');
   const onSale = searchParams.get('onSale');
+  const topSale = searchParams.get('topSale');
   const search = searchParams.get('search');
   const tags = searchParams.get('tags');
+  const page = searchParams.get('page');
 
   const [loadData, setLoadData] = useState(false)
   const [productList, setProductList] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fecthProducts = async () => {
@@ -31,10 +35,10 @@ export default function ProductList() {
         const brandsData = await productService.getBrands();
         const categoriesData = await productService.getCategories();
         const tagsData = await productService.getCategories();
-        const campaignsData = await productService.getCategories();
+        const campaignsData = await productService.getCampaigns();
 
         let productQueryParams: ProductQueryParams = {
-          page: 1,
+          page: page ? parseInt(page) : 1,
           pageSize: 16,
         }
         
@@ -59,9 +63,12 @@ export default function ProductList() {
         if(orderDir) productQueryParams.orderDir = orderDir;
         if(search) productQueryParams.search = search;
         if(onSale) productQueryParams.onSale = true;
+        if(topSale) productQueryParams.topSale = topSale;
 
         const products = await productService.getProducts(productQueryParams);
         setProductList(products.RESULT_DATA);
+        setTotalPages(products.RESULT_META.totalPages);
+        setCurrentPage(products.RESULT_META.currentPage);
       }
       catch(error) {
         console.error(`Fecth products is faied due to reason: ${error}`)
@@ -88,7 +95,10 @@ export default function ProductList() {
         ))
       }
       <div className="col-12">
-        <Pagination />
+        <Pagination 
+          totalPages={totalPages}
+          currentPage={currentPage}
+        />
       </div>
       </>
       :

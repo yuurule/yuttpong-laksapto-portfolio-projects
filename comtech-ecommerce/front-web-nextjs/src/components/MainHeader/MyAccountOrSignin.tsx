@@ -14,8 +14,6 @@ export default function MyAccountOrSignin() {
 
   const { status, data: session } = useSession();
   const [showSignIn, setShowSignIn] = useState(false);
-
-  console.log(session);
   
   const handleToggleSignIn = () => setShowSignIn(prevState => !prevState);
 
@@ -23,7 +21,8 @@ export default function MyAccountOrSignin() {
     <>
     <div className={`${styles.infoWithIcon}`}>
       {
-        status !== 'loading' &&
+        status !== 'loading' 
+        ?
           !session?.user
           ?
           <button 
@@ -64,6 +63,7 @@ export default function MyAccountOrSignin() {
             </Dropdown.Menu>
           </Dropdown>
           </>
+        : null
       }
     </div>
 

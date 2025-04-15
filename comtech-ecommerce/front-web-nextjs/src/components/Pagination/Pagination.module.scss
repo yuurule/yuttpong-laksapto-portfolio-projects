@@ -6,9 +6,9 @@
   margin-top: 15px;
   padding: 10px 0;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  font-size: 0.9rem;
+  font-size: 0.84rem;
 
   .customPagination {
 
@@ -19,17 +19,19 @@
       }
 
       .pageLink {
-        background: var(--very-soft-gray);
+        background: transparent;
         border-radius: 0;
         color: var(--foreground);
-        font-size: 0.8rem;
-        padding: 12px;
+        font-size: 1.1rem;
+        padding: 7px 0;
+        border: none;
+        box-shadow: none;
       }
 
       &.active {
         .pageLink {
         
-          background: var(--primary-gradient);
+          background: transparent;
           color: #FFF;
           border: none;
         

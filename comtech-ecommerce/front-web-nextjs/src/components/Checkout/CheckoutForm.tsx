@@ -1,7 +1,5 @@
 "use client";
 
-import TextInput from "@/components/FormInput/TextInput";
-import { renderLabelInput } from "@/utils/rendering";
 import OrderSummary from "@/components/Checkout/OrderSummary";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

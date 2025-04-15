@@ -16,6 +16,7 @@ export default function ProductListOption() {
   const orderDir = searchParams.get('orderDir');
   const campaigns = searchParams.get('campaigns');
   const onSale = searchParams.get('onSale');
+  const topSale = searchParams.get('topSale');
   const search = searchParams.get('search');
   const tags = searchParams.get('tags');
 
@@ -138,8 +139,11 @@ export default function ProductListOption() {
     
     if(orderBy) resultUrl += `orderBy=${orderBy}&`;
     if(orderDir) resultUrl += `orderDir=${orderDir}&`;
-    if(campaigns) resultUrl += `campaigns=${campaigns}&`;
-    if(onSale) resultUrl += `campaigns=${campaigns}&`;
+    if(!onSale) {
+      if(campaigns) resultUrl += `campaigns=${campaigns}&`;
+    }
+    if(onSale && onSale === 'true') resultUrl += `onSale=${onSale}&`;
+    if(topSale) resultUrl += `topSale=${topSale}&`;
     if(search) resultUrl += `onSale=${onSale}&`;
     if(tags) resultUrl += `tags=${tags}&`;
 

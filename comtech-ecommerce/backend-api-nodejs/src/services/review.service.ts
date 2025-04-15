@@ -25,6 +25,9 @@ export class ReviewService {
               }
             }
           }
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
       });
       return reviews;
