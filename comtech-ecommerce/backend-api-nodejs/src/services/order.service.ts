@@ -52,7 +52,17 @@ export class OrderService {
 
   async findOne(id: number) {
     try {
-      const findOrder = await prisma.order.findUnique({ where: { id: id } });
+      const findOrder = await prisma.order.findUnique({ 
+        where: { id: id },
+        include: {
+          orderItems: {
+            include: {
+              product: true,
+              campaign: true
+            }
+          }
+        } 
+      });
       if(!findOrder) throw new exception.NotFoundException(`Not found order with id ${id}`);
       return findOrder;
     }
@@ -86,36 +96,36 @@ export class OrderService {
       });
 
       // Check product in stock is have enough
-      const inStockErr : number[] = [];
-      dto.items.map(async i => {
-        const inStock = await prisma.inStock.findUnique({ where: { productId: i.productId } });
-        if(inStock) {
-          if(inStock.inStock - i.quantity < 0) {
-            inStockErr.push(i.productId);
-          }
-        }
-        else {
-          throw new exception.NotFoundException(`Not found in stock with product id ${i.productId}`);
-        }
-      });
+      // const inStockErr : number[] = [];
+      // dto.items.map(async i => {
+      //   const inStock = await prisma.inStock.findUnique({ where: { productId: i.productId } });
+      //   if(inStock) {
+      //     if(inStock.inStock - i.quantity < 0) {
+      //       inStockErr.push(i.productId);
+      //     }
+      //   }
+      //   else {
+      //     throw new exception.NotFoundException(`Not found in stock with product id ${i.productId}`);
+      //   }
+      // });
 
-      if(inStockErr.length > 0) {
-        throw new exception.BadRequestException(`Product with id ${inStockErr.map((i, index) => i + `${index < inStockErr.length ? ', ' : ''}`)} is not have enough for this order, please check in stock again`);
-      }
+      // if(inStockErr.length > 0) {
+      //   throw new exception.BadRequestException(`Product with id ${inStockErr.map((i, index) => i + `${index < inStockErr.length ? ', ' : ''}`)} is not have enough for this order, please check in stock again`);
+      // }
       /** End check value */
 
       const transaction = await prisma.$transaction(async tx => {
 
         // reserve product in stock
-        dto.items.map(async (i, index) => {
-          const dataDto = {
-            productId: i.productId,
-            customerId: dto.customerId,
-            actionType: 'RESERVE',
-            quantity: i.quantity
-          }
-          await stockService.createSell(dataDto);
-        })
+        // dto.items.map(async (i, index) => {
+        //   const dataDto = {
+        //     productId: i.productId,
+        //     customerId: dto.customerId,
+        //     actionType: 'RESERVE',
+        //     quantity: i.quantity
+        //   }
+        //   await stockService.createSell(dataDto);
+        // })
       
         // create order
         const newOrder = await tx.order.create({
@@ -139,6 +149,11 @@ export class OrderService {
               })
             }
           }
+        });
+
+        // remove items from cart
+        const clearCart = await tx.cartItem.deleteMany({
+          where: { customerId: dto.customerId }
         });
 
         return newOrder;
@@ -172,6 +187,12 @@ export class OrderService {
       });
 
       return updatePayment;
+
+
+      // ทำ transaction
+      // update instock
+      // update instock sell event
+
     }
     catch(error: any) {
       if(error instanceof exception.NotFoundException) throw error;

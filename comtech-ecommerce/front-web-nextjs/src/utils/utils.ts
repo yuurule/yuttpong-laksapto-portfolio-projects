@@ -3,9 +3,14 @@ export const calculateUsePrice = (realPrice: number, campaign: any[]) => {
     return realPrice;
   }
   else {
-    const discount = campaign[0].campaign.discount;
-    const priceDiscount = realPrice - ((realPrice * discount) / 100);
-    return priceDiscount;
+    if(campaign[0].campaign.startAt !== null && campaign[0].campaign.endAt !== null) {
+      const discount = parseFloat(campaign[0].campaign.discount);
+      const priceDiscount = realPrice - ((realPrice * discount) / 100);
+      return priceDiscount;
+    }
+    else {
+      return realPrice;
+    }
   }
 }
 

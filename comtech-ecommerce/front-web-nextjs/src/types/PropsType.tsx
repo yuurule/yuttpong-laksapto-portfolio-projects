@@ -29,7 +29,10 @@ export interface TextInputProps {
 
 export interface MoneyValueCartTableProps {
   cartItems: {
+    id: number,
     name: string,
+    campaignId?: number,
+    discount?: number,
     usePrice: number,
     realPrice: number,
     quantity: number,
@@ -39,4 +42,16 @@ export interface MoneyValueCartTableProps {
   shippingFee: number;
   vatTotal: number;
   total: number; 
+}
+
+export interface createOrderProps {
+  customerId: number;
+  total: number;
+  items: {
+    productId: number,
+    quantity: number,
+    salePrice: number,
+    campaignId?: number,
+    discount?: number
+  }[];
 }

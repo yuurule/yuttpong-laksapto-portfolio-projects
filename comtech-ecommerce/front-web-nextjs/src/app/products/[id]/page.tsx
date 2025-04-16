@@ -168,7 +168,14 @@ export default async function ProductDetailPage({
       </main>
     )
   } catch(error) {
-    console.error('Failed to fetch product:', error);
-    return <div>ไม่สามารถดึงข้อมูลสินค้าได้</div>;
+    console.log('Failed to fetch product:', error);
+    return (
+      <main className={`${styles.productDetail}`}>
+        <Breadcrumbs />
+        <div className='container mt-5'>
+          <p>เกิดข้อผิดพลาด ไม่สามารถดึงข้อมูลได้</p>
+        </div>
+      </main>
+    );
   }
 }

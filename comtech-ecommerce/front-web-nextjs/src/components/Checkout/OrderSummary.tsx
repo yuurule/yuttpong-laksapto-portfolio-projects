@@ -3,15 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../Cart/Cart.module.scss';
 import { MoneyValueCartTableProps } from '@/types/PropsType';
-import { cartService } from "@/services";
-import { useSession } from 'next-auth/react';
 import { moneyFormat } from '@/utils/rendering';
 import { calculateUsePrice, calculateSubtotal } from '@/utils/utils';
 
-export default function OrderSummary() {
+export default function OrderSummary({
+  orderItems
+}: {
+  orderItems: any[]
+}) {
 
-  const { status, data: session } = useSession();
-  const [loadData, setLoadData] = useState(false);
   const [moneyValue, setMoneyValue] = useState<MoneyValueCartTableProps>({
     cartItems: [],
     subTotal: 0,
@@ -21,26 +21,10 @@ export default function OrderSummary() {
   });
 
   useEffect(() => {
-    const fecthCartItems = async () => {
-      setLoadData(true);
-      try {
-        if(status !== 'loading' && session?.user.id) {
-          const cartItems = await cartService.getCartByCustomer(session.user.id);
-          //console.log(cartItems.RESULT_DATA)
-          calculateMoneyValue(cartItems.RESULT_DATA);
-        }
-      }
-      catch(error) {
-        console.error(`Fecth cart items is failed due to reason: ${error}`);
-      }
-      finally { setLoadData(false); }
-    }
+    calculateMoneyValue(orderItems);
+  }, [orderItems]);
 
-    fecthCartItems();
-    
-  }, [status]);
-
-  const calculateMoneyValue = (cartData: any[]) => {
+  const calculateMoneyValue = (orderItemsData: any[]) => {
     const tempResult : MoneyValueCartTableProps = {
       cartItems: [],
       subTotal: 0,
@@ -49,23 +33,28 @@ export default function OrderSummary() {
       total: 0,
     };
 
-    cartData.map((cart: any) => {
-      const productPrice = parseFloat(cart.product.price);
-      const usePrice = calculateUsePrice(productPrice, cart.product.campaignProducts);
-      const itemSubTotal = calculateSubtotal(productPrice, cart.product.campaignProducts, cart.quantity);
+    orderItemsData.map((item: any) => {
+      const productPrice = parseFloat(item.product.price);
+      const productCampiagn = item.campaign ? [{ campaign: item.campaign }] : [];
+      const usePrice = calculateUsePrice(productPrice, productCampiagn);
+      const itemSubTotal = calculateSubtotal(productPrice, productCampiagn, item.quantity);
 
       tempResult.cartItems.push({
-        name: cart.product.name,
+        id: item.product.id,
+        name: item.product.name,
         usePrice: usePrice,
         realPrice: productPrice,
-        quantity: cart.quantity,
+        quantity: item.quantity,
+        discount: item.discount,
         itemSubTotal: itemSubTotal
       });
 
       tempResult.subTotal += itemSubTotal;
     });
 
-    tempResult.shippingFee = tempResult.subTotal >= 5000 ? 0 : 500;
+    if(orderItemsData.length > 0) {
+      tempResult.shippingFee = tempResult.subTotal >= 5000 ? 0 : 500;
+    }
     tempResult.total = tempResult.subTotal + tempResult.shippingFee;
     tempResult.vatTotal = (tempResult.subTotal * 7) / 100;
     tempResult.subTotal = tempResult.subTotal - ((tempResult.subTotal * 7) / 100);
@@ -83,7 +72,16 @@ export default function OrderSummary() {
               moneyValue.cartItems.map((i: any, index: number) => (
                 <tr key={`cart_item_${index + 1}`}>
                   <td>{i.name} x{i.quantity}</td>
-                  <td>฿{moneyFormat(i.usePrice, 2, 2)}</td>
+                  <td>
+                    ฿{moneyFormat(i.usePrice, 2, 2)}
+                    {
+                      i.discount &&
+                      <>
+                      <br />
+                      <small className='opacity-50'>-{i.discount}%</small>
+                      </>
+                    }
+                  </td>
                 </tr>
               ))
             }

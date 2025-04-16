@@ -47,7 +47,7 @@ import { getToken } from "next-auth/jwt";
 export const config = {
   matcher: [
     '/cart',
-    '/checkout', 
+    '/checkout/:path*', 
     '/my-account/:path*'
   ],
 };

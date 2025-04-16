@@ -19,7 +19,7 @@ export const customerService = {
     return API.post<any>(url, { email: email, password: password }, false);
   }, 
 
-  getOneCustomer: async (customerId: number) => {
+  getOneCustomer: async (customerId: number | string) => {
     const url = `/api/customer/${customerId}`;
     return API.get<any>(url, true);
   },

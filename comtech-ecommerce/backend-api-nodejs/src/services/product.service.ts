@@ -155,7 +155,15 @@ export class ProductService {
               createdAt: 'desc'
             }
           },
-          orderItems: true,
+          orderItems: {
+            include: {
+              order: {
+                select: {
+                  paymentStatus: true
+                }
+              }
+            }
+          },
           campaignProducts: {
             include: {
               campaign: true
@@ -190,7 +198,15 @@ export class ProductService {
                 createdAt: 'desc'
               }
             },
-            orderItems: true,
+            orderItems: {
+              include: {
+                order: {
+                  select: {
+                    paymentStatus: true
+                  }
+                }
+              }
+            },
             campaignProducts: {
               include: {
                 campaign: true
@@ -203,7 +219,11 @@ export class ProductService {
         let salesData = [];
         for(let i = 0; i < allProducts.length; i++) {
           let totalQuantity = 0;
-          allProducts[i].orderItems.map(x => totalQuantity += x.quantity);
+          allProducts[i].orderItems.map(x => {
+            if(x.order.paymentStatus === 'PAID') {
+              totalQuantity += x.quantity
+            }
+          });
           if(totalQuantity > 0) {
             salesData.push({
               id: allProducts[i].id,
