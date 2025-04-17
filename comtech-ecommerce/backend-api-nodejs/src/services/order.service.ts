@@ -1,6 +1,6 @@
 import { PrismaClient, Prisma, OrderStatus, PaymentStatus } from '@prisma/client';
 import * as exception from '../libs/errorException';
-import { createOrderDto } from '../types';
+import { createOrderDto, createStockSellActionDto } from '../types';
 import { StockService } from './stock.service';
 
 const prisma = new PrismaClient();
@@ -170,29 +170,51 @@ export class OrderService {
   }
 
   async updatePayment(orderId: number, paymentStatus: string) {
-
-    // PAID or CANCEL
-
     try {
-      const findOrder = await prisma.order.findUnique({ where: { id: orderId } });
+      const findOrder = await prisma.order.findUnique({ 
+        where: { id: orderId },
+        include: {
+          orderItems: {
+            include: {
+              product: {
+                select: {
+                  id: true
+                }
+              }
+            }
+          }
+        } 
+      });
       if(!findOrder) throw new exception.NotFoundException(`Not found order with id ${orderId}`);
 
-      const updatePayment = await prisma.order.update({
-        where: { id: orderId },
-        data: {
-          status: paymentStatus as OrderStatus,
-          paymentStatus: paymentStatus as PaymentStatus,
-          updatePaymentAt: new Date()
+      const orderItems = findOrder.orderItems;
+
+      const transaction = await prisma.$transaction(async tx => {
+        const updatePayment = await tx.order.update({
+          where: { id: orderId },
+          data: {
+            status: paymentStatus as OrderStatus,
+            paymentStatus: paymentStatus as PaymentStatus,
+            updatePaymentAt: new Date()
+          }
+        });
+
+        // create instock sell event
+        for(let i = 0; i < orderItems.length; i++) {
+          const itemData: createStockSellActionDto = {
+            productId: orderItems[i].product.id,
+            customerId: findOrder.customerId,
+            actionType: 'SELL',
+            quantity: orderItems[i].quantity,
+          }
+
+          await stockService.createSell(itemData);
         }
+
+        return updatePayment;
       });
 
-      return updatePayment;
-
-
-      // ทำ transaction
-      // update instock
-      // update instock sell event
-
+      return transaction;
     }
     catch(error: any) {
       if(error instanceof exception.NotFoundException) throw error;
