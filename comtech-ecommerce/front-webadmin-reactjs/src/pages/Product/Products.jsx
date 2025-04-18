@@ -57,12 +57,16 @@ export default function Products() {
 
   return (
     <div className={`page`}>
+
+      <header className="page-title">
+        <h1>Products</h1>
+        <p>All product in your stock</p>
+      </header>
       
       <div className="row">
-        <header className="col-12 d-flex justify-content-between align-items-center mb-4">
-          <h1>Products</h1>
+        <header className="col-12 d-flex justify-content-end align-items-center mb-3">
           <div>
-            <Link to="/product/create" className='btn btn-primary text-bg-primary'>+ Add New Product</Link>
+            <Link to="/product/create" className='btn my-btn big-btn'>Add New Product</Link>
           </div>
         </header>
 
@@ -74,11 +78,22 @@ export default function Products() {
                 ?
                 <div>
                   <div className='d-flex justify-content-between align-items-center mb-3'>
-                    <div className='d-flex'>
-                      <button className='btn btn-danger me-2'>Delete</button>
-                      <button className='btn btn-danger' onClick={() => setShowSoftDelete(true)}>
-                        <FontAwesomeIcon icon={faTrash} className='me-1' />(10)
-                      </button>
+                    <div className='d-flex align-items-center'>
+                      <div>
+                        <button className='btn my-btn narrow-btn red-btn me-2'>
+                          <FontAwesomeIcon icon={faTrash} className='me-2' />
+                          Move to trash
+                        </button>
+                      </div>
+                      <div>
+                        <button 
+                          className='btn my-btn narrow-btn gray-btn have-amount-label' 
+                          onClick={() => setShowSoftDelete(true)}
+                        >
+                          In Trash
+                          <div className='amount-label'>10</div>
+                        </button>
+                      </div>
                     </div>
                     <div>
                       <InputGroup className="">
@@ -101,9 +116,8 @@ export default function Products() {
                         <th>Product <FontAwesomeIcon icon={faArrowUp} /></th>
                         <th>In Stock <FontAwesomeIcon icon={faArrowUp} /></th>
                         <th>Price <FontAwesomeIcon icon={faArrowUp} /></th>
-                        <th>Sale Amount <FontAwesomeIcon icon={faArrowUp} /></th>
-                        <th>Revenue <FontAwesomeIcon icon={faMinus} /></th>
-                        <th></th>
+                        <th>Sale <FontAwesomeIcon icon={faArrowUp} /></th>
+                        <th>Total Revenue <FontAwesomeIcon icon={faMinus} /></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -133,22 +147,6 @@ export default function Products() {
                             <td>฿{parseFloat(product.price).toLocaleString('th-TH')}</td>
                             <td>{product.stockSellEvents.length === 0 ? '0' : 'n/a'}</td>
                             <td>{product.orderItems.length === 0 ? '0' : 'n/a'}</td>
-                            <td>
-                              <div className='d-flex'>
-                                <button 
-                                  type="button"
-                                  className='btn btn-primary me-2'
-                                  onClick={() => {
-                                    navigate(`/product/edit/${product.id}`);
-                                  }}
-                                ><FontAwesomeIcon icon={faEdit} /></button>
-                                <button 
-                                  type="button"
-                                  className='btn btn-danger'
-                                  onClick={null}
-                                ><FontAwesomeIcon icon={faTrash} /></button>
-                              </div>
-                            </td>
                           </tr>
                         ))
                       }

@@ -3,14 +3,73 @@
   position: fixed;
   top: 0;
   left: 0;
+  padding-top: 50px;
   padding-left: 300px;
   padding-right: 50px;
   height: 50px;
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
   align-items: center;
   color: #FFF;
   z-index: 90;
+
+  .iconBtn {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #FFF !important;
+    border-radius: 100%;
+    color: var(--main-text) !important;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    border: none;
+    position: relative;
+
+    .digitAlert {
+      background-color: var(--main-red);
+      color: #FFF;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 100%;
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+  }
+
+  .userDropdown {
+    background-color: #FFF !important;
+    border-radius: 36px;
+    padding: 2px 25px 2px 6px;
+    color: var(--main-text) !important;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    border: none;
+
+    .userImg {
+      width: 46px;
+      height: 46px;
+      border-radius: 100%;
+      position: relative;
+      left: -3px;
+    }
+
+    .userInfo {
+      margin-top: 6px;
+      margin-left: 8px;
+      text-align: left;
+      line-height: 1rem;
+
+      small {
+        color: var(--light-text);
+      }
+    }
+  }
 
 }

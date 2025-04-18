@@ -17,7 +17,7 @@ const MainLayout = () => {
         handleCollapseMenu={handleCollapseMenu}
       />
       <TopBarMenu />
-      <main className={`main-content ${menuCollapse ? 'menu-collapse' : ''}`}>
+      <main className={`main-content position-relative ${menuCollapse ? 'menu-collapse' : ''}`}>
         <Outlet />
       </main>
       <ToastContainer

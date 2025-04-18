@@ -1,7 +1,67 @@
 .loginPage {
   height: 100%;
-  background-color: #f3f3f3;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: transparent url(/images/bg-webadmin-login.jpg) no-repeat 100%/cover;
+
+
+  .loginCard {
+    background-color: transparent;
+    color: #FFF;
+    position: relative;
+
+    header {
+      position: relative;
+      z-index: 100;
+
+      .titleColour {
+        background: var(--primary-gradient);
+        background-clip: text;
+        color: transparent;
+      }
+    }
+
+    .bgFog {
+      position: absolute;
+      top: -70%;
+      left: -20%;
+      z-index: 0;
+    }
+
+    .formIcon {
+      position: absolute;
+      top: 10px;
+      left: 0;
+    }
+
+    input {
+      background-color: transparent !important;
+      border: none;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      border-radius: 0;
+      padding-left: 30px;
+      padding-bottom: 12px;
+      color: #FFF;
+
+      &:focus, &:-internal-autofill-selected {
+        background-color: transparent !important;
+        box-shadow: none;
+        outline: none;
+      }
+
+      &::placeholder {
+        color: #FFF;
+        opacity: 0.5;
+      }
+    }
+
+    .loginBtn {
+      width: 100%;
+      color: #FFF;
+      border-radius: 36px;
+      padding: 12px;
+      background: var(--primary-gradient);
+    }
+  }
 }

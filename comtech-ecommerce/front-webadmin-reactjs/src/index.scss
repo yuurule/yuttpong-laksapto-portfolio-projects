@@ -7,14 +7,22 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  --main-text: #2a2a2a;
   --main-purple: #b368ca;
+  --hover-purple: #9248a8;
+  --main-red: #f66c6c;
+  --hover-red:rgb(196, 70, 70);
+  --light-text: #8f8f8f;
+  --gray: #919191;
+  --hover-gray: #6e6e6e;
+  --primary-gradient: linear-gradient(90deg, rgba(194,47,255,1) 0%, rgba(237,163,33,1) 100%);
 }
 
 body {
   height: 100vh;
   font-family: 'Quicksand';
   font-weight: 500;
-  background-color: rgba(0, 0, 0, 0.2);
+  background: transparent url(/images/main-bg.jpg) fixed no-repeat 100%/cover;
 
   #root {
     height: 100%;
@@ -42,8 +50,84 @@ body {
         padding: 90px 140px 70px 210px;
       }
 
+      .page {
+        position: relative;
+        padding-top: 20px;
+
+        .page-title {
+          color: #FFF;
+          position: absolute;
+          top: -65px;
+          left: 0;
+          line-height: 1rem;
+        }
+
+        .card {
+          border-radius: 24px;
+          box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+
+          .card-body {
+            padding: 25px;
+          }
+        }
+      }
     }
 
+  }
+
+}
+
+/**
+Button
+**/
+.my-btn {
+
+  border-radius: 36px;
+  background-color: var(--main-purple);
+  color: #FFF !important;
+  padding-left: 30px;
+  padding-right: 30px;
+
+  &:hover {
+    background-color: var(--hover-purple);
+  }
+
+  // Sizing
+  &.big-btn {
+    padding: 12px 36px;
+    font-weight: 700;
+  }
+
+  &.narrow-btn {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+
+  // Colour
+  &.red-btn {
+    background-color: var(--main-red);
+    &:hover { background-color: var(--hover-red); }
+  }
+
+  &.gray-btn {
+    background-color: var(--gray);
+    &:hover { background-color: var(--hover-gray); }
+  }
+
+  &.have-amount-label {
+    padding-right: 60px;
+    position: relative;
+  }
+
+  .amount-label {
+    position: absolute;
+    top: 5px;
+    right: 4px;
+    background-color: #FFF;
+    color: var(--main-text);
+    border-radius: 36px;
+    padding: 0 12px;
+    font-size: 0.94rem;
   }
 
 }

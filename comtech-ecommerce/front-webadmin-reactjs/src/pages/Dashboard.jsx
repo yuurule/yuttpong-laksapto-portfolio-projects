@@ -6,10 +6,13 @@ export default function Dashboard() {
   return (
     <div className={`page`}>
       
-      <div className="row">
-        <header className="col-12">
-          <h1>Dashboard</h1>
-        </header>
+      <header className="page-title">
+        <h1>Dashboard</h1>
+        <p>Welcome to webadmin</p>
+      </header>
+
+      <div className="row mt-4">
+        
         <div className="col-12 mt-4">
           <div className="row">
             {
