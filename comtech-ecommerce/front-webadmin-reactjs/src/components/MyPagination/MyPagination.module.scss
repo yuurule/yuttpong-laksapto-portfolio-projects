@@ -1,0 +1,12 @@
+.myPagination {
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  a, button {
+    color: var(--main-text) !important;
+    text-decoration: none;
+    font-weight: 700;
+  }
+}

@@ -132,4 +132,22 @@ export class CategoryController {
     }
   }
 
+  async getStatisticCategories(req: Request, res: Response) {
+    const page = parseInt(req.query.page as string || '1');
+    const pageSize = parseInt(req.query.pageSize as string || '8');
+    const orderBy = req.query.orderBy as string || 'createdAt';
+    const orderDir = req.query.orderDir as string || 'desc';
+    const search = req.query.search as string;
+    const productAmount = req.query.productAmount as string;
+    
+    try {
+      const categories = await categoryService.statisticCategories(page, pageSize, orderBy, orderDir, search, productAmount);
+      sendResponse(res, 200, `Get all categories statistic ok`, categories.data, categories.meta);
+    }
+    catch (error: any) {
+      console.error('Get all categories statistic error: ', error);
+      sendError(res, error.statusCode, error.message);
+    }
+  }
+
 }

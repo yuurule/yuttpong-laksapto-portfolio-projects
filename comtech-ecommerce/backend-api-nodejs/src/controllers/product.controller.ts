@@ -302,4 +302,23 @@ export class ProductController {
     }
   }
 
+  async getStatisticProducts(req: Request, res: Response) {
+    const page = parseInt(req.query.page as string || '1');
+    const pageSize = parseInt(req.query.pageSize as string || '8');
+    const orderBy = req.query.orderBy as string || 'createdAt';
+    const orderDir = req.query.orderDir as string || 'desc';
+    const search = req.query.search as string;
+    const inStock = req.query.inStock as string;
+    const sale = req.query.sale as string;
+    const totalSale = req.query.totalSale as string;
+    
+    try {
+      const products = await productService.statisticProducts(page, pageSize, orderBy, orderDir, search, inStock, sale, totalSale);
+      sendResponse(res, 200, `Get all product statistic ok`, products.data, products.meta);
+    }
+    catch (error: any) {
+      console.error('Get all product statistic error: ', error);
+      sendError(res, error.statusCode, error.message);
+    }
+  }
 }

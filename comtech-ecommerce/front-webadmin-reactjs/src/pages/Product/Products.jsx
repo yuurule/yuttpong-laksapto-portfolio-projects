@@ -7,37 +7,45 @@ import { Link, useNavigate } from 'react-router';
 import * as ProductService from '../../services/productService';
 import * as BrandService from '../../services/brandService';
 import { toast } from 'react-toastify';
+import OrderByBtn from '../../components/OrderByBtn/OrderByBtn';
 
 export default function Products() {
 
   const navigate = useNavigate();
-
   const [loadData, setLoadData] = useState(false);
   const [onSubmit, setOnSubmit] = useState(false);
   const [showSoftDelete, setShowSoftDelete] = useState(false);
   const [productList, setProductList] = useState([]);
   const [refresh, setRefresh] = useState(0);
   const [productParamsQuery, setProductParamsQuery] = useState({
-    page: null,
-    pageSize: null,
-    noPagination: true,
-    brands: [],
-    categories: [],
-    tags: [],
+    page: 1,
+    pageSize: 8,
     orderBy: 'createdAt',
-    orderDir: 'desc'
+    orderDir: 'desc',
+    search: null,
+    inStock: null,
+    sale: null,
+    totalSale: null,
   });
+
+  const [orderBy, setOrderBy] = useState([
+    { column: 'product', value: null },
+    { column: 'inStock', value: null },
+    { column: 'price', value: null },
+    { column: 'sale', value: null }, // quantity of sale
+    { column: 'totalSale', value: null }, // total money recieve from sell
+  ]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
 
   useEffect(() => {
     const fecthData = async () => {
       setLoadData(true);
       try {
-        const brands = await BrandService.getBrands();
-        const tempProductParamsQuery = {...productParamsQuery};
-        tempProductParamsQuery.brands = brands.data.RESULT_DATA.map(i => (i.id));
-        const products = await ProductService.getAllProduct(tempProductParamsQuery);
+        const products = await ProductService.getStatisticProduct(productParamsQuery);
         setProductList(products.data.RESULT_DATA);
-        setProductParamsQuery(tempProductParamsQuery);
+        setCurrentPage(products.data.RESULT_META.currentPage);
+        setTotalPage(products.data.RESULT_META.totalPages);
       }
       catch(error) {
         console.log(error);
@@ -49,9 +57,26 @@ export default function Products() {
     }
 
     fecthData();
-  }, [refresh]);
+  }, [refresh, productParamsQuery]);
 
   const handleRefreshData = () => setRefresh(prevState => prevState + 1);
+
+  const handleChangeOrderBy = (columnName) => {
+    const tempResult = [...orderBy];
+    
+    tempResult.map(i => {
+      if(i.column === columnName) {
+        if(i.value === null) i.value = 'desc';
+        else if(i.value === 'desc') i.value = 'asc';
+        else if(i.value === 'asc') i.value = null;
+      }
+      else {
+        i.value = null;
+      }
+    });
+
+    setOrderBy(tempResult);
+  }
 
   if(loadData) return <div>กำลังโหลด...</div> 
 
@@ -64,9 +89,9 @@ export default function Products() {
       </header>
       
       <div className="row">
-        <header className="col-12 d-flex justify-content-end align-items-center mb-3">
-          <div>
-            <Link to="/product/create" className='btn my-btn big-btn'>Add New Product</Link>
+        <header className="col-12">
+          <div className='d-flex justify-content-end align-items-center mb-3'>
+            <Link to="/product/create" className='btn my-btn big-btn'>+ Add New Product</Link>
           </div>
         </header>
 
@@ -95,14 +120,12 @@ export default function Products() {
                         </button>
                       </div>
                     </div>
-                    <div>
-                      <InputGroup className="">
+                    <div className="search-input">
+                      <InputGroup>
                         <Form.Control
                           placeholder="Search product"
-                          aria-label="Recipient's username"
-                          aria-describedby="basic-addon2"
                         />
-                        <Button variant="primary" id="button-addon2">
+                        <Button>
                           <FontAwesomeIcon icon={faSearch} />
                         </Button>
                       </InputGroup>
@@ -111,30 +134,60 @@ export default function Products() {
                   <table className="table">
                     <thead>
                       <tr>
-                        <th></th>
-                        {/* <th>SKU</th> */}
-                        <th>Product <FontAwesomeIcon icon={faArrowUp} /></th>
-                        <th>In Stock <FontAwesomeIcon icon={faArrowUp} /></th>
-                        <th>Price <FontAwesomeIcon icon={faArrowUp} /></th>
-                        <th>Sale <FontAwesomeIcon icon={faArrowUp} /></th>
-                        <th>Total Revenue <FontAwesomeIcon icon={faMinus} /></th>
+                        <th className='selectRow'></th>
+                        <th>
+                          Product
+                          <OrderByBtn 
+                            currentStatus={orderBy[0].value}
+                            handleOnClick={() => handleChangeOrderBy('product')}
+                          />
+                        </th>
+                        <th>
+                          In Stock 
+                          <OrderByBtn 
+                            currentStatus={orderBy[1].value}
+                            handleOnClick={() => handleChangeOrderBy('inStock')}
+                          />
+                        </th>
+                        <th>
+                          Price 
+                          <OrderByBtn 
+                            currentStatus={orderBy[2].value}
+                            handleOnClick={() => handleChangeOrderBy('price')}
+                          />
+                        </th>
+                        <th>
+                          Sale 
+                          <OrderByBtn 
+                            currentStatus={orderBy[3].value}
+                            handleOnClick={() => handleChangeOrderBy('sale')}
+                          />
+                        </th>
+                        <th>
+                          Total Revenue 
+                          <OrderByBtn 
+                            currentStatus={orderBy[4].value}
+                            handleOnClick={() => handleChangeOrderBy('totalSale')}
+                          />
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {
                         productList.map((product, index) => (
                           <tr key={`product_${product.id}`}>
-                            <td>
-                              <Form.Check
-                                type={"checkbox"}
-                                id={`select-product`}
-                                label={``}
-                              />
+                            <td className='selectRow'>
+                              <div className='flexCenterXY'>
+                                <Form.Check
+                                  type={"checkbox"}
+                                  id={`select-product`}
+                                  label={``}
+                                />
+                              </div>
                             </td>
-                            {/* <td>{product.sku}</td> */}
-                            <td style={{width: 300}}>
-                              <Link to="/product/1" className="d-flex align-items-center">
-                                <figure className='me-2'>
+                            <td style={{width: '50%'}}>
+                              <Link to={`/product/${product.id}`} className="d-flex align-items-center">
+                                <figure className='me-2 mb-0'>
                                   <img src="/images/dummy-product.jpg" style={{width: 60}} />
                                 </figure>
                                 <div>
@@ -153,26 +206,27 @@ export default function Products() {
                     </tbody>
                   </table>
                   <div className='d-flex justify-content-center'>
-                    <MyPagination />
+                    <MyPagination
+                      currentPage={currentPage}
+                      totalPage={totalPage}
+                    />
                   </div>
                 </div>
                 :
                 <div>
                   <div className='d-flex justify-content-between align-items-center mb-3'>
                     <div className='d-flex'>
-                      <button className='btn btn-primary me-2' onClick={() => setShowSoftDelete(false)}>
+                      <button className='btn my-btn narrow-btn gray-btn me-2' onClick={() => setShowSoftDelete(false)}>
                         <FontAwesomeIcon icon={faArrowLeft} className='me-1' /> Back
                       </button>
                       {/* <button className='btn btn-danger'>Delete</button> */}
                     </div>
-                    <div>
-                      <InputGroup className="">
+                    <div className="search-input">
+                      <InputGroup>
                         <Form.Control
                           placeholder="Search product"
-                          aria-label="Recipient's username"
-                          aria-describedby="basic-addon2"
                         />
-                        <Button variant="primary" id="button-addon2">
+                        <Button>
                           <FontAwesomeIcon icon={faSearch} />
                         </Button>
                       </InputGroup>
@@ -181,8 +235,7 @@ export default function Products() {
                   <table className="table">
                     <thead>
                       <tr>
-                        <th></th>
-                        <th>SKU</th>
+                        <th className='selectRow'></th>
                         <th>Product <FontAwesomeIcon icon={faArrowUp} /></th>
                         <th>Deleted at</th>
                         <th></th>
@@ -192,27 +245,30 @@ export default function Products() {
                       {
                         [...Array(8)].map((i, index) => (
                           <tr key={`product_row_${index + 1}`}>
-                            <td>
-                              <Form.Check
-                                type={"checkbox"}
-                                id={`select-product`}
-                                label={``}
-                              />
+                            <td className='selectRow'>
+                              <div className='flexCenterXY'>
+                                <Form.Check
+                                  type={"checkbox"}
+                                  id={`select-product`}
+                                  label={``}
+                                />
+                              </div>
                             </td>
-                            <td>471138788</td>
                             <td>
                               <Link to="/product/1" className="d-flex align-items-center">
                                 <figure className='me-2'>
                                   <img src="/images/dummy-product.jpg" style={{width: 60}} />
                                 </figure>
-                                Asus ROG Flow Z13 GZ302EA-RU087WA Off Black
+                                <div>
+                                  <p className='mb-0'>Asus ROG Flow Z13 GZ302EA-RU087WA Off Black</p>
+                                  sku: <small className='opacity-50'>123456789</small>
+                                </div>
                               </Link>
                             </td>
                             <td>20 Jan 25</td>
                             <td>
                               <div className='d-flex'>
                                 <button className='btn btn-primary me-2'>Restore</button>
-                                <button className='btn btn-danger'>Delete</button>
                               </div>
                             </td>
                           </tr>
@@ -221,7 +277,10 @@ export default function Products() {
                     </tbody>
                   </table>
                   <div className='d-flex justify-content-center'>
-                    <MyPagination />
+                    <MyPagination
+                      currentPage={1}
+                      totalPage={1}
+                    />
                   </div>
                 </div>
               }
@@ -234,12 +293,12 @@ export default function Products() {
           <div className='card'>
             <div className='card-body'>
               <header>
-                <h5>Top 10 sell of the month</h5>
+                <h5>Top 10 sell of the month<span></span></h5>
               </header>
               <figure className='text-center'>
                 <img src="/images/dummy-product.jpg" />
               </figure>
-              <div className='row'>
+              <div className='row mb-3'>
                 <div className='col-6'>
                   <table className='w-100'>
                     <tbody>
@@ -263,15 +322,7 @@ export default function Products() {
                   <p>Total Revenue</p>
                 </div>
               </div>
-              <div className='w-100 d-flex justify-content-between align-items-center mt-3'>
-                <button className='btn btn-link p-0'>
-                  <FontAwesomeIcon icon={faChevronLeft} />
-                </button>
-                <strong>1 of 10</strong>
-                <button className='btn btn-link p-0'>
-                  <FontAwesomeIcon icon={faChevronRight} />
-                </button>
-              </div>
+              <MyPagination />
             </div>
           </div>
         </div>

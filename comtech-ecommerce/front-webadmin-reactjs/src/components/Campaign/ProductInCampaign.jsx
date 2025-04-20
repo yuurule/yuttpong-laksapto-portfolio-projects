@@ -49,24 +49,23 @@ export default function ProductInCampaign({ selectedCampaign, data, handleRefres
       ?
       <>
       <header>
-        <h5>Products in "{selectedCampaign?.name}" campaign</h5>
-        <hr />
+        <h5>Products in "{selectedCampaign?.name}" campaign<span></span></h5>
       </header>
       {
         data !== undefined && Array.isArray(data)
         ?
           <>
-          <div className='mb-2'>
+          <div className='mt-3 mb-2'>
             <button 
               type="button"
-              className='btn btn-primary me-3'
+              className='btn my-btn narrow-btn purple-btn me-3'
               onClick={() => setOpenAddDialog(true)}
             ><FontAwesomeIcon icon={faPlus} className='me-2' />Add Items</button>
             {
               data.length > 0 && 
               <button 
                 type="button"
-                className='btn btn-danger'
+                className='btn my-btn narrow-btn red-btn'
                 disabled={(selectedDeleteProducts.length === 0)}
                 onClick={() => setOpenDeleteDialog(true)}
               >
@@ -81,7 +80,7 @@ export default function ProductInCampaign({ selectedCampaign, data, handleRefres
             <table className='table'>
               <thead>
                 <tr>
-                  <th></th>
+                  <th className='selectRow'></th>
                   <th>Product</th>
                   <th>Price</th>
                   <th></th>
@@ -91,7 +90,7 @@ export default function ProductInCampaign({ selectedCampaign, data, handleRefres
                 {
                   data.map((product, index) => (
                     <tr key={`product_in_campaign_row_${product.product.id}`}>
-                      <td>
+                      <td className='selectRow'>
                         <Form.Check
                           type={"checkbox"}
                           id={`select-product`}

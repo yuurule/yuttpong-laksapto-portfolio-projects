@@ -1,0 +1,22 @@
+.orderByBtn {
+  background-color: var(--gray);
+  color: #FFF;
+  font-size: 0.6rem;
+  padding: 3px 5px;
+  border-radius: 4px;
+  margin-left: 8px;
+  border: none;
+
+  &.active {
+    background-color: var(--light-blue);
+    &:hover {
+      background-color: var(--light-blue);
+    }
+  }
+
+  &:hover {
+    cursor: pointer;
+    background-color: var(--gray);
+    color: #FFF;
+  }
+}

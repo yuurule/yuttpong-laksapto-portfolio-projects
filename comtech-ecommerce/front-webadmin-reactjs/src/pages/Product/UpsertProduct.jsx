@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faSave, faClose, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faSave, faClose, faBars, faPlus } from '@fortawesome/free-solid-svg-icons';
 import * as ProductService from '../../services/productService';
+import * as BrandService from '../../services/brandService';
+import * as CategoryService from '../../services/categoryService';
+import * as TagService from '../../services/tagService';
 import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -48,6 +51,8 @@ export default function UpsertProduct() {
   const [brandList, setBrandList] = useState([]);
   const [submitType, setSubmitType] = useState('INSERT'); // 'INSERT', 'UPDATE'
 
+  const [categoryList, setCategoryList] = useState([]);
+  const [tagList, setTagList] = useState([]);
   const [cacheCategories, setCacheCategories] = useState([]); 
   const [cacheTags, setCacheTags] = useState([]);
   const [updateCategoies, setUpdateCategories] = useState([]);
@@ -58,13 +63,16 @@ export default function UpsertProduct() {
       setLoadData(true);
       try {
         const findProduct = await ProductService.getOneProduct(id);
+        const categories = await CategoryService.getCategories();
+        const tags = await TagService.getTags();
+
         const productData = findProduct.data.RESULT_DATA;
         setProduct(productData);
-        const dimension = (productData.specs.dimension).split(' x ');
+        const dimension = (productData.specs.dimension).split('x');
         const productDataForm = {
           brandId: productData.brandId,
           name: productData.name,
-          price: productData.price,
+          price: parseFloat(productData.price),
           description: productData.description,
           screen_size: productData.specs.screen_size,
           processor: productData.specs.processor,
@@ -79,18 +87,42 @@ export default function UpsertProduct() {
           wireless: productData.specs.wireless,
           battery: productData.specs.battery,
           color: productData.specs.color,
-          width: parseFloat(dimension[0]),
-          height: parseFloat(dimension[1]),
-          depth: parseFloat(dimension[2]),
+          width: dimension[0],
+          height: dimension[1],
+          depth: dimension[2],
           weight: productData.specs.weight,
           warranty: productData.specs.warranty,
           option: productData.specs.option,
         }
         reset(productDataForm);
-        setCacheCategories(productData.categories);
-        setCacheTags(productData.tags);
-        setUpdateCategories(productData.categories);
-        setUpdateTags(productData.tags);
+        const resultCacheCategories = productData.categories.map(i => {
+          const findCategory = categories.data.RESULT_DATA.find(x => x.id === i.category.id);
+          return findCategory;
+        });
+        const resultCategoryList = [];
+        categories.data.RESULT_DATA.map(i => {
+          const findCategory = productData.categories.filter(x => x.category.id === i.id);
+          if(findCategory.length === 0) {
+            resultCategoryList.push(i);
+          }
+        });
+        const resultCacheTags = productData.tags.map(i => {
+          const findTag = tags.data.RESULT_DATA.find(x => x.id === i.tag.id);
+          return findTag;
+        });
+        const resultTagList = [];
+        tags.data.RESULT_DATA.map(i => {
+          const findTag = productData.tags.filter(x => x.tag.id === i.id);
+          if(findTag.length === 0) {
+            resultTagList.push(i);
+          }
+        });
+        setCacheCategories(resultCacheCategories);
+        setUpdateCategories(resultCacheCategories);
+        setCategoryList(resultCategoryList);
+        setCacheTags(resultCacheTags);
+        setUpdateTags(resultCacheTags);
+        setTagList(resultTagList);
       } catch (error) {
         if (error.response && error.response.status === 404) {
           setError('ไม่พบข้อมูลที่ต้องการ');
@@ -120,14 +152,19 @@ export default function UpsertProduct() {
   });
 
   useEffect(() => {
-    fecthProductBrand();
+    fecthMasterData();
   }, []);
 
-  const fecthProductBrand = async () => {
+  const fecthMasterData = async () => {
     setLoadData(true);
     try {
-      const fetchBrands = await ProductService.getBrands();
+      const fetchBrands = await BrandService.getBrands();
+      const categories = await CategoryService.getCategories();
+      const tags = await TagService.getTags();
+
       setBrandList(fetchBrands.data.RESULT_DATA);
+      setCategoryList(categories.data.RESULT_DATA);
+      setTagList(tags.data.RESULT_DATA);
     }
     catch(error) {
       console.log(error.message);
@@ -138,6 +175,39 @@ export default function UpsertProduct() {
     }
   }
 
+  const handleSelectAddCategory = (newCategory) => {
+    const currentSelectCategories = [...updateCategoies];
+    const currentCategoryList = [...categoryList];
+    currentSelectCategories.push(newCategory);
+    const resultCategoryList = currentCategoryList.filter(i => i.id !== newCategory.id);
+    setUpdateCategories(currentSelectCategories);
+    setCategoryList(resultCategoryList);
+  }
+  const handleRemoveCategory = (removeCategory) => {
+    const currentSelectCategories = [...updateCategoies];
+    const currentCategoryList = [...categoryList];
+    currentCategoryList.push(removeCategory);
+    const resultSelectCategories = currentSelectCategories.filter(i => i.id !== removeCategory.id);
+    setUpdateCategories(resultSelectCategories);
+    setCategoryList(currentCategoryList);
+  }
+  const handleSelectAddTag = (newTag) => {
+    const currentSelectTags = [...updateTags];
+    const currentTagList = [...tagList];
+    currentSelectTags.push(newTag);
+    const resultTagList = currentTagList.filter(i => i.id !== newTag.id);
+    setUpdateTags(currentSelectTags);
+    setTagList(resultTagList);
+  }
+  const handleRemoveTag = (removeTag) => {
+    const currentSelectTags = [...updateTags];
+    const currentTagList = [...tagList];
+    currentTagList.push(removeTag);
+    const resultSelectTags = currentSelectTags.filter(i => i.id !== removeTag.id);
+    setUpdateTags(resultSelectTags);
+    setTagList(currentTagList);
+  }
+
   const onSubmit = async (data) => {
     //console.log(data)
 
@@ -146,33 +216,20 @@ export default function UpsertProduct() {
     let imagesData;
 
     if(submitType === 'INSERT') {
-      categoriesData = [
-        { categoryId: 1 }
-      ];
-      tagsData = [
-        //{ tagId: 1 }
-      ];
+      categoriesData = updateCategoies.map(i => ({ categoryId: i.id }));
+      tagsData = updateTags.map(i => ({ tagId: i.id }));
       imagesData = [
         //{ url_path: "http://www.testimage.com/test_image_1.jpg" }
       ];
     }
     else if(submitType === 'UPDATE') {
       categoriesData = {
-        connect: [
-            //{ "categoryId": 3 }
-        ],
-        disconnect: [
-            //{ "categoryId": 1 }
-        ]
+        connect: [],
+        disconnect: []
       };
       tagsData = {
-        connect: [
-            //{ "tagId": 3 }
-        ],
-        disconnect: [
-            // { "tagId": 1 },
-            // { "tagId": 2 }
-        ]
+        connect: [],
+        disconnect: []
       };
       imagesData = {
         create: [
@@ -192,6 +249,31 @@ export default function UpsertProduct() {
             // }
         ]
       };
+
+      updateCategoies.filter(i => {
+        const newCategory = cacheCategories.find(x => x.id === i.id);
+        if(!newCategory) { // not found in cache categories that's mean it's new
+          categoriesData.connect.push({ categoryId: i.id });
+        }
+      });
+      cacheCategories.filter(i => {
+        const removeCategory = updateCategoies.find(x => x.id === i.id);
+        if(!removeCategory) { // not found in updateCategoies that's mean it's must remove
+          categoriesData.disconnect.push({ categoryId: i.id });
+        }
+      });
+      updateTags.filter(i => {
+        const newTag = cacheTags.find(x => x.id === i.id);
+        if(!newTag) { // not found in cache tags that's mean it's new
+          tagsData.connect.push({ tagId: i.id });
+        }
+      });
+      cacheTags.filter(i => {
+        const removeTag = updateTags.find(x => x.id === i.id);
+        if(!removeTag) { // not found in updateTags that's mean it's must remove
+          tagsData.disconnect.push({ tagId: i.id });
+        }
+      })
     }
 
     const requestData = {
@@ -217,13 +299,15 @@ export default function UpsertProduct() {
         wireless: data.wireless,
         battery: data.battery,
         color: data.color,
-        dimemsion: `${data.width}x${data.height}x${data.depth}`,
+        dimension: `${data.width}x${data.height}x${data.depth}`,
         weight: data.weight,
         warranty: data.warranty,
         option: data.option
       },
       images: imagesData
     }
+
+    //console.log(requestData)
 
     if(submitType === 'INSERT') {
       try {
@@ -259,390 +343,447 @@ export default function UpsertProduct() {
 
   return (
     <div className={`page`}>
+      <header className="page-title">
+        <h1>{submitType === 'INSERT' && 'Add New'} {submitType === 'UPDATE' && 'Edit'} Product</h1>
+        {submitType === 'INSERT' && <p className='mb-0'>Add new product to your stock</p>}
+        {submitType === 'UPDATE' && <p className='mb-0'>SKU: {product?.sku}</p>}
+      </header>
       
       <form onSubmit={handleSubmit(onSubmit)} className="row">
 
-        <header className="col-12 d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <h1>{submitType === 'INSERT' && 'Add New'} {submitType === 'UPDATE' && 'Update'} Product</h1>
-            {submitType === 'UPDATE' && <p className='mb-0'>SKU: {product?.sku}</p>}
-          </div>
-          <div>
+        <header className="col-12">
+          <div className='d-flex justify-content-end align-items-center mb-3'>
             <button 
               type="submit" 
               disabled={isSubmitting}
-              className='btn btn-success px-5 py-2'
+              className='btn my-btn blue-btn big-btn px-5'
             >{isSubmitting ? 'Processing...' : <><FontAwesomeIcon icon={faSave} className='me-2' />Save</> }</button>
           </div>
         </header>
 
         <div className='col-sm-12'>
           <div className='row'>
-            <div className='col-sm-3'>
+            <div className='col-sm-4'>
               <div className='card mb-3'>
-                <div className='card-body'>
-                  <figure className='text-center'>
+                <div className='card-body px-5'>
+                  <header>
+                    <h5>Product Images<span></span></h5>
+                  </header>
+
+                  <figure className='text-center mt-4' style={{border: '1px solid rgba(0,0,0,0.1)', borderRadius: 6}}>
                     <img src="/images/dummy-product.jpg" style={{width: 300}} />
                   </figure>
 
                   {
-                    [...Array(3)].map((i, index) => (
+                    [...Array(2)].map((i, index) => (
                       <div 
                         key={`product_image_input_${index + 1}`} 
-                        className='d-flex justify-content-between align-items-center mb-2 px-3 py-1'
-                        style={{border: '1px solid rgba(0,0,0,0.3)', borderRadius: 6}}
+                        className='d-flex justify-content-between align-items-center mb-3 px-3 py-1'
+                        style={{border: '1px solid rgba(0,0,0,0.1)', borderRadius: 6}}
                       >
                         <div className='d-flex align-items-center'>
-                          <FontAwesomeIcon icon={faBars} className='me-2' />
+                          {/* <FontAwesomeIcon icon={faBars} className='me-2' /> */}
                           <figure className='mb-0 me-3'>
                             <img src="/images/dummy-product.jpg" style={{width: 75}} className='' />
                           </figure>
                           { index === 0 && <span className='badge text-bg-primary'>Primary</span> }
                         </div>
                         <div>
-                          <button className='btn btn-primary me-2'><FontAwesomeIcon icon={faEdit} /></button>
-                          <button className='btn btn-danger'><FontAwesomeIcon icon={faTrash} /></button>
+                          <button type="button" className='btn btn-link p-0 me-2'><FontAwesomeIcon icon={faEdit} /></button>
+                          <button type="button" className='btn btn-link p-0 text-danger'><FontAwesomeIcon icon={faTrash} /></button>
                         </div>
                       </div>
                     ))
                   }
 
                   <div className='text-center'>
-                    <button className='btn btn-primary px-4 mt-2'>+ Add New Image</button>
+                    <button type="button" className='btn my-btn pruple-btn narrow-btn mt-2'>+ Add New Image</button>
                   </div>
 
                 </div>
               </div>
             </div>
-            <div className='col-sm-5'>
-              <div className='card'>
-                <div className='card-body'>
-                  <header>
-                    <h5>Product Specifications</h5>
-                    <hr />
-                  </header>
+            <div className='col-sm-8'>
+              <div className='col-12 mb-3'>
+                <div className='card'>
+                  <div className='card-body px-5'>
+                    <header>
+                      <h5>Product Specifications<span></span></h5>
+                    </header>
 
-                  <dl className='row mb-4'>
-                    <dt className='col-sm-3 mb-3'>Product Brand</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <select 
-                          {...register('brandId')}
-                          className={`form-control ${errors.brandId ? 'is-invalid' : ''}`}
-                        >
-                          <option value="">--Select brand--</option>
+                    <dl className='row my-4'>
+                      <dt className='col-sm-3 mb-3'>Product Brand</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <select 
+                            {...register('brandId')}
+                            className={`form-control ${errors.brandId ? 'is-invalid' : ''}`}
+                          >
+                            <option value="">--Select brand--</option>
+                            {
+                              brandList.map((brand) => (
+                                <option key={`product_brand_${brand.id}`} value={brand.id}>
+                                  {brand.name}
+                                </option>
+                              ))
+                            }
+                          </select>
+                          {errors.brandId && <small className="invalid-feedback">{errors.brandId.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Name</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            {...register('name')}
+                            className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                          />
+                          {errors.name && <small className="invalid-feedback">{errors.name.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Price</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="number"
+                            min={0}
+                            step={0.01}
+                            {...register('price')}
+                            className={`form-control ${errors.price ? 'is-invalid' : ''}`}
+                          />
+                          {errors.price && <small className="invalid-feedback">{errors.price.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Screen Size</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            {...register('screen_size')}
+                            className={`form-control ${errors.screen_size ? 'is-invalid' : ''}`}
+                          />
+                          {errors.screen_size && <small className="invalid-feedback">{errors.screen_size.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Processor</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <textarea
+                            rows={1}
+                            {...register('processor')}
+                            className={`form-control ${errors.processor ? 'is-invalid' : ''}`}
+                          ></textarea>
+                          {errors.processor && <small className="invalid-feedback">{errors.processor.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Display</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            {...register('display')}
+                            className={`form-control ${errors.display ? 'is-invalid' : ''}`}
+                          />
+                          {errors.display && <small className="invalid-feedback">{errors.display.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Memory</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            {...register('memory')}
+                            className={`form-control ${errors.memory ? 'is-invalid' : ''}`}
+                          />
+                          {errors.memory && <small className="invalid-feedback">{errors.memory.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Storage</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            {...register('storage')}
+                            className={`form-control ${errors.storage ? 'is-invalid' : ''}`}
+                          />
+                          {errors.storage && <small className="invalid-feedback">{errors.storage.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Graphics</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            {...register('graphic')}
+                            className={`form-control ${errors.graphic ? 'is-invalid' : ''}`}
+                          />
+                          {errors.graphic && <small className="invalid-feedback">{errors.graphic.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Operating System</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            {...register('operating_system')}
+                            className={`form-control ${errors.operating_system ? 'is-invalid' : ''}`}
+                          />
+                          {errors.operating_system && <small className="invalid-feedback">{errors.operating_system.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Camera</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            {...register('camera')}
+                            className={`form-control ${errors.camera ? 'is-invalid' : ''}`}
+                          />
+                          {errors.camera && <small className="invalid-feedback">{errors.camera.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Optical Drive</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            {...register('optical_drive')}
+                            className={`form-control ${errors.optical_drive ? 'is-invalid' : ''}`}
+                          />
+                          {errors.optical_drive && <small className="invalid-feedback">{errors.optical_drive.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Connection Ports</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <textarea
+                            rows={1}
+                            {...register('connection_ports')}
+                            className={`form-control ${errors.connection_ports ? 'is-invalid' : ''}`}
+                          ></textarea>
+                          {errors.connection_ports && <small className="invalid-feedback">{errors.connection_ports.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Wireless</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <textarea
+                            rows={1}
+                            {...register('wireless')}
+                            className={`form-control ${errors.wireless ? 'is-invalid' : ''}`}
+                          ></textarea>
+                          {errors.wireless && <small className="invalid-feedback">{errors.wireless.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Battery</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            {...register('battery')}
+                            className={`form-control ${errors.battery ? 'is-invalid' : ''}`}
+                          />
+                          {errors.battery && <small className="invalid-feedback">{errors.battery.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Color</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            {...register('color')}
+                            className={`form-control ${errors.color ? 'is-invalid' : ''}`}
+                          />
+                          {errors.color && <small className="invalid-feedback">{errors.color.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Dimension (WxDxH)</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className='row'>
+                          <div className='col-sm-4'>
+                            <div className="form-group">
+                              <input
+                                type="number"
+                                min={0}
+                                step={0.01}
+                                {...register('width')}
+                                className={`form-control ${errors.width ? 'is-invalid' : ''}`}
+                              />
+                              {errors.width && <small className="invalid-feedback">{errors.width.message}</small>}
+                            </div>
+                          </div>
+                          <div className='col-sm-4'>
+                            <div className="form-group">
+                              <input
+                                type="number"
+                                min={0}
+                                step={0.01}
+                                {...register('height')}
+                                className={`form-control ${errors.height ? 'is-invalid' : ''}`}
+                              />
+                              {errors.height && <small className="invalid-feedback">{errors.height.message}</small>}
+                            </div>
+                          </div>
+                          <div className='col-sm-4'>
+                            <div className="form-group">
+                              <input
+                                type="number"
+                                min={0}
+                                step={0.01}
+                                {...register('depth')}
+                                className={`form-control ${errors.depth ? 'is-invalid' : ''}`}
+                              />
+                              {errors.depth && <small className="invalid-feedback">{errors.depth.message}</small>}
+                            </div>
+                          </div>
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Weight</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            {...register('weight')}
+                            className={`form-control ${errors.weight ? 'is-invalid' : ''}`}
+                          />
+                          {errors.weight && <small className="invalid-feedback">{errors.weight.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Warranty</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            {...register('warranty')}
+                            className={`form-control ${errors.warranty ? 'is-invalid' : ''}`}
+                          />
+                          {errors.warranty && <small className="invalid-feedback">{errors.warranty.message}</small>}
+                        </div>
+                      </dd>
+                      <dt className='col-sm-3 mb-3'>Option</dt>
+                      <dd className='col-sm-9 mb-3'>
+                        <div className="form-group">
+                          <input
+                            type="text"
+                            {...register('option')}
+                            className={`form-control ${errors.option ? 'is-invalid' : ''}`}
+                          />
+                          {errors.option && <small className="invalid-feedback">{errors.option.message}</small>}
+                        </div>
+                      </dd>
+                    </dl>
+
+                  </div>
+                </div>
+              </div>
+              <div className='col-12'>
+                <div className='card mb-3'>
+                  <div className='card-body px-5'>
+                    <header>
+                      <h5>Product Detail<span></span></h5>
+                    </header>
+                    <div className="form-group mt-4">
+                      <textarea
+                        rows={8}
+                        {...register('description')}
+                        className={`form-control ${errors.description ? 'is-invalid' : ''}`}
+                      ></textarea>
+                      {errors.description && <small className="invalid-feedback">{errors.description.message}</small>}
+                    </div>
+                  </div>
+                </div>
+                <div className='card mb-3'>
+                  <div className='card-body px-5'>
+                    <header className='d-flex justify-content-between align-items-center mb-3'>
+                      <h5>Category<span></span></h5>
+                      <div className="dropdown dropup">
+                        <button 
+                          className={`btn my-btn narrow-btn purple-btn`} 
+                          type="button" 
+                          data-bs-toggle="dropdown"
+                          data-bs-auto-close="false"
+                        ><small>+ Add</small></button>
+                        <ul className="dropdown-menu dropdown-menu-lg-end">
                           {
-                            brandList.map((brand) => (
-                              <option key={`product_brand_${brand.id}`} value={brand.id}>
-                                {brand.name}
-                              </option>
-                            ))
+                            categoryList.map((i, index) => {
+                              return (
+                                <button 
+                                  key={`category_dropdown_item_${i.id}`}
+                                  className='dropdown-item d-flex justify-content-between align-items-center'
+                                  type='button'
+                                  onClick={() => handleSelectAddCategory(i)}
+                                >
+                                  {i.name}
+                                  <FontAwesomeIcon icon={faPlus} />  
+                                </button>
+                              )
+                            })
                           }
-                        </select>
-                        {errors.brandId && <small className="invalid-feedback">{errors.brandId.message}</small>}
+                        </ul>
                       </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Name</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          {...register('name')}
-                          className={`form-control ${errors.name ? 'is-invalid' : ''}`}
-                        />
-                        {errors.name && <small className="invalid-feedback">{errors.name.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Price</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="number"
-                          min={0}
-                          step={0.01}
-                          {...register('price')}
-                          className={`form-control ${errors.price ? 'is-invalid' : ''}`}
-                        />
-                        {errors.price && <small className="invalid-feedback">{errors.price.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Screen Size</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          {...register('screen_size')}
-                          className={`form-control ${errors.screen_size ? 'is-invalid' : ''}`}
-                        />
-                        {errors.screen_size && <small className="invalid-feedback">{errors.screen_size.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Processor</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <textarea
-                          rows={1}
-                          {...register('processor')}
-                          className={`form-control ${errors.processor ? 'is-invalid' : ''}`}
-                        ></textarea>
-                        {errors.processor && <small className="invalid-feedback">{errors.processor.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Display</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          {...register('display')}
-                          className={`form-control ${errors.display ? 'is-invalid' : ''}`}
-                        />
-                        {errors.display && <small className="invalid-feedback">{errors.display.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Memory</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          {...register('memory')}
-                          className={`form-control ${errors.memory ? 'is-invalid' : ''}`}
-                        />
-                        {errors.memory && <small className="invalid-feedback">{errors.memory.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Storage</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          {...register('storage')}
-                          className={`form-control ${errors.storage ? 'is-invalid' : ''}`}
-                        />
-                        {errors.storage && <small className="invalid-feedback">{errors.storage.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Graphics</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          {...register('graphic')}
-                          className={`form-control ${errors.graphic ? 'is-invalid' : ''}`}
-                        />
-                        {errors.graphic && <small className="invalid-feedback">{errors.graphic.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Operating System</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          {...register('operating_system')}
-                          className={`form-control ${errors.operating_system ? 'is-invalid' : ''}`}
-                        />
-                        {errors.operating_system && <small className="invalid-feedback">{errors.operating_system.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Camera</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          {...register('camera')}
-                          className={`form-control ${errors.camera ? 'is-invalid' : ''}`}
-                        />
-                        {errors.camera && <small className="invalid-feedback">{errors.camera.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Optical Drive</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          {...register('optical_drive')}
-                          className={`form-control ${errors.optical_drive ? 'is-invalid' : ''}`}
-                        />
-                        {errors.optical_drive && <small className="invalid-feedback">{errors.optical_drive.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Connection Ports</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <textarea
-                          rows={1}
-                          {...register('connection_ports')}
-                          className={`form-control ${errors.connection_ports ? 'is-invalid' : ''}`}
-                        ></textarea>
-                        {errors.connection_ports && <small className="invalid-feedback">{errors.connection_ports.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Wireless</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <textarea
-                          rows={1}
-                          {...register('wireless')}
-                          className={`form-control ${errors.wireless ? 'is-invalid' : ''}`}
-                        ></textarea>
-                        {errors.wireless && <small className="invalid-feedback">{errors.wireless.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Battery</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          {...register('battery')}
-                          className={`form-control ${errors.battery ? 'is-invalid' : ''}`}
-                        />
-                        {errors.battery && <small className="invalid-feedback">{errors.battery.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Color</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          {...register('color')}
-                          className={`form-control ${errors.color ? 'is-invalid' : ''}`}
-                        />
-                        {errors.color && <small className="invalid-feedback">{errors.color.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Dimension (WxDxH)</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className='row'>
-                        <div className='col-sm-4'>
-                          <div className="form-group">
-                            <input
-                              type="number"
-                              min={0}
-                              step={0.01}
-                              {...register('width')}
-                              className={`form-control ${errors.width ? 'is-invalid' : ''}`}
-                            />
-                            {errors.width && <small className="invalid-feedback">{errors.width.message}</small>}
-                          </div>
-                        </div>
-                        <div className='col-sm-4'>
-                          <div className="form-group">
-                            <input
-                              type="number"
-                              min={0}
-                              step={0.01}
-                              {...register('height')}
-                              className={`form-control ${errors.height ? 'is-invalid' : ''}`}
-                            />
-                            {errors.height && <small className="invalid-feedback">{errors.height.message}</small>}
-                          </div>
-                        </div>
-                        <div className='col-sm-4'>
-                          <div className="form-group">
-                            <input
-                              type="number"
-                              min={0}
-                              step={0.01}
-                              {...register('depth')}
-                              className={`form-control ${errors.depth ? 'is-invalid' : ''}`}
-                            />
-                            {errors.depth && <small className="invalid-feedback">{errors.depth.message}</small>}
-                          </div>
-                        </div>
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Weight</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          {...register('weight')}
-                          className={`form-control ${errors.weight ? 'is-invalid' : ''}`}
-                        />
-                        {errors.weight && <small className="invalid-feedback">{errors.weight.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Warranty</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          {...register('warranty')}
-                          className={`form-control ${errors.warranty ? 'is-invalid' : ''}`}
-                        />
-                        {errors.warranty && <small className="invalid-feedback">{errors.warranty.message}</small>}
-                      </div>
-                    </dd>
-                    <dt className='col-sm-3 mb-3'>Option</dt>
-                    <dd className='col-sm-9 mb-3'>
-                      <div className="form-group">
-                        <input
-                          type="text"
-                          {...register('option')}
-                          className={`form-control ${errors.option ? 'is-invalid' : ''}`}
-                        />
-                        {errors.option && <small className="invalid-feedback">{errors.option.message}</small>}
-                      </div>
-                    </dd>
-                  </dl>
-
-                </div>
-              </div>
-            </div>
-            <div className='col-sm-4'>
-              <div className='card mb-3'>
-                <div className='card-body'>
-                  <div className="form-group">
-                    <label className='form-label'>Product Detail</label>
-                    <textarea
-                      rows={8}
-                      {...register('description')}
-                      className={`form-control ${errors.description ? 'is-invalid' : ''}`}
-                    ></textarea>
-                    {errors.description && <small className="invalid-feedback">{errors.description.message}</small>}
+                    </header>
+                    <div className='d-flex mb-2'>
+                      {
+                        updateCategoies.map((i, index) => (
+                          <button 
+                            key={`category_${i.id}`}
+                            type="button"
+                            className='btn btn-secondary me-2'
+                            onClick={() => handleRemoveCategory(i)}
+                          ><small>{i.name} <FontAwesomeIcon icon={faClose} /></small></button>
+                        ))
+                      }
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className='card mb-3'>
-                <div className='card-body'>
-                  <header className='d-flex justify-content-between align-items-center mb-3'>
-                    <h5>Category</h5>
-                    <button className='btn btn-primary'><small>+ Add</small></button>
-                  </header>
-                  <div className='d-flex mb-2' style={{border: '1px solid rgba(0,0,0,0.3)', borderRadius: 4, padding: 15}}>
-                    {
-                      updateCategoies.map((cat, index) => (
+                <div className='card'>
+                  <div className='card-body px-5'>
+                    <header className='d-flex justify-content-between align-items-center mb-3'>
+                      <h5>Tag<span></span></h5>
+                      <div className="dropdown dropup">
                         <button 
-                          key={`category_${cat.category.id}`}
-                          type="button"
-                          className='btn btn-secondary me-2'
-                          onClick={() => {}}
-                        ><small>{cat.category.name} <FontAwesomeIcon icon={faClose} /></small></button>
-                      ))
-                    }
-                  </div>
-                </div>
-              </div>
-              <div className='card'>
-                <div className='card-body'>
-                  <header className='d-flex justify-content-between align-items-center mb-3'>
-                    <h5>Tag</h5>
-                    <button className='btn btn-primary'><small>+ Add</small></button>
-                  </header>
-                  <div className='d-flex mb-2' style={{border: '1px solid rgba(0,0,0,0.3)', borderRadius: 4, padding: 15}}>
-                    {
-                      updateTags.map((tag, index) => (
-                        <button 
-                          key={`tag_${tag.tag.id}`}
-                          type="button"
-                          className='btn btn-secondary me-2'
-                          onClick={() => {}}
-                        ><small>{tag.tag.name} <FontAwesomeIcon icon={faClose} /></small></button>
-                      ))
-                    }
+                          className={`btn my-btn narrow-btn purple-btn`} 
+                          type="button" 
+                          data-bs-toggle="dropdown"
+                          data-bs-auto-close="false"
+                        ><small>+ Add</small></button>
+                        <ul className="dropdown-menu dropdown-menu-lg-end">
+                          {
+                            tagList.map((i, index) => {
+                              return (
+                                <button 
+                                  key={`tag_dropdown_item_${i.id}`}
+                                  className='dropdown-item d-flex justify-content-between align-items-center'
+                                  type='button'
+                                  onClick={() => handleSelectAddTag(i)}
+                                >
+                                  {i.name}
+                                  <FontAwesomeIcon icon={faPlus} />  
+                                </button>
+                              )
+                            })
+                          }
+                        </ul>
+                      </div>
+                    </header>
+                    <div className='d-flex mb-2'>
+                      {
+                        updateTags.map((i, index) => (
+                          <button 
+                            key={`tag_${i.id}`}
+                            type="button"
+                            className='btn btn-secondary me-2'
+                            onClick={() => handleRemoveTag(i)}
+                          ><small>{i.name} <FontAwesomeIcon icon={faClose} /></small></button>
+                        ))
+                      }
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            
           </div>
         </div>
 

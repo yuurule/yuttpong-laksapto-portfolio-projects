@@ -34,3 +34,31 @@ export async function getOneCustomer(customerId) {
 
 	return new Promise(getOneCustomerAPI);
 }
+
+export async function getStatisticCustomers(paramsQuery) {
+	const getStatisticCustomersAPI = (resolve, reject) => {
+		const {
+			page,
+			pageSize,
+			orderBy,
+			orderDir,
+			search,
+			totalExpense
+		} = paramsQuery;
+		let url = SERVER_API + `/api/statistic/customers?page=${page}&pageSize=${pageSize}&orderBy=${orderBy}&orderDir=${orderDir}`;
+		if(search) url += `&search=${search}`;
+		if(totalExpense) url += `&totalExpense=${totalExpense}`;
+
+		axiosInstance
+			.get(url)
+			.then((res) => {
+				resolve(res);
+			})
+			.catch((err) => {
+				console.log(`Error getStatisticCustomersAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
+			});
+	};
+
+	return new Promise(getStatisticCustomersAPI);
+}

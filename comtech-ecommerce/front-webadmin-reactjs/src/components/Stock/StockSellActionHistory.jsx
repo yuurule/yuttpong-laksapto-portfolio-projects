@@ -10,14 +10,14 @@ export default function StockSellActionHistory({ data }) {
   return (
     <>
     <header>
-      <h5 className="mb-0">Sell Action History</h5>
+      <h5 className="mb-0">Sell Action History<span></span></h5>
       <small className="opacity-50">Remove(sell) or reserve in stock by customer order</small>
     </header>
     {
       data.length > 0
       ?
       <>
-      <table className='table'>
+      <table className='table mt-2'>
         <thead>
           <tr>
             <th>Product</th>

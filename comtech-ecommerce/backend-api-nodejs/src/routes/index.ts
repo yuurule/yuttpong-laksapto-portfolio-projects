@@ -112,6 +112,12 @@ router.put('/order/:id/delivery', authenticate, orderController.updateDelivery);
 router.post('/wishlist/add', authenticate, wishlistController.addWishlist);
 router.delete('/wishlist/:id', authenticate, wishlistController.removeWishlist);
 
+// Data for webadmin
+router.get('/statistic/products', authenticate, productController.getStatisticProducts);
+router.get('/statistic/categories', authenticate, categoryController.getStatisticCategories);
+router.get('/statistic/tags', authenticate, tagController.getStatisticTags);
+router.get('/statistic/customers', authenticate, customerController.getStatisticCustomers);
+
 // Protected route example
 // router.get(
 //   '/admin',

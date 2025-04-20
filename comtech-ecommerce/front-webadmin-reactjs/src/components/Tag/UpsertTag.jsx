@@ -43,7 +43,7 @@ export default function UpsertTag({
       return "Create New Tag";
     }
     else if(action === "UPDATE") {
-      return `Update Tag "${currentData.name}"`
+      return `Edit Tag "${currentData.name}"`
     }
   }
 
@@ -95,11 +95,10 @@ export default function UpsertTag({
   return (
     <>
     <header>
-      <h5>{renderHeader()}</h5>
-      <hr />
+      <h5>{renderHeader()}<span></span></h5>
     </header>
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="form-group mb-3">
+      <div className="form-group my-3">
         <label className='form-label'>Tag Name</label>
         <input
           type="text"
@@ -110,7 +109,7 @@ export default function UpsertTag({
       </div>
 
       <div className='d-flex justify-content-end'>
-        <button type="submit" disabled={isSubmitting} className='btn btn-primary px-4'>
+        <button type="submit" disabled={isSubmitting} className='btn my-btn blue-btn big-btn px-4'>
           {isSubmitting ? 'Processing...' : `${action === 'CREATE' ? 'Create' : 'Save'}`}
         </button>
       </div>

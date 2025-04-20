@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Form, InputGroup, Button  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faClose, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faSearch, faArrowLeft, faClose, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { Dialog, DialogContent, DialogActions } from '@mui/material';
 import MyPagination from '../components/MyPagination/MyPagination';
 import { Link } from 'react-router';
@@ -14,6 +14,7 @@ import ProductInCampaign from '../components/Campaign/ProductInCampaign';
 import UpsertCampaign from '../components/Campaign/UpsertCampaign';
 import ActivateCampaign from '../components/Campaign/ActivateCampaign';
 import dayjs from 'dayjs';
+import OrderByBtn from '../components/OrderByBtn/OrderByBtn';
 
 export default function Campaign() {
 
@@ -34,6 +35,11 @@ export default function Campaign() {
   const [onDeleteCampaigns, setOnDeleteCampaigns] = useState(false);
   const [showInTrash, setShowInTrash] = useState(false);
   const [refresh, setRefresh] = useState(0);
+
+  const [orderBy, setOrderBy] = useState([
+    { column: 'campaignName', value: '' },
+    { column: 'discount', value: '' },
+  ]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -112,30 +118,45 @@ export default function Campaign() {
     }
   }
 
+  const handleChangeOrderBy = (columnName) => {
+    const tempResult = [...orderBy];
+    tempResult.map(i => {
+      if(i.column === columnName) {
+        if(i.value === '') i.value = 'desc';
+        else if(i.value === 'desc') i.value = 'asc';
+        else if(i.value === 'asc') i.value = '';
+      }
+      else {
+        i.value = '';
+      }
+    });
+    setOrderBy(tempResult);
+  }
+
   if(loadData) return <div>กำลังโหลด...</div>
 
   return (
     <div className={`page`}>
+
+      <header className="page-title">
+        <h1>Campaigns</h1>
+        <p>All campaigns sale off price for boost sell product</p>
+      </header>
       
       <div className="row">
-        <header className="col-12 d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <h1>Campaigns</h1>
-            <Breadcrumbs />
-          </div>
-          <div>
+        <div className='col-12 mb-3'>
+          <div className='d-flex justify-content-end'>
             <button 
-              type="button"
-              className='btn btn-primary text-bg-primary'
-              onClick={() => {
-                setUpsertAction('CREATE');
-                setSelectEditCampaign(null);
-                setOpenUpsertCampaignDialog(true);
-              }}
-            >+ Create New Campaign</button>
+                type="button"
+                className='btn my-btn purple-btn big-btn'
+                onClick={() => {
+                  setUpsertAction('CREATE');
+                  setSelectEditCampaign(null);
+                  setOpenUpsertCampaignDialog(true);
+                }}
+              >+ Create New Campaign</button>
           </div>
-        </header>
-
+        </div>
         <div className='col-sm-8'>
           <div className="card">
             <div className="card-body">
@@ -143,35 +164,41 @@ export default function Campaign() {
               <div className='d-flex justify-content-between align-items-center mb-3'>
                 {
                   !showInTrash ?
-                  <div className='d-flex'>
-                    <button 
-                      type="button"
-                      className='btn btn-danger me-2'
-                      disabled={(selectedDeleteCampaigns.length === 0)}
-                      onClick={() => setOpenDeleteDialog(true)}
-                    >Delete</button>
-                    <button 
-                      type="button"
-                      className='btn btn-danger'
-                      onClick={() => setShowInTrash(prevState => !prevState)}
-                    ><FontAwesomeIcon icon={faTrash} className='me-1' />({deletedCampaignList.length})
-                    </button>
+                  <div className='d-flex align-items-center'>
+                    <div>
+                      <button 
+                        type="button"
+                        className='btn my-btn narrow-btn red-btn me-2'
+                        disabled={(selectedDeleteCampaigns.length === 0)}
+                        onClick={() => setOpenDeleteDialog(true)}
+                      >
+                        <FontAwesomeIcon icon={faTrash} className='me-2' />
+                        Move to trash
+                      </button>
+                    </div>
+                    <div>
+                      <button 
+                        className='btn my-btn narrow-btn gray-btn have-amount-label' 
+                        onClick={() => setShowInTrash(prevState => !prevState)}
+                      >
+                        In Trash
+                        <div className='amount-label'>{deletedCampaignList.length}</div>
+                      </button>
+                    </div>
                   </div>
                   :
                   <button 
                     type="button"
-                    className='btn btn-primary'
+                    className='btn my-btn narrow-btn gray-btn'
                     onClick={() => setShowInTrash(prevState => !prevState)}
-                  >Back</button>
+                  ><FontAwesomeIcon icon={faArrowLeft} className='me-1' /> Back</button>
                 }
-                <div>
-                  <InputGroup className="">
+                <div className="search-input">
+                  <InputGroup>
                     <Form.Control
-                      placeholder="Search campaign"
-                      aria-label="Recipient's username"
-                      aria-describedby="basic-addon2"
+                      placeholder="Search product"
                     />
-                    <Button variant="primary" id="button-addon2">
+                    <Button>
                       <FontAwesomeIcon icon={faSearch} />
                     </Button>
                   </InputGroup>
@@ -185,20 +212,22 @@ export default function Campaign() {
                   campaignList.length > 0 ?
                   <>
                   <table className="table">
-                    <thead className='table-secondary'>
+                    <thead>
                       <tr>
-                        <th style={{width: '36px'}}></th>
+                        <th className='selectRow'></th>
                         <th style={{width: '340px'}}>
-                          <div className='d-flex align-items-center'>
-                            Campaign Name
-                            <FontAwesomeIcon icon={faArrowUp} className='ms-1' />
-                          </div>
+                          Campaign Name
+                          <OrderByBtn 
+                            currentStatus={orderBy[0].value}
+                            handleOnClick={() => handleChangeOrderBy('campaignName')}
+                          />
                         </th>
                         <th>
-                          <div className='d-flex align-items-center'>
-                            Discount
-                            <FontAwesomeIcon icon={faArrowUp} className='ms-1' />
-                          </div>
+                          Discount
+                          <OrderByBtn 
+                            currentStatus={orderBy[1].value}
+                            handleOnClick={() => handleChangeOrderBy('discount')}
+                          />
                         </th>
                         <th>Status</th>
                         <th>Start</th>
@@ -210,24 +239,26 @@ export default function Campaign() {
                       {
                         campaignList.map((campaign, index) => (
                           <tr key={`category_row_${campaign.id}`}>
-                            <td>
-                              <Form.Check
-                                type={"checkbox"}
-                                id={`select-campaign`}
-                                label={``}
-                                checked={(selectedDeleteCampaigns.filter(i => i === campaign.id).length > 0)}
-                                onChange={(e) => {
-                                  const tempSelectedDeletedCampaigns = [...selectedDeleteCampaigns];
-                                  if(e.target.checked === true) {
-                                    tempSelectedDeletedCampaigns.push(campaign.id);
-                                    setSelectedDeleteCampaigns(tempSelectedDeletedCampaigns);
-                                  }
-                                  else {
-                                    const removeResult = tempSelectedDeletedCampaigns.filter(i => i !== campaign.id);
-                                    setSelectedDeleteCampaigns(removeResult);
-                                  }
-                                }}
-                              />
+                            <td className='selectRow'>
+                              <div className='flexCenterXY'>
+                                <Form.Check
+                                  type={"checkbox"}
+                                  id={`select-campaign`}
+                                  label={``}
+                                  checked={(selectedDeleteCampaigns.filter(i => i === campaign.id).length > 0)}
+                                  onChange={(e) => {
+                                    const tempSelectedDeletedCampaigns = [...selectedDeleteCampaigns];
+                                    if(e.target.checked === true) {
+                                      tempSelectedDeletedCampaigns.push(campaign.id);
+                                      setSelectedDeleteCampaigns(tempSelectedDeletedCampaigns);
+                                    }
+                                    else {
+                                      const removeResult = tempSelectedDeletedCampaigns.filter(i => i !== campaign.id);
+                                      setSelectedDeleteCampaigns(removeResult);
+                                    }
+                                  }}
+                                />
+                              </div>
                             </td>
                             <td>
                               <Link 
@@ -262,7 +293,7 @@ export default function Campaign() {
                               <div className='d-flex'>
                                 <button 
                                   type="button"
-                                  className='btn btn-primary'
+                                  className='btn btn-link p-0 btn-lg'
                                   onClick={() => {
                                     setUpsertAction('EDIT');
                                     setSelectEditCampaign({
@@ -290,7 +321,7 @@ export default function Campaign() {
                     <p className='h4'>Create new campaign</p>
                     <button 
                       type="button"
-                      className='btn btn-primary text-bg-primary mt-2'
+                      className='btn my-btn purple-btn mt-2'
                       onClick={() => {
                         setUpsertAction('CREATE');
                         setSelectEditCampaign(null);
@@ -309,19 +340,15 @@ export default function Campaign() {
                   deletedCampaignList.length > 0 ?
                   <>
                   <table className="table">
-                    <thead className='table-secondary'>
+                    <thead>
                       <tr>
                         <th style={{width: '500px'}}>
-                          <div className='d-flex align-items-center'>
-                            Campaign Name
-                            <FontAwesomeIcon icon={faArrowUp} className='ms-1' />
-                          </div>
+                          Campaign Name
+                          
                         </th>
                         <th>
-                          <div className='d-flex align-items-center'>
-                            Discount
-                            <FontAwesomeIcon icon={faArrowUp} className='ms-1' />
-                          </div>
+                          Discount
+                          
                         </th>
                         <th>Created at</th>
                         <th>Deleted at</th>

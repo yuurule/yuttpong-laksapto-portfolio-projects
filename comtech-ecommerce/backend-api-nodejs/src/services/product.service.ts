@@ -25,31 +25,6 @@ export class ProductService {
 
       let where: Prisma.ProductWhereInput = {};
 
-      // const salesData = await prisma.orderItem.groupBy({
-      //   by: ['productId'],
-      //   _sum: {
-      //     quantity: true
-      //   }
-      // });
-
-      // if(topSale) {
-      //   if(topSale === 'desc') {
-      //     salesData.sort((a, b) => {
-      //       return (b._sum.quantity || 0) - (a._sum.quantity || 0);
-      //     });
-      //   }
-      //   else if(topSale === 'asc') {
-      //     salesData.sort((a, b) => {
-      //       return (a._sum.quantity || 0) - (b._sum.quantity || 0);
-      //     });
-      //   }
-      //   const productIds = salesData.map(item => item.productId);
-      //   console.log(productIds);
-      //   where.id = {
-      //     in: productIds
-      //   }
-      // }
-
       if(brands) {
         if(brands.length === 0) where.brandId = -1;
         else {
@@ -681,4 +656,209 @@ export class ProductService {
     }
   }
 
+  // Webadmin statistic product
+  async statisticProducts(
+    page: number, 
+    pageSize: number,
+    orderBy: string = 'createdAt', // 'createdAt', name, price
+    orderDir: string = 'desc',
+    search?: string,
+    inStock?: string, // 'desc', 'asc'
+    sale?: string, // 'desc', 'asc'
+    totalSale?: string, // 'desc', 'asc'
+  ) {
+    try {
+      let where: Prisma.ProductWhereInput = {};
+      if(search) {
+        where.name = {
+          contains: search
+        }
+      }
+
+      const totalProducts = await prisma.product.findMany({
+        where,
+      });
+
+      const totalPages = Math.ceil(totalProducts.length / pageSize);
+      let calculateTotalPages = 1;
+
+      const products = await prisma.product.findMany({
+        where,
+        include: {
+          specs: true,
+          categories: { include: { category: { select: { id: true, name: true } } } },
+          tags: { include: { tag: { select: { id: true, name: true } } } },
+          images: true,
+          inStock: true,
+          stockSellEvents: {
+            where: {
+              action: StockSellAction.SELL
+            } 
+          },
+          reviews: {
+            orderBy: {
+              createdAt: 'desc'
+            }
+          },
+          orderItems: {
+            include: {
+              order: {
+                select: {
+                  paymentStatus: true
+                }
+              }
+            }
+          },
+          campaignProducts: {
+            include: {
+              campaign: true
+            }
+          }
+        },
+        orderBy: {
+          [orderBy]: orderDir
+        }
+      });
+
+      let resultProducts: any;
+      if(inStock || sale || totalSale) {
+        const allProducts = await prisma.product.findMany({ 
+          where,
+          include: {
+            specs: true,
+            categories: { include: { category: { select: { id: true, name: true } } } },
+            tags: { include: { tag: { select: { id: true, name: true } } } },
+            images: true,
+            inStock: true,
+            stockSellEvents: {
+              where: {
+                action: StockSellAction.SELL
+              } 
+            },
+            reviews: {
+              orderBy: {
+                createdAt: 'desc'
+              }
+            },
+            orderItems: {
+              include: {
+                order: {
+                  select: {
+                    paymentStatus: true
+                  }
+                }
+              }
+            },
+            campaignProducts: {
+              include: {
+                campaign: true
+              }
+            }
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        });
+
+        // Calculate inStock, sale quantity, total sale
+        let salesData = [];
+        for(let i = 0; i < allProducts.length; i++) {
+          let totalInStock = allProducts[i].inStock?.inStock ?? 0;
+          let totalQuantity = 0;
+          let totalSale = 0;
+          allProducts[i].orderItems.map(x => {
+            if(x.order.paymentStatus === 'PAID') {
+              totalQuantity += x.quantity;
+              totalSale += +x.sale_price * x.quantity;
+            }
+          });
+          salesData.push({
+            id: allProducts[i].id,
+            inStock: totalInStock,
+            sale: totalQuantity,
+            totalSale: totalSale,
+          });
+        }
+
+        // Sorting
+        if(inStock) {
+          if(inStock === 'desc') { // มากไปน้อย
+            salesData.sort((a: any, b: any) => {
+              return (b.inStock || 0) - (a.inStock || 0);
+            });
+          }
+          else if(inStock === 'asc') { // น้อยไปมาก
+            salesData.sort((a: any, b: any) => {
+              return (a.inStock || 0) - (b.inStock || 0);
+            });
+          }
+        }
+
+        if(sale) {
+          if(sale === 'desc') { // มากไปน้อย
+            salesData.sort((a: any, b: any) => {
+              return (b.sale || 0) - (a.sale || 0);
+            });
+          }
+          else if(sale === 'asc') { // น้อยไปมาก
+            salesData.sort((a: any, b: any) => {
+              return (a.sale || 0) - (b.sale || 0);
+            });
+          }
+        }
+        
+        if(totalSale) {
+          if(totalSale === 'desc') { // มากไปน้อย
+            salesData.sort((a: any, b: any) => {
+              return (b.totalSale || 0) - (a.totalSale || 0);
+            });
+          }
+          else if(totalSale === 'asc') { // น้อยไปมาก
+            salesData.sort((a: any, b: any) => {
+              return (a.totalSale || 0) - (b.totalSale || 0);
+            });
+          }
+        }
+
+        //console.log(salesData);
+
+        // Find all product have sale quanity with sorting by sale quantity
+        const productsData = salesData.map((i: any) => {
+          return allProducts.find(x => x.id === i.id);
+        });
+
+        // Manual calculate pagination
+        let resultDataPage = [];
+        let startIndex = page === 1 ? 1 : ((page - 1) * pageSize) + 1;
+        let endIndex = page * pageSize;
+        for(let i = 0; i < productsData.length; i++) {
+          if(i + 1 >= startIndex && i + 1 <= endIndex) {
+            resultDataPage.push(productsData[i]);
+          }
+        }
+
+        calculateTotalPages = Math.ceil(productsData.length / pageSize);
+        resultProducts = resultDataPage;
+      }
+      else {
+        resultProducts = products;
+      }
+
+      return {
+        data: resultProducts,
+        meta: {
+          totalItems: (inStock || sale || totalSale) ? resultProducts.length : totalProducts.length,
+          totalPages: (inStock || sale || totalSale) ? calculateTotalPages : totalPages,
+          currentPage: page,
+          pageSize
+        }
+      };
+    }
+    catch(error: any) {
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error find all product due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
 }

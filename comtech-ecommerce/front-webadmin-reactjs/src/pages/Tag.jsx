@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { formatTimestamp } from '../utils/utils';
 import UpsertTag from '../components/Tag/UpsertTag';
+import OrderByBtn from '../components/OrderByBtn/OrderByBtn';
 
 export default function Tag() {
 
@@ -20,22 +21,36 @@ export default function Tag() {
   const [actionForm, setActionForm] = useState('CREATE');
   const [selectedData, setSelectedData] = useState({ id: null,name: '' });
   const [selectedOrderBy, setSelectedOrderBy] = useState(''); // createdAt, name, haveProduct
-  const [orderBy, setOrderBy] = useState('desc');
+  //const [orderBy, setOrderBy] = useState('desc');
   const [deleteTagsId, setDeleteTagsId] = useState([]);
   const [confirmDeletesDialog, setConfirmDeletesDialog] = useState(false);
   const [selectDeleteTag, setSelectDeleteTag] = useState(null);
   const [deleteType, setDeleteType] = useState('single'); // 'single', 'multiple'
 
+  const [paramsQuery, setParamsQuery] = useState({
+    page: 1,
+    pageSize: 8,
+    orderBy: 'createdAt',
+    orderDir: 'desc',
+    search: null,
+    productAmount: null
+  });
+  const [orderBy, setOrderBy] = useState([
+    { column: 'name', value: null },
+    { column: 'products', value: null },
+    { column: 'createdAt', value: null },
+  ]);
+
   useEffect(() => {
     getAllTag();
-  }, [refresh]);
+  }, [refresh, paramsQuery]);
   
   const getAllTag = async () => {
     setLoading(true);
-    await TagService.getTags()
+    await TagService.getStatisticTags(paramsQuery)
       .then((res) => {
-        console.log(res.RESULT_DATA);
-        setTags(res.RESULT_DATA);
+        //console.log(res.data.RESULT_DATA);
+        setTags(res.data.RESULT_DATA);
       })
       .catch((error) => {
         console.log(error);
@@ -60,27 +75,41 @@ export default function Tag() {
     });
     setActionForm('UPDATE');
   }
-  const renderIconOrderBy = (target) => {
-    if(selectedOrderBy === target) {
-      if(orderBy === 'desc') return <FontAwesomeIcon icon={faArrowUp} />
-      else return <FontAwesomeIcon icon={faArrowDown} />
-    }
-    else return <FontAwesomeIcon icon={faMinus} />
-  }
-  const handleClickSelectOrderBy = (target) => {
-    if(selectedOrderBy === target) {
-      if(orderBy === 'desc') {
-        setOrderBy('asc');
+  // const renderIconOrderBy = (target) => {
+  //   if(selectedOrderBy === target) {
+  //     if(orderBy === 'desc') return <FontAwesomeIcon icon={faArrowUp} />
+  //     else return <FontAwesomeIcon icon={faArrowDown} />
+  //   }
+  //   else return <FontAwesomeIcon icon={faMinus} />
+  // }
+  // const handleClickSelectOrderBy = (target) => {
+  //   if(selectedOrderBy === target) {
+  //     if(orderBy === 'desc') {
+  //       setOrderBy('asc');
+  //     }
+  //     else if(orderBy === 'asc') {
+  //       setSelectedOrderBy('')
+  //       setOrderBy('');
+  //     }
+  //   }
+  //   else {
+  //     setSelectedOrderBy(target)
+  //     setOrderBy('desc');
+  //   }
+  // }
+  const handleChangeOrderBy = (columnName) => {
+    const tempResult = [...orderBy];
+    tempResult.map(i => {
+      if(i.column === columnName) {
+        if(i.value === null) i.value = 'desc';
+        else if(i.value === 'desc') i.value = 'asc';
+        else if(i.value === 'asc') i.value = null;
       }
-      else if(orderBy === 'asc') {
-        setSelectedOrderBy('')
-        setOrderBy('');
+      else {
+        i.value = null;
       }
-    }
-    else {
-      setSelectedOrderBy(target)
-      setOrderBy('desc');
-    }
+    });
+    setOrderBy(tempResult);
   }
 
   /**
@@ -169,19 +198,23 @@ export default function Tag() {
   }
 
   return (
-    <div>
-      
+    <div className={`page`}>
+      <header className="page-title">
+        <h1>Category</h1>
+        <p>All product category</p>
+      </header>
+
       <div className="row">
-        <header className="col-12 d-flex justify-content-between align-items-center">
-          <h1>Tag</h1>
-          <div>
+        <div className="col-12 mb-3">
+          <div className="d-flex justify-content-end align-items-center">
             <button 
-              className='btn btn-primary'
-              onClick={handlerClickCreate}  
+              className='btn my-btn purple-btn big-btn' 
+              type="button"
+              onClick={handlerClickCreate}
             >+ Create New Tag</button>
           </div>
-        </header>
-        <div className="col-12 mt-4">
+        </div>
+        <div className="col-12">
           <div className="row">
             <div className="col-sm-8">
               <div className='card mb-3'>
@@ -189,14 +222,14 @@ export default function Tag() {
                   <div className='d-flex justify-content-between align-items-center mb-3'>
                     <div>
                       <button 
-                        className='btn btn-danger'
+                        className='btn my-btn narrow-btn red-btn'
                         onClick={() => {
                           setDeleteType('multiple');
                           openConfirmDeleteDailog('multiple');
                         }}  
                       >Delete tags</button>
                     </div>
-                    <div>
+                    <div className="search-input">
                       <InputGroup className="">
                         <Form.Control
                           placeholder="Search tag"
@@ -212,29 +245,49 @@ export default function Tag() {
                   <table className="table">
                     <thead>
                       <tr>
-                        <th></th>
-                        <th>Tag Name <button className='btn btn-link p-0' onClick={() => handleClickSelectOrderBy('name')}>{renderIconOrderBy('name')}</button></th>
+                        <th className='selectRow'></th>
+                        <th>
+                          Tag Name
+                          <OrderByBtn 
+                            currentStatus={orderBy[0].value}
+                            handleOnClick={() => handleChangeOrderBy('name')}
+                          />
+                        </th>
                         <th>Customer Click</th>
-                        <th>Have Products On <button className='btn btn-link p-0' onClick={() => handleClickSelectOrderBy('haveProduct')}>{renderIconOrderBy('haveProduct')}</button></th>
-                        <th>Created At <button className='btn btn-link p-0' onClick={() => handleClickSelectOrderBy('createdAt')}>{renderIconOrderBy('createdAt')}</button></th>
+                        <th>
+                          Have Products On
+                          <OrderByBtn 
+                            currentStatus={orderBy[1].value}
+                            handleOnClick={() => handleChangeOrderBy('products')}
+                          />
+                        </th>
+                        <th>
+                          Created At
+                          <OrderByBtn 
+                            currentStatus={orderBy[2].value}
+                            handleOnClick={() => handleChangeOrderBy('createdAt')}
+                          />
+                        </th>
                         <th>Last Updated</th>
-                        <th>Manage</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
                       {
                         tags.map((i, index) => (
                           <tr key={`tag_row_${index + 1}`}>
-                            <td>
-                              <Form.Check
-                                type={"checkbox"}
-                                id={`select-tag-${index + 1}`}
-                                label={``}
-                                name={`deleteTagId`}
-                                value={i.id}
-                                checked={checkIsSelectDelete(i.id)}
-                                onChange={(e) => handleSelectTag(e)}
-                              />
+                            <td className='selectRow'>
+                              <div className='flexCenterXY'>
+                                <Form.Check
+                                  type={"checkbox"}
+                                  id={`select-tag-${index + 1}`}
+                                  label={``}
+                                  name={`deleteTagId`}
+                                  value={i.id}
+                                  checked={checkIsSelectDelete(i.id)}
+                                  onChange={(e) => handleSelectTag(e)}
+                                />
+                              </div>
                             </td>
                             <td>
                               {i.name}<br />
@@ -253,10 +306,10 @@ export default function Tag() {
                             <td>
                               <button 
                                 type="button"
-                                className='btn btn-primary me-2'
+                                className='btn btn-link p-0 btn-lg'
                                 onClick={() => handlerClickUpdate(i.id, i.name, i.description)}
                               ><FontAwesomeIcon icon={faEdit} /></button>
-                              <button 
+                              {/* <button 
                                 type="button"
                                 className='btn btn-danger'
                                 onClick={() => {
@@ -264,7 +317,7 @@ export default function Tag() {
                                   setDeleteType('single');
                                   openConfirmDeleteDailog('single');
                                 }}
-                              ><FontAwesomeIcon icon={faTrash} /></button>
+                              ><FontAwesomeIcon icon={faTrash} /></button> */}
                             </td>
                           </tr>
                         ))

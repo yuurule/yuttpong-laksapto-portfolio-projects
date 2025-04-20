@@ -8,14 +8,14 @@ export default function StockActionHistory({ data }) {
   return (
     <>
     <header>
-      <h5 className="mb-0">Stock Action History</h5>
+      <h5 className="mb-0">Stock Action History<span></span></h5>
       <small className="opacity-50">Add/remove in stock by webadmin user</small>
     </header>
     {
       data.length > 0
       ?
       <>
-      <table className='table'>
+      <table className='table mt-2'>
         <thead>
           <tr>
             <th>Product</th>

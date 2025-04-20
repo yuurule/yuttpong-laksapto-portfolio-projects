@@ -16,7 +16,7 @@ export default function MainMenu({ menuCollapse, handleCollapseMenu }) {
   const linkMemo = useMemo(() => [
     { url: '/dashboard', title: 'Dashboard', icon: faChartLine, checkActive: 'dashboard' },
     { url: '/product', title: 'Products', icon: faBoxes, checkActive: 'product' },
-    { url: '/stock', title: 'In Stock', icon: faShop, checkActive: 'stock' },
+    { url: '/stock', title: 'Stock', icon: faShop, checkActive: 'stock' },
     { url: '/order', title: 'Orders', icon: faShoppingBag, checkActive: 'order' },
     { url: '/campaign', title: 'Campaigns', icon: faGift, checkActive: 'campaign' },
     { url: '/category', title: 'Categories', icon: faList, checkActive: 'category' },

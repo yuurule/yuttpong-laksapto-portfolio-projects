@@ -68,3 +68,31 @@ export async function deleteTags(data) {
 
 	return new Promise(deleteTagsAPI);
 }
+
+export async function getStatisticTags(paramsQuery) {
+	const getStatisticTagsAPI = (resolve, reject) => {
+		const {
+			page,
+			pageSize,
+			orderBy,
+			orderDir,
+			search,
+			productAmount
+		} = paramsQuery;
+		let url = SERVER_API + `/api/statistic/tags?page=${page}&pageSize=${pageSize}&orderBy=${orderBy}&orderDir=${orderDir}`;
+		if(search) url += `&search=${search}`;
+		if(productAmount) url += `&productAmount=${productAmount}`;
+
+		axiosInstance
+			.get(url)
+			.then((res) => {
+				resolve(res);
+			})
+			.catch((err) => {
+				console.log(`Error getStatisticTagsAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
+			});
+	};
+
+	return new Promise(getStatisticTagsAPI);
+}

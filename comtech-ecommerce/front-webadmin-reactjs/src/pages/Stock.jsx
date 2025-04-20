@@ -5,6 +5,7 @@ import { faSearch, faArrowUp, faAdd, faMinus, faSave, faClose } from '@fortaweso
 import MyPagination from '../components/MyPagination/MyPagination';
 import * as ProductService from '../services/productService';
 import * as StockService from '../services/stockService';
+import * as BrandService from '../services/brandService';
 import { formatTimestamp } from '../utils/utils';
 import StockActionHistory from '../components/Stock/StockActionHistory';
 import StockSellActionHistory from '../components/Stock/StockSellActionHistory';
@@ -14,6 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import OrderByBtn from '../components/OrderByBtn/OrderByBtn';
 
 const inStockSchema = z.object({
   actionType: z.enum(['ADD', 'REMOVE']),
@@ -38,6 +40,16 @@ export default function Stock() {
   const authUser = useSelector(state => state.auth.user);
 
   const [loadData, setLoadData] = useState(false);
+  const [productParamsQuery, setProductParamsQuery] = useState({
+    page: null,
+    pageSize: null,
+    noPagination: true,
+    brands: [],
+    categories: [],
+    tags: [],
+    orderBy: 'createdAt',
+    orderDir: 'desc'
+  });
   const [products, setProducts] = useState([]);
   const [stockActions, setStockActions] = useState([]);
   const [stockSellActions, setStockSellActions] = useState([]);
@@ -45,6 +57,11 @@ export default function Stock() {
   const [actionType, setActionType] = useState(null); // 'ADD', 'REMOVE'
   const [openManageStockDialog, setOpenManageStockDialog] = useState(false);
   const [refresh, setRefresh] = useState(0);
+
+  const [orderBy, setOrderBy] = useState([
+    { column: 'product', value: '' },
+    { column: 'inStock', value: '' },
+  ]);
 
   const {
     register,
@@ -61,7 +78,10 @@ export default function Stock() {
     const fetchData = async () => {
       setLoadData(true);
       try {
-        const products = await ProductService.getAllProduct();
+        const brands = await BrandService.getBrands();
+        const tempProductParamsQuery = {...productParamsQuery};
+        tempProductParamsQuery.brands = brands.data.RESULT_DATA.map(i => (i.id));
+        const products = await ProductService.getAllProduct(tempProductParamsQuery);
         const stockActions = await StockService.getAllStockAction();
         const stockSellActions = await StockService.getAllStockSellAction();
 
@@ -120,16 +140,32 @@ export default function Stock() {
     }
   }
 
+  const handleChangeOrderBy = (columnName) => {
+    const tempResult = [...orderBy];
+    tempResult.map(i => {
+      if(i.column === columnName) {
+        if(i.value === '') i.value = 'desc';
+        else if(i.value === 'desc') i.value = 'asc';
+        else if(i.value === 'asc') i.value = '';
+      }
+      else {
+        i.value = '';
+      }
+    });
+    setOrderBy(tempResult);
+  }
+
   if(loadData) return <div>กำลังโหลด...</div>
 
   return (
     <div className={`page`}>
-          
-      <div className="row">
-        <header className="col-12 d-flex justify-content-between align-items-center mb-4">
-          <h1>Product Stock</h1>
-        </header>
 
+      <header className="page-title">
+        <h1>In Stock</h1>
+        <p>Quantity have in stock of every product</p>
+      </header>
+          
+      <div className="row mt-4">
         <div className='col-sm-6'>
           <div className="card">
             <div className="card-body">
@@ -137,15 +173,13 @@ export default function Stock() {
                 products.length > 0
                 ?
                 <>
-                <div className='d-flex justify-content-end align-items-center'>
-                  <div>
-                    <InputGroup className="mb-3">
+                <div className='d-flex justify-content-end align-items-center mb-3'>
+                  <div className="search-input">
+                    <InputGroup>
                       <Form.Control
                         placeholder="Search product"
-                        aria-label="Recipient's username"
-                        aria-describedby="basic-addon2"
                       />
-                      <Button variant="primary" id="button-addon2">
+                      <Button>
                         <FontAwesomeIcon icon={faSearch} />
                       </Button>
                     </InputGroup>
@@ -154,8 +188,20 @@ export default function Stock() {
                 <table className="table">
                   <thead>
                     <tr>
-                      <th>Product <FontAwesomeIcon icon={faArrowUp} /></th>
-                      <th>In Stock <FontAwesomeIcon icon={faArrowUp} /></th>
+                      <th>
+                        Product 
+                        <OrderByBtn 
+                          currentStatus={orderBy[0].value}
+                          handleOnClick={() => handleChangeOrderBy('product')}
+                        />
+                      </th>
+                      <th>
+                        In Stock 
+                        <OrderByBtn 
+                          currentStatus={orderBy[1].value}
+                          handleOnClick={() => handleChangeOrderBy('inStock')}
+                        />
+                      </th>
                       <th>Last Updated</th>
                       <th></th>
                     </tr>
@@ -204,9 +250,7 @@ export default function Stock() {
                     }
                   </tbody>
                 </table>
-                <div className='d-flex justify-content-center'>
-                  <MyPagination />
-                </div>
+                <MyPagination />
                 </>
                 :
                 <p className='my-5 text-center'>ยังไม่มีข้อมูล</p>

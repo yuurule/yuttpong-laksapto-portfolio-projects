@@ -11,7 +11,6 @@ import { formatTimestamp } from '../../utils/utils';
 export default function ProductDetail() {
 
   const params = useParams();
-
   const [loadData, setLoadData] = useState(false);
   const [productData, setProductData] = useState(null);
   const [productSpecs, setProductSpecs] = useState([]);
@@ -19,14 +18,13 @@ export default function ProductDetail() {
   const [latestSale, setLatestSale] = useState([]);
 
   useState(() => {
-
     const fecthData = async () => {
       setLoadData(true);
       try {
         const product = await ProductService.getOneProduct(params.id);
         const orders = await OrderService.getOrders();
 
-        //console.log(product);
+        console.log(product.data.RESULT_DATA);
         const result = product.data.RESULT_DATA;
         const resultProductSpecs = [
           { title: "Title", value: result.name },
@@ -83,10 +81,15 @@ export default function ProductDetail() {
 
   const renderRating = () => {
     let result = 0;
-    productData.reviews.map(i => {
-      result += parseFloat(i.rating);
-    });
-    return (result / productData.reviews.length).toFixed(1);
+    if(productData.reviews.length > 0) {
+      productData.reviews.map(i => {
+        result += parseFloat(i.rating);
+      });
+      return (result / productData.reviews.length);
+    }
+    else {
+      return result;
+    }
   }
 
   if(loadData) return <p>Loading...</p>
@@ -94,27 +97,27 @@ export default function ProductDetail() {
 
   return (
     <div className={`page`}>
-      
+      <header className="page-title smaller">
+        <h1>{productData.name}</h1>
+        <p>SKU: {productData.sku}</p>
+      </header>
+
       <div className="row">
-        <header className="col-12 d-flex justify-content-between align-items-center mb-2">
-          <div>
-            <h1 className='h3 mb-0'>{productData.name}</h1>
-            <p>SKU: {productData.sku}</p>
-          </div>
-          <div className='d-flex'>
-            <Link to={`/product/edit/${params.id}`} className='btn btn-primary text-bg-primary px-4 me-3'><FontAwesomeIcon icon={faEdit} className='me-2' />Edit</Link>
+        <div className="col-12 mb-3">
+          <div className='d-flex justify-content-end align-items-center'>
+            <Link to={`/product/edit/${params.id}`} className='btn my-btn purple-btn big-btn me-3'><FontAwesomeIcon icon={faEdit} className='me-2' />Edit</Link>
             <button 
               type="button"
-              className='btn btn-danger px-4'
+              className='btn my-btn red-btn big-btn'
               onClick={null}
             ><FontAwesomeIcon icon={faTrash} className='me-2' />Delete</button>
           </div>
-        </header>
+        </div>
         <div className='col-sm-8'>
           <div className='row'>
             <div className='col-12 mb-3'>
               <div className='card'>
-                <div className='card-body d-flex justify-content-between align-items-center py-0'>
+                <div className='card-body d-flex justify-content-around align-items-center py-0'>
                   <div>
                     <figure>
                       <img src="/images/dummy-product.jpg" style={{width: 200}} />
@@ -149,8 +152,7 @@ export default function ProductDetail() {
               <div className='card'>
                 <div className='card-body'>
                   <header>
-                    <h5>Specification</h5>
-                    <hr />
+                    <h5>Specification<span></span></h5>
                   </header>
                   <table className='table'>
                     <tbody>
@@ -173,7 +175,7 @@ export default function ProductDetail() {
               <div className='card mb-3'>
                 <div className='card-body'>
                   <header className='d-flex justify-content-between align-items-center'>
-                    <h5 className='mb-0'>Weekly Sale Statistic</h5>
+                    <h5 className='mb-0'>Weekly Sale Statistic<span></span></h5>
                     <small>12 - 17 Jan 2025</small>
                   </header>
                   <div className='d-flex justify-content-center align-items-center' style={{height: 300}}>
@@ -185,25 +187,17 @@ export default function ProductDetail() {
               <div className='card mb-3'>
                 <div className='card-body'>
                   <header className='d-flex justify-content-between align-items-center mb-3'>
-                    <h6 className='mb-0'>Recent Review by Customer</h6>
-                    {/* {
-                      productData.reviews &&
-                      <small>
-                      Total { productData.reviews.length } review{ productData.reviews.length > 1 && 's' }
-                      </small>
-                    } */}
+                    <h5 className='mb-0'>Recent Review by Customer<span></span></h5>
                   </header>
                   {
                     productData.reviews && productData.reviews.map((i, index) => {
                       if(index < 3) {
                         return (
-                          <div key={index} className='card mb-2'>
-                            <div className='card-body'>
-                              <p>"{i.message}"</p>
-                              <div className='d-flex justify-content-between align-items-center'>
-                                <span>By : {i.createdBy.customerDetail.firstName} {i.createdBy.customerDetail.lastName}</span>
-                                <span>{formatTimestamp(i.createdAt)}</span>
-                              </div>
+                          <div key={index} className='reviewItem'>
+                            <p>"{i.message}"</p>
+                            <div className='d-flex justify-content-between align-items-center'>
+                              <span>By : {i.createdBy.displayName}</span>
+                              <span>{formatTimestamp(i.createdAt)}</span>
                             </div>
                           </div>
                         )
@@ -222,31 +216,29 @@ export default function ProductDetail() {
               <div className='card'>
                 <div className='card-body'>
                   <header>
-                    <h5>Latest Sale History</h5>
+                    <h5>Latest Sale History<span></span></h5>
                   </header>
                   {
                     latestSale.length > 0
                     ?
-                    <table className='table table-striped'>
+                    <table className='table'>
                       <thead>
                         <tr>
-                          <th>Order Number</th>
-                          <th>Quantity</th>
-                          <th>Date/Time</th>
+                          <th>order Number</th>
+                          <th>quantity</th>
+                          <th>date/Time</th>
                         </tr>
                       </thead>
                       <tbody>
                         {
                           latestSale.map((i, index) => {
-                            if(index < 5) {
-                              return (
-                                <tr key={`sale_history_${i.orderId}`}>
-                                  <td>#{i.orderId}</td>
-                                  <td>x{i.quantity}</td>
-                                  <td>{formatTimestamp(i.datetime)}</td>
-                                </tr>
-                              )
-                            }
+                            return (
+                              <tr key={`sale_history_${i.orderId}`}>
+                                <td>#{i.orderId}</td>
+                                <td>x{i.quantity}</td>
+                                <td>{formatTimestamp(i.datetime)}</td>
+                              </tr>
+                            )
                           })
                         }
                       </tbody>
@@ -262,14 +254,14 @@ export default function ProductDetail() {
               <div className='card'>
                 <div className='card-body'>
                   <header>
-                    <h5>Recent In Stock Action</h5>
+                    <h5>Recent In Stock Action<span></span></h5>
                   </header>
-                  <table className='table table-striped'>
+                  <table className='table'>
                     <thead>
                       <tr>
-                        <th>Action</th>
-                        <th>Quantity</th>
-                        <th>Date/Time</th>
+                        <th>action</th>
+                        <th>quantity</th>
+                        <th>date/Time</th>
                       </tr>
                     </thead>
                     <tbody>

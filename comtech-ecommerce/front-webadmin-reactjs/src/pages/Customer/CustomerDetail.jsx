@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Form, InputGroup, Button  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faChevronLeft, faChevronRight, faGift } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faChevronLeft, faChevronRight, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../../components/MyPagination/MyPagination';
 import { useParams, Link } from 'react-router';
 import { toast } from 'react-toastify';
@@ -11,7 +11,6 @@ import { formatTimestamp } from '../../utils/utils';
 export default function CustomerDetail() {
 
   const params = useParams();
-
   const [loadData, setLoadData] = useState(false);
   const [customerData, setCustomerData] = useState(null);
   const [paidOrders, setPaidOrders] = useState([]);
@@ -22,7 +21,7 @@ export default function CustomerDetail() {
       setLoadData(true);
       try {
         const customer = await CustomerService.getOneCustomer(params.id);
-        console.log(customer.data.RESULT_DATA);
+        //console.log(customer.data.RESULT_DATA);
         const result = customer.data.RESULT_DATA;
         const ordersPaidResult = result.orders.filter(i => i.paymentStatus === 'PAID');
 
@@ -52,34 +51,37 @@ export default function CustomerDetail() {
 
   return (
     <div className={`page`}>
-          
+      <header className="page-title smaller">
+        <h1>{`${customerData.customerDetail.firstName} ${customerData.customerDetail.lastName}`}</h1>
+        <p>Customer detail</p>
+      </header>
+
       <div className="row">
-        <header className="col-12 d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <h1 className='h3 mb-0'>{`${customerData.customerDetail.firstName} ${customerData.customerDetail.lastName}`}</h1>
-          </div>
-          <div className='d-flex'>
-            <button className='btn btn-info px-4 me-3'><FontAwesomeIcon icon={faGift} className='me-2' />Send Campign</button>
-            <button className='btn btn-danger px-4'><FontAwesomeIcon icon={faTrash} className='me-2' />Suspend</button>
+        <header className="col-12 mb-3">
+          <div className='d-flex justify-content-end align-items-center'>
+            {/* <button className='btn btn-info px-4 me-3'><FontAwesomeIcon icon={faGift} className='me-2' />Send Campign</button> */}
+            <button className='btn my-btn red-btn big-btn'>
+              <FontAwesomeIcon icon={faCircleXmark} className='me-2' />Suspend
+            </button>
           </div>
         </header>
         <div className='col-sm-8'>
           <div className='row'>
             <div className='col-12 mb-3'>
               <div className='card'>
-                <div className='card-body d-flex justify-content-between align-items-center py-0'>
+                <div className='card-body d-flex justify-content-around align-items-center py-4'>
                   <div>
-                    <figure>
-                      <img src="/images/dummy-product.jpg" style={{width: 200}} />
+                    <figure className='userImage'>
+                      <img src="/images/dummy-webadmin.jpg" />
                     </figure>
                   </div>
                   <div className='d-flex align-items-center'>
                     <div className='text-center me-5'>
-                      <strong className='h3 d-block mb-1'>{totalExpense.toLocaleString('th-TH')}</strong>
+                      <strong className='h3 d-block mb-1'>฿{totalExpense.toLocaleString('th-TH')}</strong>
                       <p className='mb-0 opacity-50'>Total Expense</p>
                     </div>
                     <div className='text-center me-5'>
-                      <strong className='h3 d-block mb-1'>$1,880 <FontAwesomeIcon icon={faArrowUp} className='text-success h5' /></strong>
+                      <strong className='h3 d-block mb-1'>฿1,880 <FontAwesomeIcon icon={faArrowUp} className='text-success h5' /></strong>
                       <p className='mb-0 opacity-50'>Last Month Expense</p>
                     </div>
                     <div className='text-center me-5'>
@@ -98,8 +100,7 @@ export default function CustomerDetail() {
               <div className='card mb-3'>
                 <div className='card-body'>
                   <header>
-                    <h5>Infomation</h5>
-                    <hr />
+                    <h5>Infomation<span></span></h5>
                   </header>
                   <table className='table'>
                     <tbody>
@@ -156,7 +157,7 @@ export default function CustomerDetail() {
               <div className='card mb-3'>
                 <div className='card-body'>
                   <header className='d-flex justify-content-between align-items-center'>
-                    <h5 className='mb-0'>{customerData?.customerDetail?.firstName} Interesting</h5>
+                    <h5 className='mb-0'>{customerData?.customerDetail?.firstName} {customerData.customerDetail.lastName} Interesting<span></span></h5>
                   </header>
                   <div className='d-flex justify-content-center align-items-center' style={{height: 300}}>
                     <p className='mb-0'>"Pie Chart Here"</p>
@@ -167,10 +168,9 @@ export default function CustomerDetail() {
               <div className='card'>
                 <div className='card-body'>
                   <header>
-                    <h5>Wishlist Products</h5>
-                    <hr />
+                    <h5>Wishlist Products<span></span></h5>
                   </header>
-                  <table className='table'>
+                  <table className='table mt-3'>
                     <thead>
                       <tr>
                         <th>Product</th>
@@ -188,15 +188,7 @@ export default function CustomerDetail() {
                       }
                     </tbody>
                   </table>
-                  <div className='w-100 d-flex justify-content-between align-items-center mt-3'>
-                    <button className='btn btn-link p-0'>
-                      <FontAwesomeIcon icon={faChevronLeft} />
-                    </button>
-                    <strong>Page 1/10</strong>
-                    <button className='btn btn-link p-0'>
-                      <FontAwesomeIcon icon={faChevronRight} />
-                    </button>
-                  </div>
+                  <MyPagination />
                 </div>
               </div>
               
@@ -208,9 +200,9 @@ export default function CustomerDetail() {
           <div className='card mb-3'>
             <div className='card-body'>
               <header>
-                <h5>Buy History</h5>
+                <h5>Buy History<span></span></h5>
               </header>
-              <table className='table table-striped'>
+              <table className='table mt-3'>
                 <thead>
                   <tr>
                     <th>Order Number</th>
@@ -234,36 +226,27 @@ export default function CustomerDetail() {
                   }
                 </tbody>
               </table>
+              <MyPagination />
             </div>
           </div>
 
           <div className='card mb-3'>
             <div className='card-body'>
               <header className='d-flex justify-content-between align-items-center mb-3'>
-                <h5 className='mb-0'>Reviews by {customerData?.customerDetail?.firstName}</h5>
+                <h5 className='mb-0'>Reviews by {customerData?.customerDetail?.firstName}<span></span></h5>
                 {/* <small>Total 20 reviews</small> */}
               </header>
               {
                 customerData.createdReviews.map((review, index) => (
-                  <div key={`customer_review_${review.id}`} className='card mb-2'>
-                    <div className='card-body'>
-                      <p>"{review.message}"</p>
-                      <strong>Rating</strong> : {review.rating.toFixed(1)}<br />
-                      <strong>Product</strong> : {review.product.name}<br />
-                      <strong>At</strong> : {formatTimestamp(review.createdAt)}
-                    </div>
+                  <div key={`customer_review_${review.id}`} className='reviewItem'>
+                    <p>"{review.message}"</p>
+                    <strong>Product</strong> : {review.product.name}<br />
+                    <strong>Rating</strong> : {review.rating.toFixed(1)}<br />
+                    <strong>At</strong> : {formatTimestamp(review.createdAt)}
                   </div>
                 ))
               }
-              <div className='w-100 d-flex justify-content-between align-items-center mt-3'>
-                <button className='btn btn-link p-0'>
-                  <FontAwesomeIcon icon={faChevronLeft} />
-                </button>
-                <strong>Page 1/10</strong>
-                <button className='btn btn-link p-0'>
-                  <FontAwesomeIcon icon={faChevronRight} />
-                </button>
-              </div>
+              <MyPagination />
             </div>
           </div>
          

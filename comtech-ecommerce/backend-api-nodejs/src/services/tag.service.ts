@@ -147,4 +147,103 @@ export class TagService {
     }
   }
 
+  async statisticTags(
+    page: number, 
+    pageSize: number,
+    orderBy: string = 'createdAt', // 'createdAt', name
+    orderDir: string = 'desc',
+    search: string,
+    productAmount: string, // 'desc', 'asc'
+  ) {
+    let where: Prisma.TagWhereInput = {};
+    if(search) {
+      where.name = {
+        contains: search
+      }
+    }
+
+    const totalTags = await prisma.tag.findMany({
+      where,
+    });
+
+    const totalPages = Math.ceil(totalTags.length / pageSize);
+    let calculateTotalPages = 1;
+
+    const tags = await prisma.tag.findMany({
+      where,
+      include: {
+        products: true,
+      },
+      orderBy: {
+        [orderBy]: orderDir
+      }
+    });
+
+    let resultTags: any;
+    if(productAmount) {
+      const allTags = await prisma.tag.findMany({ 
+        where,
+        include: {
+          products: true,
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
+
+      // Calculate inStock, sale quantity, total sale
+      let productAmountData = [];
+      for(let i = 0; i < allTags.length; i++) {
+        let totalProductAmount = allTags[i].products.length;
+        productAmountData.push({
+          id: allTags[i].id,
+          productAmount: totalProductAmount 
+        });
+      }
+
+      if(productAmount === 'desc') { // มากไปน้อย
+        productAmountData.sort((a: any, b: any) => {
+          return (b.productAmount || 0) - (a.productAmount || 0);
+        });
+      }
+      else if(productAmount === 'asc') { // น้อยไปมาก
+        productAmountData.sort((a: any, b: any) => {
+          return (a.productAmount || 0) - (b.productAmount || 0);
+        });
+      }
+
+      //console.log(salesData);
+
+      // Find all product have sale quanity with sorting by sale quantity
+      const tagsData = productAmountData.map((i: any) => {
+        return allTags.find(x => x.id === i.id);
+      });
+
+      // Manual calculate pagination
+      let resultDataPage = [];
+      let startIndex = page === 1 ? 1 : ((page - 1) * pageSize) + 1;
+      let endIndex = page * pageSize;
+      for(let i = 0; i < tagsData.length; i++) {
+        if(i + 1 >= startIndex && i + 1 <= endIndex) {
+          resultDataPage.push(tagsData[i]);
+        }
+      }
+
+      calculateTotalPages = Math.ceil(tagsData.length / pageSize);
+      resultTags = resultDataPage;
+    }
+    else {
+      resultTags = tags;
+    }
+
+    return {
+      data: resultTags,
+      meta: {
+        totalItems: productAmount ? resultTags.length : totalTags.length,
+        totalPages: productAmount ? calculateTotalPages : totalPages,
+        currentPage: page,
+        pageSize
+      }
+    };
+  }
 }

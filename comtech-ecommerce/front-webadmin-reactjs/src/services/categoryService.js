@@ -72,3 +72,31 @@ export async function deleteCategories(data) {
 
 	return new Promise(deleteCategoriesAPI);
 }
+
+export async function getStatisticCategories(paramsQuery) {
+	const getStatisticCategoriesAPI = (resolve, reject) => {
+		const {
+			page,
+			pageSize,
+			orderBy,
+			orderDir,
+			search,
+			productAmount
+		} = paramsQuery;
+		let url = SERVER_API + `/api/statistic/categories?page=${page}&pageSize=${pageSize}&orderBy=${orderBy}&orderDir=${orderDir}`;
+		if(search) url += `&search=${search}`;
+		if(productAmount) url += `&productAmount=${productAmount}`;
+
+		axiosInstance
+			.get(url)
+			.then((res) => {
+				resolve(res);
+			})
+			.catch((err) => {
+				console.log(`Error getStatisticCategoriesAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
+			});
+	};
+
+	return new Promise(getStatisticCategoriesAPI);
+}

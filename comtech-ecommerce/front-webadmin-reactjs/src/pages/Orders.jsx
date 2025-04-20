@@ -7,12 +7,18 @@ import { toast } from 'react-toastify';
 import * as OrderService from '../services/orderService';
 import { formatTimestamp } from '../utils/utils';
 import { Link } from 'react-router';
+import OrderByBtn from '../components/OrderByBtn/OrderByBtn';
 
 export default function Orders() {
 
    const [loadData, setLoadData] = useState(false);
    const [orderList, setOrderList] = useState([]);
    const [selectOrderData, setSelectOrderData] = useState(null);
+   const [orderBy, setOrderBy] = useState([
+    { column: 'orderId', value: '' },
+    { column: 'total', value: '' },
+    { column: 'createdAt', value: '' },
+  ]);
 
    useEffect(() => {
     const fecthOrders = async () => {
@@ -47,16 +53,32 @@ export default function Orders() {
     return totalPrice - vat;
   }
 
+  const handleChangeOrderBy = (columnName) => {
+    const tempResult = [...orderBy];
+    tempResult.map(i => {
+      if(i.column === columnName) {
+        if(i.value === '') i.value = 'desc';
+        else if(i.value === 'desc') i.value = 'asc';
+        else if(i.value === 'asc') i.value = '';
+      }
+      else {
+        i.value = '';
+      }
+    });
+    setOrderBy(tempResult);
+  }
+
   if(loadData) return <>Loading...</>
 
   return (
     <div className={`page`}>
-              
-      <div className="row">
-        <header className="col-12 d-flex justify-content-between align-items-center mb-4">
-          <h1>Orders</h1>
-        </header>
 
+      <header className="page-title">
+        <h1>Orders</h1>
+        <p>All orders from customers</p>
+      </header>
+              
+      <div className="row mt-4">
         <div className='col-sm-8'>
           <div className="card">
             <div className="card-body">
@@ -67,10 +89,10 @@ export default function Orders() {
                 <div className='d-flex justify-content-between align-items-center mb-3'>
                   <div>
                     <div className="dropdown">
-                      <button className="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <button className="btn my-btn narrow-btn purple-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Shipping Actions
                       </button>
-                      <ul class="dropdown-menu">
+                      <ul className="dropdown-menu">
                         <li><a className="dropdown-item" href="#">Mark as Waiting</a></li>
                         <li><a className="dropdown-item" href="#">Mark as Prepare Shipping</a></li>
                         <li><a className="dropdown-item" href="#">Mark as Shipping</a></li>
@@ -81,10 +103,10 @@ export default function Orders() {
                       <FontAwesomeIcon icon={faTrash} className='me-1' />(10)
                     </button> */}
                   </div>
-                  <div>
+                  <div className='search-input'>
                     <InputGroup className="">
                       <Form.Control
-                        placeholder="Search order"
+                        placeholder="Search by order id or customer name"
                         aria-label="Recipient's username"
                         aria-describedby="basic-addon2"
                       />
@@ -97,25 +119,84 @@ export default function Orders() {
                 <table className="table">
                   <thead>
                     <tr>
-                      <th></th>
-                      <th>#Order ID <FontAwesomeIcon icon={faArrowUp} /></th>
-                      <th>Price <FontAwesomeIcon icon={faArrowUp} /></th>
-                      <th>By Customer <FontAwesomeIcon icon={faArrowUp} /></th>
-                      <th>Created At <FontAwesomeIcon icon={faArrowUp} /></th>
-                      <th>Status</th>
-                      <th>Shipping</th>
+                      <th className='selectRow'></th>
+                      <th>
+                        #Order ID 
+                        <OrderByBtn 
+                          currentStatus={orderBy[0].value}
+                          handleOnClick={() => handleChangeOrderBy('orderId')}
+                        />
+                      </th>
+                      <th>
+                        Price 
+                        <OrderByBtn 
+                          currentStatus={orderBy[1].value}
+                          handleOnClick={() => handleChangeOrderBy('total')}
+                        />
+                      </th>
+                      <th>By Customer</th>
+                      <th>
+                        Created At 
+                        <OrderByBtn 
+                          currentStatus={orderBy[2].value}
+                          handleOnClick={() => handleChangeOrderBy('createdAt')}
+                        />
+                      </th>
+                      <th>
+                        <div className="dropdown">
+                          <button 
+                            className={`btn btn-link p-0 dropdown-toggle`} 
+                            type="button" 
+                            data-bs-toggle="dropdown"
+                          >Status</button>
+                          <ul className="dropdown-menu">
+                            {
+                              ['all', 'pending', 'paid', 'failed', 'cencel'].map((i, index) => (
+                                <button 
+                                  key={`order_status_dropdown_item_${index + 1}`}
+                                  className='dropdown-item'
+                                  onClick={() => {}}
+                                >{i}</button>
+                              ))
+                            }
+                          </ul>
+                        </div>
+                      </th>
+                      <th>
+                        <div className="dropdown">
+                          <button 
+                            className={`btn btn-link p-0 dropdown-toggle`} 
+                            type="button" 
+                            data-bs-toggle="dropdown"
+                          >Shipping</button>
+                          <ul className="dropdown-menu">
+                            {
+                              ['waiting', 'prepare shipping', 'shipping', 'completed'].map((i, index) => (
+                                <button 
+                                  key={`order_shipping_status_dropdown_item_${index + 1}`}
+                                  className='dropdown-item'
+                                  onClick={() => {}}
+                                >{i}</button>
+                              ))
+                            }
+                          </ul>
+                        </div>
+                      </th>
+                      <th className='px-0'></th>
                     </tr>
                   </thead>
                   <tbody>
                     {
                       orderList.map((order, index) => (
                         <tr key={`product_stock_row_${index + 1}`}>
-                          <td>
-                            <Form.Check
-                              type={"checkbox"}
-                              id={`select-product`}
-                              label={``}
-                            />
+                          <td className='selectRow'>
+                            <div className='flexCenterXY'>
+                              <Form.Check
+                                type={"checkbox"}
+                                id={`select-product`}
+                                label={``}
+                              />
+                            </div>
                           </td>
                           <td>
                             <Link
@@ -133,6 +214,15 @@ export default function Orders() {
                             {/* <br /><small>12 Jan 2025</small> */}
                           </td>
                           <td><small className='badge text-bg-success'>{order.status}</small></td>
+                          <td className='px-0'>
+                            <button
+                              type="button"
+                              className='btn my-btn narrow-btn purple-btn'
+                              onClick={() => {
+                                handlePreviewOrder(order.id)
+                              }}
+                            ><small>Detail</small></button>
+                          </td>
                         </tr>
                       ))
                     }
@@ -157,10 +247,9 @@ export default function Orders() {
                 ?
                 <>
                 <header>
-                  <h5>Order Detail</h5>
-                  <hr />
+                  <h5>Order Detail<span></span></h5>
                 </header>
-                <div style={{fontSize: '0.9rem'}}>
+                <div className="mt-3" style={{fontSize: '0.9rem'}}>
                   <p className='mb-0'><strong>#Order Id</strong> : {selectOrderData.id}</p>
                   <p className='mb-0'><strong>Created At</strong> : {formatTimestamp(selectOrderData.createdAt)}</p>
                   <p className='mb-0'><strong>Customer</strong> : {selectOrderData?.customer?.customerDetail?.firstName} {selectOrderData?.customer?.customerDetail?.lastName}</p> 
@@ -171,9 +260,9 @@ export default function Orders() {
                 <table className='table'>
                   <thead>
                     <tr>
-                      <th>Product</th>
-                      <th>Amount</th>
-                      <th>Price</th>
+                      <th>product</th>
+                      <th>quantity</th>
+                      <th>price</th>
                     </tr>
                   </thead>
                   <tbody>

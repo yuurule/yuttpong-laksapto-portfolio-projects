@@ -66,7 +66,7 @@ export default function ReviewWaitApprove() {
     <div className='card'>
       <div className='card-body'>
         <header>
-          <h5>Review Waiting For Approve</h5>
+          <h5>Review Waiting For Approve<span></span></h5>
         </header>
         {
           reviewList.length > 0 ?

@@ -10,11 +10,15 @@ export async function getAllProduct(paramsQuery) {
 			brands,
 			categories,
 			tags,
+			search,
 			orderBy,
 			orderDir
 		} = paramsQuery;
 
 		let url = SERVER_API + `/api/product?page=${page}&pageSize=${pageSize}&noPagination=${noPagination}&brands=${brands}&categories=${categories}&tags=${tags}&orderBy=${orderBy}&orderDir=${orderDir}`;
+		if(search) {
+			url += `&search=${search}`;
+		}
 		axiosInstance
 			.get(url)
 			.then((res) => {
@@ -95,4 +99,38 @@ export async function moveProductsToTrash(data) {
 	};
 
 	return new Promise(moveProductsToTrashAPI);
+}
+
+// Statistics
+export async function getStatisticProduct(paramsQuery) {
+	const getStatisticProductAPI = (resolve, reject) => {
+		const {
+			page,
+			pageSize,
+			orderBy,
+			orderDir,
+			search,
+			inStock,
+			sale,
+			totalSale
+		} = paramsQuery;
+
+		let url = SERVER_API + `/api/statistic/products?page=${page}&pageSize=${pageSize}&orderBy=${orderBy}&orderDir=${orderDir}`;
+		if(search) url += `&search=${search}`;
+		if(inStock) url += `&inStock=${inStock}`;
+		if(sale) url += `&sale=${sale}`;
+		if(totalSale) url += `&totalSale=${totalSale}`;
+
+		axiosInstance
+			.get(url)
+			.then((res) => {
+				resolve(res);
+			})
+			.catch((err) => {
+				console.log(`Error getStatisticProductAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
+			});
+	};
+
+	return new Promise(getStatisticProductAPI);
 }

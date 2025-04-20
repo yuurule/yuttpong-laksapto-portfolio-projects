@@ -57,7 +57,7 @@ export default function Login() {
         />
         <div className='card-body p-5'>
           <header className='text-center mb-5'>
-            <h1>COMTECH <span className={`${styles.titleColour}`}>WEBADMIN</span></h1>
+            <h1>COMTECH <strong className={`${styles.titleColour}`}>E-COMMERCE</strong><br />WEBADMIN</h1>
             <p>Enter your credential to log in</p>
           </header>
 
@@ -66,7 +66,7 @@ export default function Login() {
             <p className='alert alert-danger'>{error}</p>
           }
           
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} className='px-5'>
             <div className="form-group mb-5 position-relative">
               <FontAwesomeIcon icon={faUser} className={`${styles.formIcon}`} />
               <input

@@ -47,7 +47,7 @@ export default function UpsertCategory({
       return "Create New Category";
     }
     else if(action === "UPDATE") {
-      return `Update Category "${currentData.name}"`
+      return `Edit Category "${currentData.name}"`
     }
   }
 
@@ -100,11 +100,10 @@ export default function UpsertCategory({
   return (
     <>
     <header>
-      <h5>{renderHeader()}</h5>
-      <hr />
+      <h5>{renderHeader()}<span></span></h5>
     </header>
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="form-group mb-3">
+      <div className="form-group my-3">
         <label className='form-label'>Category Name</label>
         <input
           type="text"
@@ -125,7 +124,7 @@ export default function UpsertCategory({
       </div>
 
       <div className='d-flex justify-content-end'>
-        <button type="submit" disabled={isSubmitting} className='btn btn-primary px-4'>
+        <button type="submit" disabled={isSubmitting} className='btn my-btn blue-btn big-btn'>
           {isSubmitting ? 'Processing...' : `${action === 'CREATE' ? 'Create' : 'Save'}`}
         </button>
       </div>

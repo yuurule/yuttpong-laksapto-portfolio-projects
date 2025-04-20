@@ -149,4 +149,103 @@ export class CategoryService {
     }
   }
 
+  async statisticCategories(
+    page: number, 
+    pageSize: number,
+    orderBy: string = 'createdAt', // 'createdAt', name
+    orderDir: string = 'desc',
+    search: string,
+    productAmount: string, // 'desc', 'asc'
+  ) {
+    let where: Prisma.CategoryWhereInput = {};
+    if(search) {
+      where.name = {
+        contains: search
+      }
+    }
+
+    const totalCategories = await prisma.category.findMany({
+      where,
+    });
+
+    const totalPages = Math.ceil(totalCategories.length / pageSize);
+    let calculateTotalPages = 1;
+
+    const categories = await prisma.category.findMany({
+      where,
+      include: {
+        products: true,
+      },
+      orderBy: {
+        [orderBy]: orderDir
+      }
+    });
+
+    let resultCategories: any;
+    if(productAmount) {
+      const allCategories = await prisma.category.findMany({ 
+        where,
+        include: {
+          products: true,
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
+
+      // Calculate inStock, sale quantity, total sale
+      let productAmountData = [];
+      for(let i = 0; i < allCategories.length; i++) {
+        let totalProductAmount = allCategories[i].products.length;
+        productAmountData.push({
+          id: allCategories[i].id,
+          productAmount: totalProductAmount 
+        });
+      }
+
+      if(productAmount === 'desc') { // มากไปน้อย
+        productAmountData.sort((a: any, b: any) => {
+          return (b.productAmount || 0) - (a.productAmount || 0);
+        });
+      }
+      else if(productAmount === 'asc') { // น้อยไปมาก
+        productAmountData.sort((a: any, b: any) => {
+          return (a.productAmount || 0) - (b.productAmount || 0);
+        });
+      }
+
+      //console.log(salesData);
+
+      // Find all product have sale quanity with sorting by sale quantity
+      const categoriesData = productAmountData.map((i: any) => {
+        return allCategories.find(x => x.id === i.id);
+      });
+
+      // Manual calculate pagination
+      let resultDataPage = [];
+      let startIndex = page === 1 ? 1 : ((page - 1) * pageSize) + 1;
+      let endIndex = page * pageSize;
+      for(let i = 0; i < categoriesData.length; i++) {
+        if(i + 1 >= startIndex && i + 1 <= endIndex) {
+          resultDataPage.push(categoriesData[i]);
+        }
+      }
+
+      calculateTotalPages = Math.ceil(categoriesData.length / pageSize);
+      resultCategories = resultDataPage;
+    }
+    else {
+      resultCategories = categories;
+    }
+
+    return {
+      data: resultCategories,
+      meta: {
+        totalItems: productAmount ? resultCategories.length : totalCategories.length,
+        totalPages: productAmount ? calculateTotalPages : totalPages,
+        currentPage: page,
+        pageSize
+      }
+    };
+  }
 }

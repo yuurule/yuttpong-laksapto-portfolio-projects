@@ -125,4 +125,21 @@ export class TagController {
     }
   }
 
+  async getStatisticTags(req: Request, res: Response) {
+    const page = parseInt(req.query.page as string || '1');
+    const pageSize = parseInt(req.query.pageSize as string || '8');
+    const orderBy = req.query.orderBy as string || 'createdAt';
+    const orderDir = req.query.orderDir as string || 'desc';
+    const search = req.query.search as string;
+    const productAmount = req.query.productAmount as string;
+    
+    try {
+      const tags = await tagService.statisticTags(page, pageSize, orderBy, orderDir, search, productAmount);
+      sendResponse(res, 200, `Get all tags statistic ok`, tags.data, tags.meta);
+    }
+    catch (error: any) {
+      console.error('Get all tags statistic error: ', error);
+      sendError(res, error.statusCode, error.message);
+    }
+  }
 }

@@ -207,4 +207,148 @@ export class CustomerService {
       throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
     }
   }
+
+  async statisticCustomer(
+    page: number, 
+    pageSize: number,
+    orderBy: string = 'createdAt', // 'createdAt', name
+    orderDir: string = 'desc',
+    search: string,
+    totalExpense: string, // 'desc', 'asc'
+  ) {
+    let where: Prisma.CustomerWhereInput = {};
+    if(search) {
+      where.OR = [
+        {
+          displayName: {
+            contains: search
+          }
+        },
+        {
+          customerDetail: {
+            OR: [
+              {
+                firstName: {
+                  contains: search
+                }
+              },
+              {
+                lastName : {
+                  contains: search
+                }
+              }
+            ]
+          }
+        }
+      ]
+      // where.displayName = {
+      //   contains: search
+      // }
+      
+      // where.customerDetail = {
+      //   firstName: {
+      //     contains: search
+      //   },
+      //   lastName : {
+      //     contains: search
+      //   }
+      // }
+    }
+
+    const totalCustomers = await prisma.customer.findMany({ where });
+    const totalPages = Math.ceil(totalCustomers.length / pageSize);
+    let calculateTotalPages = 1;
+
+    const customers = await prisma.customer.findMany({
+      where,
+      include: {
+        customerDetail: true,
+        orders: true,
+        cartItems: true,
+        createdReviews: true,
+        stockSellEvents: true,
+        wishlists: true
+      },
+      orderBy: {
+        [orderBy]: orderDir
+      }
+    });
+
+    let resultData: any;
+    if(totalExpense) {
+      const allCustomers = await prisma.customer.findMany({ 
+        where,
+        include: {
+          customerDetail: true,
+          orders: true,
+          cartItems: true,
+          createdReviews: true,
+          stockSellEvents: true,
+          wishlists: true
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
+
+      // Calculate inStock, sale quantity, total sale
+      let expenseData = [];
+      for(let i = 0; i < allCustomers.length; i++) {
+        let totalExpense = 0;
+        allCustomers[i].orders.map((x: any) => {
+          if(x.paymentStatus === 'PAID') {
+            totalExpense += +x.total;
+          }
+        })
+        expenseData.push({
+          id: allCustomers[i].id,
+          totalExpense: totalExpense 
+        });
+      }
+
+      if(totalExpense === 'desc') { // มากไปน้อย
+        expenseData.sort((a: any, b: any) => {
+          return (b.totalExpense || 0) - (a.totalExpense || 0);
+        });
+      }
+      else if(totalExpense === 'asc') { // น้อยไปมาก
+        expenseData.sort((a: any, b: any) => {
+          return (a.totalExpense || 0) - (b.totalExpense || 0);
+        });
+      }
+
+      //console.log(expenseData);
+
+      // Find all product have sale quanity with sorting by sale quantity
+      const calPageData = expenseData.map((i: any) => {
+        return allCustomers.find(x => x.id === i.id);
+      });
+
+      // Manual calculate pagination
+      let resultDataPage = [];
+      let startIndex = page === 1 ? 1 : ((page - 1) * pageSize) + 1;
+      let endIndex = page * pageSize;
+      for(let i = 0; i < calPageData.length; i++) {
+        if(i + 1 >= startIndex && i + 1 <= endIndex) {
+          resultDataPage.push(calPageData[i]);
+        }
+      }
+
+      calculateTotalPages = Math.ceil(calPageData.length / pageSize);
+      resultData = resultDataPage;
+    }
+    else {
+      resultData = customers;
+    }
+
+    return {
+      data: resultData,
+      meta: {
+        totalItems: totalExpense ? resultData.length : totalCustomers.length,
+        totalPages: totalExpense ? calculateTotalPages : totalPages,
+        currentPage: page,
+        pageSize
+      }
+    };
+  }
 }
