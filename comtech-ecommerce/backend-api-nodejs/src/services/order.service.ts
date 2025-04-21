@@ -8,9 +8,37 @@ const stockService = new StockService;
 
 export class OrderService {
 
-  async findAll() {
+  async findAll(
+    page: number, 
+    pageSize: number,
+    pagination: boolean = false,
+    orderBy: string = 'createdAt', // 'createdAt', name
+    orderDir: string = 'desc',
+    search: string,
+  ) {
     try {
+      let where: Prisma.OrderWhereInput = {};
+      if(search) {
+        where.customer = {
+          customerDetail: {
+            OR: [
+              {
+                firstName: {
+                  contains: search
+                }
+              },
+              {
+                lastName : {
+                  contains: search
+                }
+              }
+            ]
+          }
+        }
+      }
+
       const orders = await prisma.order.findMany({
+        where,
         include: {
           customer: {
             include: {
@@ -38,8 +66,14 @@ export class OrderService {
               }
             }
           }
-        }
+        },
+        orderBy: {
+          [orderBy]: orderDir
+        },
+        skip: pagination ? (page - 1) * pageSize : undefined,
+        take: pagination ? pageSize : undefined,
       });
+      
       return orders;
     }
     catch(error: any) {

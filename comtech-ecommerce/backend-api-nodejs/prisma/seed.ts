@@ -180,14 +180,22 @@ async function main() {
         {
           email: 'user1@mail.com',
           password: await hashPassword('123456'),
-          displayName: 'John Doh',
+          displayName: 'John2025',
           lastActive: new Date(),
+          customerDetail: {
+            firstName: 'John',
+            lastName: 'Doh'
+          }
         },
         {
           email: 'user2@mail.com',
           password: await hashPassword('123456'),
-          displayName: 'Elena2025',
+          displayName: 'HelloW',
           lastActive: new Date(),
+          customerDetail: {
+            firstName: 'Elena',
+            lastName: 'Gomez'
+          }
         },
       ];
 
@@ -329,7 +337,18 @@ async function main() {
         await tx.customer.upsert({
           where: { email: customer.email },
           update: {}, // ถ้ามีอยู่แล้วให้ไม่ทำอะไร
-          create: customer, // ถ้ายังไม่มีให้สร้างใหม่
+          create: {
+            email: customer.email,
+            password: customer.password,
+            displayName: customer.displayName,
+            lastActive: customer.lastActive,
+            customerDetail: {
+              create: {
+                firstName: customer.customerDetail.firstName,
+                lastName: customer.customerDetail.lastName
+              }
+            }
+          }, // ถ้ายังไม่มีให้สร้างใหม่
         });
       }
 

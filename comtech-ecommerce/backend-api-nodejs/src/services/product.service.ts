@@ -62,7 +62,6 @@ export class ProductService {
           contains: search
         }
       }
-
       if(campaigns) {
         if(campaigns.length === 0) where.campaignProducts = {}
         else {
@@ -75,7 +74,6 @@ export class ProductService {
           }
         }
       }
-
       if(onSale) {
         where.campaignProducts = {
           some: {}

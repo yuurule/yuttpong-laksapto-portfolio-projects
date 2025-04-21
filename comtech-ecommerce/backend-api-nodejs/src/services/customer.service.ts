@@ -241,18 +241,6 @@ export class CustomerService {
           }
         }
       ]
-      // where.displayName = {
-      //   contains: search
-      // }
-      
-      // where.customerDetail = {
-      //   firstName: {
-      //     contains: search
-      //   },
-      //   lastName : {
-      //     contains: search
-      //   }
-      // }
     }
 
     const totalCustomers = await prisma.customer.findMany({ where });
