@@ -6,8 +6,16 @@ const prisma = new PrismaClient();
 
 export class ReviewService {
 
-  async findAll() {
+  async findAll(
+    page: number, 
+    pageSize: number,
+    pagination: boolean = false,
+    orderBy: string = 'createdAt',
+    orderDir: string = 'desc',
+  ) {
     try { 
+      const totalReviews = await prisma.campaign.findMany();
+      const totalPages = Math.ceil(totalReviews.length / pageSize);
       const reviews = await prisma.review.findMany({
         include: {
           product: {
@@ -27,10 +35,21 @@ export class ReviewService {
           }
         },
         orderBy: {
-          createdAt: 'desc'
-        }
+          [orderBy]: orderDir
+        },
+        skip: pagination ? (page - 1) * pageSize : undefined,
+        take: pagination ? pageSize : undefined,
       });
-      return reviews;
+      
+      return {
+        data: reviews,
+        meta: {
+          totalItems: totalReviews.length,
+          totalPages: totalPages,
+          currentPage: page,
+          pageSize
+        }
+      };
     }
     catch(error: any) {
       if(error instanceof Prisma.PrismaClientKnownRequestError) {

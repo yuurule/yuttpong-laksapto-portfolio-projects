@@ -37,8 +37,8 @@ export default function Campaign() {
   const [refresh, setRefresh] = useState(0);
 
   const [orderBy, setOrderBy] = useState([
-    { column: 'campaignName', value: '' },
-    { column: 'discount', value: '' },
+    { column: 'campaignName', value: null },
+    { column: 'discount', value: null },
   ]);
 
   useEffect(() => {

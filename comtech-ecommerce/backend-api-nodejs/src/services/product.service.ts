@@ -715,7 +715,9 @@ export class ProductService {
         },
         orderBy: {
           [orderBy]: orderDir
-        }
+        },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
       });
 
       let resultProducts: any;

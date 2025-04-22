@@ -37,6 +37,8 @@ export class OrderService {
         }
       }
 
+      const totalOrders = await prisma.order.findMany();
+      const totalPages = Math.ceil(totalOrders.length / pageSize);
       const orders = await prisma.order.findMany({
         where,
         include: {
@@ -74,7 +76,15 @@ export class OrderService {
         take: pagination ? pageSize : undefined,
       });
       
-      return orders;
+      return {
+        data: orders,
+        meta: {
+          totalItems: totalOrders.length,
+          totalPages: totalPages,
+          currentPage: page,
+          pageSize
+        }
+      };
     }
     catch(error: any) {
       if(error instanceof Prisma.PrismaClientKnownRequestError) {

@@ -12,9 +12,26 @@ const prisma = new PrismaClient();
 
 export class CampaignService {
 
-  async findAll() {
+  async findAll(
+    page: number, 
+    pageSize: number,
+    pagination: boolean = false,
+    orderBy: string = 'createdAt', //createdAt, name, discount
+    orderDir: string = 'desc',
+    search: string,
+  ) {
     try {
+      let where: Prisma.CampaignWhereInput = {};
+      if(search) {
+        where.name = {
+          contains: search
+        }
+      }
+
+      const totalCampaigns = await prisma.campaign.findMany({ where });
+      const totalPages = Math.ceil(totalCampaigns.length / pageSize);
       const campaigns = await prisma.campaign.findMany({
+        where,
         include: {
           campaignProducts: {
             include: {
@@ -25,10 +42,21 @@ export class CampaignService {
           orderItems: true,
         },
         orderBy: {
-          createdAt: 'desc'
-        }
+          [orderBy]: orderDir
+        },
+        skip: pagination ? (page - 1) * pageSize : undefined,
+        take: pagination ? pageSize : undefined,
       });
-      return campaigns;
+      
+      return {
+        data: campaigns,
+        meta: {
+          totalItems: totalCampaigns.length,
+          totalPages: totalPages,
+          currentPage: page,
+          pageSize
+        }
+      };
     }
     catch(error: any) {
       if(error instanceof Prisma.PrismaClientKnownRequestError) {

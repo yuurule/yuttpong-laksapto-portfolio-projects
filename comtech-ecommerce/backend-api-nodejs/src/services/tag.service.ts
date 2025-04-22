@@ -5,7 +5,11 @@ const prisma = new PrismaClient();
 
 export class TagService {
 
-  async findAll(orderBy?: string, nameOrderBy?: string, haveProductOrderBy?: string) {
+  async findAll(
+    orderBy?: string, 
+    nameOrderBy?: string, 
+    haveProductOrderBy?: string
+  ) {
     try {
 
       const queryData : any = {
@@ -176,7 +180,9 @@ export class TagService {
       },
       orderBy: {
         [orderBy]: orderDir
-      }
+      },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     });
 
     let resultTags: any;

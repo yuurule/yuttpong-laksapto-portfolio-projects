@@ -3,15 +3,23 @@ import { sendResponse, sendError } from '../libs/response';
 import { isValidId, isValidHaveValue } from '../libs/validation';
 import { OrderService } from '../services/order.service';
 import { createOrderDto } from '../types';
+import { parseBoolean } from '../libs/utility';
 
 const orderService = new OrderService();
 
 export class OrderController {
 
   async getOrders(req: Request, res: Response) {
+    const page = parseInt(req.query.page as string || '1');
+    const pageSize = parseInt(req.query.pageSize as string || '8');
+    const pagination = parseBoolean(req.query.noPagination as string) || true;
+    const orderBy = req.query.orderBy as string || 'createdAt';
+    const orderDir = req.query.orderDir as string || 'desc';
+    const search = req.query.search as string;
+
     try {
-      const orders = await orderService.findAll();
-      sendResponse(res, 200, `Get all order ok`, orders)
+      const orders = await orderService.findAll(page, pageSize, pagination, orderBy, orderDir, search);
+      sendResponse(res, 200, `Get all order ok`, orders.data, orders.meta);
     }
     catch (error: any) {
       console.error('Get all order error: ', error);

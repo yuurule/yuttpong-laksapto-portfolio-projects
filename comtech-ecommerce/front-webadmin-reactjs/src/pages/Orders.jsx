@@ -15,9 +15,9 @@ export default function Orders() {
    const [orderList, setOrderList] = useState([]);
    const [selectOrderData, setSelectOrderData] = useState(null);
    const [orderBy, setOrderBy] = useState([
-    { column: 'orderId', value: '' },
-    { column: 'total', value: '' },
-    { column: 'createdAt', value: '' },
+    { column: 'orderId', value: null },
+    { column: 'total', value: null },
+    { column: 'createdAt', value: null },
   ]);
 
    useEffect(() => {

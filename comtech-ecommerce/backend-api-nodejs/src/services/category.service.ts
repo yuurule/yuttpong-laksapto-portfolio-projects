@@ -6,7 +6,11 @@ const prisma = new PrismaClient();
 
 export class CategoryService {
 
-  async findAll(orderBy?: string, nameOrderBy?: string, haveProductOrderBy?: string) {
+  async findAll(
+    orderBy?: string, 
+    nameOrderBy?: string, 
+    haveProductOrderBy?: string
+  ) {
     try {
 
       const queryData : any = {
@@ -178,7 +182,9 @@ export class CategoryService {
       },
       orderBy: {
         [orderBy]: orderDir
-      }
+      },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     });
 
     let resultCategories: any;

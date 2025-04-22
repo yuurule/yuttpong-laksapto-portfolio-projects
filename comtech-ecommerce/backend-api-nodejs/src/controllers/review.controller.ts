@@ -3,14 +3,21 @@ import { sendResponse, sendError } from '../libs/response';
 import { isValidId, isValidHaveValue } from '../libs/validation';
 import { ReviewService } from '../services/review.service';
 import { createReviewDto } from '../types';
+import { parseBoolean } from '../libs/utility';
 
 const reviewService = new ReviewService();
 
 export class ReviewController {
 
   async getReviews(req: Request, res: Response) {
+    const page = parseInt(req.query.page as string || '1');
+    const pageSize = parseInt(req.query.pageSize as string || '8');
+    const pagination = parseBoolean(req.query.noPagination as string) || true;
+    const orderBy = req.query.orderBy as string || 'createdAt';
+    const orderDir = req.query.orderDir as string || 'desc';
+
     try {
-      const reviews = await reviewService.findAll();
+      const reviews = await reviewService.findAll(page, pageSize, pagination, orderBy, orderDir);
       sendResponse(res, 200, `Get all review ok`, reviews)
     }
     catch (error: any) {

@@ -4,15 +4,23 @@ import { isValidId, isValidHaveValue } from '../libs/validation';
 import { CampaignService } from '../services/campaign.service';
 import { createCampaignDto, createCampaignHistoryDto, activateCampaignDto, addRemoveProductCampaignDto } from '../types';
 import { updateCampaignDto } from '../types';
+import { parseBoolean } from '../libs/utility';
 
 const campaignService = new CampaignService();
 
 export class CampaignController {
 
   async getCampaigns(req: Request, res: Response) {
+    const page = parseInt(req.query.page as string || '1');
+    const pageSize = parseInt(req.query.pageSize as string || '8');
+    const pagination = parseBoolean(req.query.noPagination as string) || true;
+    const orderBy = req.query.orderBy as string || 'createdAt';
+    const orderDir = req.query.orderDir as string || 'desc';
+    const search = req.query.search as string;
+
     try {
-      const campaigns = await campaignService.findAll();
-      sendResponse(res, 200, `Get all campaign ok`, campaigns)
+      const campaigns = await campaignService.findAll(page, pageSize, pagination, orderBy, orderDir, search);
+      sendResponse(res, 200, `Get all campaign ok`, campaigns.data, campaigns.meta)
     }
     catch (error: any) {
       console.error('Get all campaign error: ', error);

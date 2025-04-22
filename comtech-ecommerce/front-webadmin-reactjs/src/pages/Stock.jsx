@@ -59,8 +59,8 @@ export default function Stock() {
   const [refresh, setRefresh] = useState(0);
 
   const [orderBy, setOrderBy] = useState([
-    { column: 'product', value: '' },
-    { column: 'inStock', value: '' },
+    { column: 'name', value: null },
+    { column: 'inStock', value: null },
   ]);
 
   const {
@@ -192,7 +192,7 @@ export default function Stock() {
                         Product 
                         <OrderByBtn 
                           currentStatus={orderBy[0].value}
-                          handleOnClick={() => handleChangeOrderBy('product')}
+                          handleOnClick={() => handleChangeOrderBy('name')}
                         />
                       </th>
                       <th>

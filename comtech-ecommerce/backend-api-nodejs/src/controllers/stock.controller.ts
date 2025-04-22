@@ -3,15 +3,22 @@ import { sendResponse, sendError } from '../libs/response';
 import { isValidId, isValidHaveValue } from '../libs/validation';
 import { StockService } from '../services/stock.service';
 import { createStockActionDto, createStockSellActionDto } from '../types';
+import { parseBoolean } from '../libs/utility';
 
 const stockService = new StockService();
 
 export class StockController {
 
   async getAllStockAction(req: Request, res: Response) {
+    const page = parseInt(req.query.page as string || '1');
+    const pageSize = parseInt(req.query.pageSize as string || '8');
+    const pagination = parseBoolean(req.query.noPagination as string) || true;
+    const orderBy = req.query.orderBy as string || 'actionedAt';
+    const orderDir = req.query.orderDir as string || 'desc';
+
     try {
-      const stockActions = await stockService.findAll();
-      sendResponse(res, 200, `Get all stock action ok`, stockActions)
+      const stockActions = await stockService.findAll(page, pageSize, pagination, orderBy, orderDir);
+      sendResponse(res, 200, `Get all stock action ok`, stockActions.data, stockActions.meta);
     }
     catch (error: any) {
       console.error('Get all stock action error: ', error);

@@ -259,7 +259,9 @@ export class CustomerService {
       },
       orderBy: {
         [orderBy]: orderDir
-      }
+      },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     });
 
     let resultData: any;
