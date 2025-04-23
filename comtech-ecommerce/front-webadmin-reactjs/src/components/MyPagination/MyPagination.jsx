@@ -10,7 +10,14 @@ export default function MyPagination({
 
   return (
     <div className={`${styles.myPagination}`}>
-      <button className='btn btn-link p-0'>
+      <button 
+        className='btn btn-link p-0'
+        type="button"
+        disabled={currentPage == 1}
+        onClick={() => {
+          handleSelectPage(currentPage - 1);
+        }}
+      >
         <FontAwesomeIcon icon={faChevronLeft} />
       </button>
       <div className="dropdown mx-5">
@@ -28,8 +35,9 @@ export default function MyPagination({
                 <button 
                   key={`${index + 1}`}
                   className='dropdown-item'
+                  disabled={currentPage === index + 1}
                   onClick={() => {
-                    handleSelectPage(i + 1)
+                    handleSelectPage(index + 1)
                   }}
                 >{index + 1}</button>
               )
@@ -37,7 +45,14 @@ export default function MyPagination({
           }
         </ul>
       </div>
-      <button className='btn btn-link p-0 '>
+      <button 
+        className='btn btn-link p-0'
+        type="button"
+        disabled={currentPage == totalPage}
+        onClick={() => {
+          handleSelectPage(currentPage + 1);
+        }}
+      >
         <FontAwesomeIcon icon={faChevronRight} />
       </button>
     </div>

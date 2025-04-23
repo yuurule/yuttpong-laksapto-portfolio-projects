@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Form, InputGroup, Button  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faArrowUp, faAdd, faMinus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faClose } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../components/MyPagination/MyPagination';
 import { toast } from 'react-toastify';
 import * as OrderService from '../services/orderService';
@@ -11,22 +11,37 @@ import OrderByBtn from '../components/OrderByBtn/OrderByBtn';
 
 export default function Orders() {
 
-   const [loadData, setLoadData] = useState(false);
-   const [orderList, setOrderList] = useState([]);
-   const [selectOrderData, setSelectOrderData] = useState(null);
-   const [orderBy, setOrderBy] = useState([
+  const [loadData, setLoadData] = useState(false);
+  const [orderList, setOrderList] = useState([]);
+  const [selectOrderData, setSelectOrderData] = useState(null);
+  const setPageSize = 8;
+  const [paramsQuery, setParamsQuery] = useState({
+    page: 1,
+    pageSize: setPageSize,
+    pagination: true,
+    orderBy: 'createdAt',
+    orderDir: 'desc',
+    search: null,
+  })
+  const [orderBy, setOrderBy] = useState([
     { column: 'orderId', value: null },
     { column: 'total', value: null },
     { column: 'createdAt', value: null },
   ]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState(null);
+  const [useSearchQuery, setUseSearchQuery] = useState(null);
 
-   useEffect(() => {
+  useEffect(() => {
     const fecthOrders = async () => {
       setLoadData(true);
       try {
-        const orders = await OrderService.getOrders();
+        const orders = await OrderService.getOrders(paramsQuery);
         //console.log(orders.data.RESULT_DATA);
         setOrderList(orders.data.RESULT_DATA);
+        setCurrentPage(orders.data.RESULT_META.currentPage);
+        setTotalPage(orders.data.RESULT_META.totalPages);
       }
       catch(error) {
         console.log(error);
@@ -38,13 +53,12 @@ export default function Orders() {
     }
 
     fecthOrders();
-  }, []);
+  }, [paramsQuery]);
 
   const handlePreviewOrder = (orderId) => {
     const resultOrder = orderList.find(i => i.id === orderId);
     setSelectOrderData(resultOrder);
   }
-
   const renderCalculateVat = (price) => {
     return (price * 7) / 100;
   }
@@ -52,20 +66,83 @@ export default function Orders() {
     const vat = (totalPrice * 7) / 100;
     return totalPrice - vat;
   }
-
   const handleChangeOrderBy = (columnName) => {
     const tempResult = [...orderBy];
+    let newValue = null;
     tempResult.map(i => {
       if(i.column === columnName) {
-        if(i.value === '') i.value = 'desc';
-        else if(i.value === 'desc') i.value = 'asc';
-        else if(i.value === 'asc') i.value = '';
+        if(i.value === null) {
+          i.value = 'desc';
+          newValue = 'desc';
+        }
+        else if(i.value === 'desc') {
+          i.value = 'asc';
+          newValue = 'asc';
+        }
+        else if(i.value === 'asc') {
+          i.value = null;
+          newValue = null;
+        }
       }
       else {
-        i.value = '';
+        i.value = null;
       }
     });
+
+    const tempParamsQuery = handleResetParamsQuery();
+    switch(columnName) {
+      case 'orderId':
+        if(newValue !== null) {
+          tempParamsQuery.orderBy = 'orderId';
+          tempParamsQuery.orderDir = newValue;
+        }
+        break;
+      case 'total':
+        if(newValue !== null) {
+          tempParamsQuery.orderBy = 'total';
+          tempParamsQuery.orderDir = newValue;
+        }
+        break;
+      case 'createdAt':
+        if(newValue !== null) {
+          tempParamsQuery.orderBy = 'createdAt';
+          tempParamsQuery.orderDir = newValue;
+        }
+        break;
+    }
+
+    setParamsQuery(tempParamsQuery);
     setOrderBy(tempResult);
+  }
+  const handleSearchQuery = () => {
+    if(searchQuery !== null && searchQuery.trim() !== '') {
+      const tempParamsQuery = handleResetParamsQuery();
+      tempParamsQuery.search = searchQuery;
+      setUseSearchQuery(searchQuery);
+      setParamsQuery(tempParamsQuery);
+    }
+  }
+  const handleClearSearchQuery = () => {
+    setSearchQuery(null);
+    setUseSearchQuery(null);
+    const tempParamsQuery = handleResetParamsQuery();
+    tempParamsQuery.search = null;
+    setParamsQuery(tempParamsQuery);
+  }
+  const handleResetParamsQuery = () => {
+    return {
+      page: 1,
+      pageSize: setPageSize,
+      pagination: true,
+      orderBy: 'createdAt',
+      orderDir: 'desc',
+      search: useSearchQuery,
+    }
+  }
+  const handleSelectPage = (pageNumber) => {
+    const tempParamsQuery = {...paramsQuery};
+    tempParamsQuery.page = pageNumber;
+    setParamsQuery(tempParamsQuery);
   }
 
   if(loadData) return <>Loading...</>
@@ -104,13 +181,29 @@ export default function Orders() {
                     </button> */}
                   </div>
                   <div className='search-input'>
-                    <InputGroup className="">
+                    <InputGroup>
                       <Form.Control
+                        value={searchQuery}
                         placeholder="Search by order id or customer name"
-                        aria-label="Recipient's username"
-                        aria-describedby="basic-addon2"
+                        onChange={(e) => {
+                          setSearchQuery(e.target.value);
+                        }}
                       />
-                      <Button variant="primary" id="button-addon2">
+                      {
+                        (searchQuery !== null && (searchQuery.trim()) !== '') &&
+                        <Button
+                          type="button"
+                          style={{borderRight: 'none'}}
+                          title="clear search"
+                          onClick={handleClearSearchQuery}
+                        >
+                          <FontAwesomeIcon icon={faClose} />
+                        </Button>
+                      }
+                      <Button
+                        type="button"
+                        onClick={handleSearchQuery}
+                      >
                         <FontAwesomeIcon icon={faSearch} />
                       </Button>
                     </InputGroup>
@@ -145,10 +238,11 @@ export default function Orders() {
                       <th>
                         <div className="dropdown">
                           <button 
-                            className={`btn btn-link p-0 dropdown-toggle`} 
+                            className={`btn btn-link p-0 dropdown-toggle text-dark`} 
+                            style={{textDecoration: 'none'}}
                             type="button" 
                             data-bs-toggle="dropdown"
-                          >Status</button>
+                          ><strong>Status</strong></button>
                           <ul className="dropdown-menu">
                             {
                               ['all', 'pending', 'paid', 'failed', 'cencel'].map((i, index) => (
@@ -165,13 +259,14 @@ export default function Orders() {
                       <th>
                         <div className="dropdown">
                           <button 
-                            className={`btn btn-link p-0 dropdown-toggle`} 
+                            className={`btn btn-link p-0 dropdown-toggle text-dark`} 
+                            style={{textDecoration: 'none'}}
                             type="button" 
                             data-bs-toggle="dropdown"
-                          >Shipping</button>
+                          ><strong>Shipping</strong></button>
                           <ul className="dropdown-menu">
                             {
-                              ['waiting', 'prepare shipping', 'shipping', 'completed'].map((i, index) => (
+                              ['all', 'waiting', 'prepare shipping', 'shipping', 'completed'].map((i, index) => (
                                 <button 
                                   key={`order_shipping_status_dropdown_item_${index + 1}`}
                                   className='dropdown-item'
@@ -229,7 +324,11 @@ export default function Orders() {
                   </tbody>
                 </table>
                 <div className='d-flex justify-content-center'>
-                  <MyPagination />
+                  <MyPagination
+                    currentPage={currentPage}
+                    totalPage={totalPage}
+                    handleSelectPage={handleSelectPage}
+                  />
                 </div>
                 </>
                 :

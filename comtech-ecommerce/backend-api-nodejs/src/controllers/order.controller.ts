@@ -16,9 +16,11 @@ export class OrderController {
     const orderBy = req.query.orderBy as string || 'createdAt';
     const orderDir = req.query.orderDir as string || 'desc';
     const search = req.query.search as string;
+    const paymentStatus = req.query.paymentStatus as string;
+    const deliveryStatus = req.query.deliveryStatus as string;
 
     try {
-      const orders = await orderService.findAll(page, pageSize, pagination, orderBy, orderDir, search);
+      const orders = await orderService.findAll(page, pageSize, pagination, orderBy, orderDir, search, paymentStatus, deliveryStatus);
       sendResponse(res, 200, `Get all order ok`, orders.data, orders.meta);
     }
     catch (error: any) {

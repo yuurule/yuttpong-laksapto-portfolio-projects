@@ -30,6 +30,20 @@ export default function Dashboard() {
             
           </div>
         </div>
+
+        <div className='col-12 text-white'>
+          
+            <p>Total income</p>
+            <p>Total customer</p>
+            <p>Total new customer</p>
+            <p>Calendar (just for design)</p>
+            <p>Recent week income chart</p>
+            <p>top 5 best sell product & brand</p>
+            <p>new order table</p>
+            <p>on active campaign</p>
+          
+        </div>
+
       </div>
       
     </div>

@@ -23,7 +23,7 @@ export default function StockSellActionHistory({ data }) {
             <th>Product</th>
             <th>Action</th>
             <th>Amount</th>
-            <th>Date/Time <FontAwesomeIcon icon={faArrowUp} /></th>
+            <th>Date/Time</th>
             <th>By</th>
           </tr>
         </thead>
@@ -41,9 +41,9 @@ export default function StockSellActionHistory({ data }) {
           }
         </tbody>
       </table>
-      <div className='d-flex justify-content-center'>
+      {/* <div className='d-flex justify-content-center'>
         <MyPagination />
-      </div>
+      </div> */}
       </>
       :
       <p className='my-5 text-center'>ยังไม่มีข้อมูล</p>

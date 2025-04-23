@@ -67,7 +67,7 @@ export default function Login() {
           }
           
           <form onSubmit={handleSubmit(onSubmit)} className='px-5'>
-            <div className="form-group mb-5 position-relative">
+            <div className="form-group mb-4 position-relative">
               <FontAwesomeIcon icon={faUser} className={`${styles.formIcon}`} />
               <input
                 id="email"
@@ -79,7 +79,7 @@ export default function Login() {
               {errors.email && <small className="invalid-feedback">{errors.email.message}</small>}
             </div>
 
-            <div className="form-group mb-5 position-relative">
+            <div className="form-group mb-4 position-relative">
               <FontAwesomeIcon icon={faKey} className={`${styles.formIcon}`} />
               <input
                 id="password"

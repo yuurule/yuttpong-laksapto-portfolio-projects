@@ -119,15 +119,37 @@ export class StockService {
     }
   }
 
-  async findAllSell() {
+  async findAllSell(
+    page: number, 
+    pageSize: number,
+    pagination: boolean = false,
+    orderBy: string = 'actionedAt',
+    orderDir: string = 'desc',
+  ) {
     try {
+      const totalStockSellActions = await prisma.stockSellEvent.findMany();
+      const totalPages = Math.ceil(totalStockSellActions.length / pageSize);
       const stockSellActions = await prisma.stockSellEvent.findMany({
         include: {
           product: true,
           actionedBy: true,
-        }
+        },
+        orderBy: {
+          [orderBy]: orderDir
+        },
+        skip: pagination ? (page - 1) * pageSize : undefined,
+        take: pagination ? pageSize : undefined,
       });
-      return stockSellActions;
+      
+      return {
+        data: stockSellActions,
+        meta: {
+          totalItems: totalStockSellActions.length,
+          totalPages: totalPages,
+          currentPage: page,
+          pageSize
+        }
+      };
     }
     catch(error: any) {
       if(error instanceof Prisma.PrismaClientKnownRequestError) {

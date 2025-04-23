@@ -80,9 +80,15 @@ export class StockController {
   }
 
   async getAllStockSellAction(req: Request, res: Response) {
+    const page = parseInt(req.query.page as string || '1');
+    const pageSize = parseInt(req.query.pageSize as string || '8');
+    const pagination = parseBoolean(req.query.noPagination as string) || true;
+    const orderBy = req.query.orderBy as string || 'actionedAt';
+    const orderDir = req.query.orderDir as string || 'desc';
+
     try {
-      const stockSellActions = await stockService.findAllSell();
-      sendResponse(res, 200, `Get all stock sell action ok`, stockSellActions)
+      const stockSellActions = await stockService.findAllSell(page, pageSize, pagination, orderBy, orderDir);
+      sendResponse(res, 200, `Get all stock sell action ok`, stockSellActions.data, stockSellActions.meta)
     }
     catch (error: any) {
       console.error('Get all stock sell action error: ', error);

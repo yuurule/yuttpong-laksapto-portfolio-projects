@@ -12,9 +12,11 @@ export class OrderService {
     page: number, 
     pageSize: number,
     pagination: boolean = false,
-    orderBy: string = 'createdAt', // 'createdAt', name
+    orderBy: string = 'createdAt', // createdAt, name, total
     orderDir: string = 'desc',
     search: string,
+    paymentStatus: string,
+    deliveryStatus: string,
   ) {
     try {
       let where: Prisma.OrderWhereInput = {};
@@ -37,7 +39,7 @@ export class OrderService {
         }
       }
 
-      const totalOrders = await prisma.order.findMany();
+      const totalOrders = await prisma.order.findMany({ where });
       const totalPages = Math.ceil(totalOrders.length / pageSize);
       const orders = await prisma.order.findMany({
         where,

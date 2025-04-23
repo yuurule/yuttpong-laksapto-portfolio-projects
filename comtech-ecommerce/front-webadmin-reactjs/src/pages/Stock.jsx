@@ -40,15 +40,16 @@ export default function Stock() {
   const authUser = useSelector(state => state.auth.user);
 
   const [loadData, setLoadData] = useState(false);
+  const setPageSize = 8;
   const [productParamsQuery, setProductParamsQuery] = useState({
-    page: null,
-    pageSize: null,
-    noPagination: true,
-    brands: [],
-    categories: [],
-    tags: [],
+    page: 1,
+    pageSize: setPageSize,
     orderBy: 'createdAt',
-    orderDir: 'desc'
+    orderDir: 'desc',
+    search: null,
+    inStock: null,
+    sale: null,
+    totalSale: null,
   });
   const [products, setProducts] = useState([]);
   const [stockActions, setStockActions] = useState([]);
@@ -57,6 +58,10 @@ export default function Stock() {
   const [actionType, setActionType] = useState(null); // 'ADD', 'REMOVE'
   const [openManageStockDialog, setOpenManageStockDialog] = useState(false);
   const [refresh, setRefresh] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState(null);
+  const [useSearchQuery, setUseSearchQuery] = useState(null);
 
   const [orderBy, setOrderBy] = useState([
     { column: 'name', value: null },
@@ -78,14 +83,13 @@ export default function Stock() {
     const fetchData = async () => {
       setLoadData(true);
       try {
-        const brands = await BrandService.getBrands();
-        const tempProductParamsQuery = {...productParamsQuery};
-        tempProductParamsQuery.brands = brands.data.RESULT_DATA.map(i => (i.id));
-        const products = await ProductService.getAllProduct(tempProductParamsQuery);
+        const products = await ProductService.getStatisticProduct(productParamsQuery);
         const stockActions = await StockService.getAllStockAction();
         const stockSellActions = await StockService.getAllStockSellAction();
 
         setProducts(products.data.RESULT_DATA);
+        setCurrentPage(products.data.RESULT_META.currentPage);
+        setTotalPage(products.data.RESULT_META.totalPages);
         setStockActions(stockActions.data.RESULT_DATA);
         setStockSellActions(stockSellActions.data.RESULT_DATA);
       }
@@ -99,7 +103,7 @@ export default function Stock() {
     }
 
     fetchData();
-  }, [refresh]);
+  }, [refresh, productParamsQuery]);
 
   useEffect(() => {
     setValue('actionType', actionType);
@@ -142,17 +146,74 @@ export default function Stock() {
 
   const handleChangeOrderBy = (columnName) => {
     const tempResult = [...orderBy];
+    let newValue = null;
     tempResult.map(i => {
       if(i.column === columnName) {
-        if(i.value === '') i.value = 'desc';
-        else if(i.value === 'desc') i.value = 'asc';
-        else if(i.value === 'asc') i.value = '';
+        if(i.value === null) {
+          i.value = 'desc';
+          newValue = 'desc';
+        }
+        else if(i.value === 'desc') {
+          i.value = 'asc';
+          newValue = 'asc';
+        }
+        else if(i.value === 'asc') {
+          i.value = null;
+          newValue = null;
+        }
       }
       else {
-        i.value = '';
+        i.value = null;
       }
     });
+
+    const tempParamsQuery = handleResetParamsQuery();
+    switch(columnName) {
+      case 'name':
+        if(newValue !== null) {
+          tempParamsQuery.orderBy = 'name';
+          tempParamsQuery.orderDir = newValue;
+        }
+        break;
+      case 'inStock':
+        tempParamsQuery.inStock = newValue;
+        break;
+    }
+
+    setProductParamsQuery(tempParamsQuery);
     setOrderBy(tempResult);
+  }
+  const handleSearchQuery = () => {
+    if(searchQuery !== null && searchQuery.trim() !== '') {
+      const tempParamsQuery = handleResetParamsQuery();
+      tempParamsQuery.search = searchQuery;
+      setUseSearchQuery(searchQuery);
+      setProductParamsQuery(tempParamsQuery);
+    }
+  }
+  const handleClearSearchQuery = () => {
+    setSearchQuery(null);
+    setUseSearchQuery(null);
+    const tempParamsQuery = handleResetParamsQuery();
+    tempParamsQuery.search = null;
+    setProductParamsQuery(tempParamsQuery);
+  }
+  const handleResetParamsQuery = () => {
+    return {
+      page: 1,
+      pageSize: setPageSize,
+      orderBy: 'createdAt',
+      orderDir: 'desc',
+      search: useSearchQuery,
+      inStock: null,
+      sale: null,
+      totalSale: null,
+    }
+  }
+  const handleSelectPage = (pageNumber) => {
+    const tempParamsQuery = {...productParamsQuery};
+    tempParamsQuery.page = pageNumber;
+    setProductParamsQuery(tempParamsQuery);
   }
 
   if(loadData) return <div>กำลังโหลด...</div>
@@ -177,9 +238,27 @@ export default function Stock() {
                   <div className="search-input">
                     <InputGroup>
                       <Form.Control
+                        value={searchQuery}
                         placeholder="Search product"
+                        onChange={(e) => {
+                          setSearchQuery(e.target.value);
+                        }}
                       />
-                      <Button>
+                      {
+                        (searchQuery !== null && (searchQuery.trim()) !== '') &&
+                        <Button
+                          type="button"
+                          style={{borderRight: 'none'}}
+                          title="clear search"
+                          onClick={handleClearSearchQuery}
+                        >
+                          <FontAwesomeIcon icon={faClose} />
+                        </Button>
+                      }
+                      <Button
+                        type="button"
+                        onClick={handleSearchQuery}
+                      >
                         <FontAwesomeIcon icon={faSearch} />
                       </Button>
                     </InputGroup>
@@ -250,7 +329,11 @@ export default function Stock() {
                     }
                   </tbody>
                 </table>
-                <MyPagination />
+                <MyPagination
+                  currentPage={currentPage}
+                  totalPage={totalPage}
+                  handleSelectPage={handleSelectPage}
+                />
                 </>
                 :
                 <p className='my-5 text-center'>ยังไม่มีข้อมูล</p>

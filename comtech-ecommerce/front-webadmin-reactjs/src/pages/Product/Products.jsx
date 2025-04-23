@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Form, InputGroup, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faChevronLeft, faChevronRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faChevronLeft, faChevronRight, faArrowLeft, faClose } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../../components/MyPagination/MyPagination';
 import { Link, useNavigate } from 'react-router';
 import * as ProductService from '../../services/productService';
@@ -17,9 +17,10 @@ export default function Products() {
   const [showSoftDelete, setShowSoftDelete] = useState(false);
   const [productList, setProductList] = useState([]);
   const [refresh, setRefresh] = useState(0);
+  const setPageSize = 8;
   const [productParamsQuery, setProductParamsQuery] = useState({
     page: 1,
-    pageSize: 8,
+    pageSize: setPageSize,
     orderBy: 'createdAt',
     orderDir: 'desc',
     search: null,
@@ -29,7 +30,7 @@ export default function Products() {
   });
 
   const [orderBy, setOrderBy] = useState([
-    { column: 'product', value: null },
+    { column: 'name', value: null },
     { column: 'inStock', value: null },
     { column: 'price', value: null },
     { column: 'sale', value: null }, // quantity of sale
@@ -37,6 +38,8 @@ export default function Products() {
   ]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState(null);
+  const [useSearchQuery, setUseSearchQuery] = useState(null);
 
   useEffect(() => {
     const fecthData = async () => {
@@ -63,19 +66,89 @@ export default function Products() {
 
   const handleChangeOrderBy = (columnName) => {
     const tempResult = [...orderBy];
-    
+    let newValue = null;
     tempResult.map(i => {
       if(i.column === columnName) {
-        if(i.value === null) i.value = 'desc';
-        else if(i.value === 'desc') i.value = 'asc';
-        else if(i.value === 'asc') i.value = null;
+        if(i.value === null) {
+          i.value = 'desc';
+          newValue = 'desc';
+        }
+        else if(i.value === 'desc') {
+          i.value = 'asc';
+          newValue = 'asc';
+        }
+        else if(i.value === 'asc') {
+          i.value = null;
+          newValue = null;
+        }
       }
       else {
         i.value = null;
       }
     });
 
+    const tempParamsQuery = handleResetParamsQuery();
+    switch(columnName) {
+      case 'name':
+        if(newValue !== null) {
+          tempParamsQuery.orderBy = 'name';
+          tempParamsQuery.orderDir = newValue;
+        }
+        break;
+      case 'inStock':
+        tempParamsQuery.inStock = newValue;
+        break;
+      case 'price':
+        if(newValue !== null) {
+          tempParamsQuery.orderBy = 'price';
+          tempParamsQuery.orderDir = newValue;
+        }
+        break;
+      case 'sale':
+        tempParamsQuery.sale = newValue;
+        break;
+      case 'totalSale':
+        tempParamsQuery.totalSale = newValue;
+        break;
+    }
+
+    setProductParamsQuery(tempParamsQuery);
     setOrderBy(tempResult);
+  }
+
+  const handleSearchQuery = () => {
+    if(searchQuery !== null && searchQuery.trim() !== '') {
+      const tempParamsQuery = handleResetParamsQuery();
+      tempParamsQuery.search = searchQuery;
+      setUseSearchQuery(searchQuery);
+      setProductParamsQuery(tempParamsQuery);
+    }
+  }
+  const handleClearSearchQuery = () => {
+    setSearchQuery(null);
+    setUseSearchQuery(null);
+    const tempParamsQuery = handleResetParamsQuery();
+    tempParamsQuery.search = null;
+    setProductParamsQuery(tempParamsQuery);
+  }
+
+  const handleResetParamsQuery = () => {
+    return {
+      page: 1,
+      pageSize: setPageSize,
+      orderBy: 'createdAt',
+      orderDir: 'desc',
+      search: useSearchQuery,
+      inStock: null,
+      sale: null,
+      totalSale: null,
+    }
+  }
+
+  const handleSelectPage = (pageNumber) => {
+    const tempParamsQuery = {...productParamsQuery};
+    tempParamsQuery.page = pageNumber;
+    setProductParamsQuery(tempParamsQuery);
   }
 
   if(loadData) return <div>กำลังโหลด...</div> 
@@ -123,9 +196,27 @@ export default function Products() {
                     <div className="search-input">
                       <InputGroup>
                         <Form.Control
+                          value={searchQuery}
                           placeholder="Search product"
+                          onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                          }}
                         />
-                        <Button>
+                        {
+                          (searchQuery !== null && (searchQuery.trim()) !== '') &&
+                          <Button
+                            type="button"
+                            style={{borderRight: 'none'}}
+                            title="clear search"
+                            onClick={handleClearSearchQuery}
+                          >
+                            <FontAwesomeIcon icon={faClose} />
+                          </Button>
+                        }
+                        <Button
+                          type="button"
+                          onClick={handleSearchQuery}
+                        >
                           <FontAwesomeIcon icon={faSearch} />
                         </Button>
                       </InputGroup>
@@ -139,7 +230,7 @@ export default function Products() {
                           Product
                           <OrderByBtn 
                             currentStatus={orderBy[0].value}
-                            handleOnClick={() => handleChangeOrderBy('product')}
+                            handleOnClick={() => handleChangeOrderBy('name')}
                           />
                         </th>
                         <th>
@@ -209,6 +300,7 @@ export default function Products() {
                     <MyPagination
                       currentPage={currentPage}
                       totalPage={totalPage}
+                      handleSelectPage={handleSelectPage}
                     />
                   </div>
                 </div>
@@ -280,6 +372,7 @@ export default function Products() {
                     <MyPagination
                       currentPage={1}
                       totalPage={1}
+
                     />
                   </div>
                 </div>

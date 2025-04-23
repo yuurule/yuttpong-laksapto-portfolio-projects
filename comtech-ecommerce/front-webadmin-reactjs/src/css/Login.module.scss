@@ -10,6 +10,7 @@
     background-color: transparent;
     color: #FFF;
     position: relative;
+    box-shadow: none;
 
     header {
       position: relative;
@@ -31,21 +32,22 @@
 
     .formIcon {
       position: absolute;
-      top: 10px;
-      left: 0;
+      top: 14px;
+      left: 15px;
+      color: var(--main-text);
     }
 
     input {
-      background-color: transparent !important;
+      //background-color: transparent !important;
       border: none;
       border-bottom: 1px solid rgba(255,255,255,0.2);
-      border-radius: 0;
-      padding-left: 30px;
+      border-radius: 36px;
+      padding-left: 45px;
       padding-bottom: 12px;
-      color: #FFF;
+      color: var(--main-text);
 
       &:focus, &:-internal-autofill-selected {
-        background-color: transparent !important;
+        //background-color: transparent !important;
         box-shadow: none;
         outline: none;
       }
