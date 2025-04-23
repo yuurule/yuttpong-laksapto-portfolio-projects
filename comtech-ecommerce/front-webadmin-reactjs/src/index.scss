@@ -16,6 +16,8 @@
   --hover-red:rgb(196, 70, 70);
   --light-blue: #1e9cec;
   --hover-light-blue: #1482c7;
+  --main-green: #38b35d;
+  --hover-green: #2c954c;
   --light-text: #8f8f8f;
   --gray: #919191;
   --light-gray: #f5f5f5;
@@ -119,6 +121,11 @@ Button
   &.blue-btn {
     background-color: var(--light-blue);
     &:hover { background-color: var(--hover-light-blue); }
+  }
+
+  &.green-btn {
+    background-color: var(--main-green);
+    &:hover { background-color: var(--hover-green); }
   }
 
   &.red-btn {
@@ -254,6 +261,39 @@ Form
     border-left: none;
     color: var(--gray);
   }
+}
+
+/**
+Dialog
+**/
+.custom-dialog {
+
+  .MuiDialog-paper {
+    border-radius: 24px;
+    padding: 15px
+  }
+
+  &.confirm-dialog {
+    .MuiDialog-paper {
+      max-width: inherit;
+      width: 600px;
+    }
+  }
+
+  &.instock-dialog {
+    .MuiDialog-paper {
+      max-width: inherit;
+      width: 640px;
+    }
+  }
+
+  &.select-product-campaign-dialog {
+    .MuiDialog-paper {
+      max-width: inherit;
+      width: 720px;
+    }
+  }
+
 }
 
 /**

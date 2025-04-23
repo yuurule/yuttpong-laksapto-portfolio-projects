@@ -22,9 +22,16 @@ export default function ProductDetail() {
       setLoadData(true);
       try {
         const product = await ProductService.getOneProduct(params.id);
-        const orders = await OrderService.getOrders();
+        const orders = await OrderService.getOrders({
+          page: 1,
+          pageSize: 5,
+          pagination: true,
+          orderBy: 'createdAt',
+          orderDir: 'desc',
+          search: null,
+        });
 
-        console.log(product.data.RESULT_DATA);
+        //console.log(product.data.RESULT_DATA);
         const result = product.data.RESULT_DATA;
         const resultProductSpecs = [
           { title: "Title", value: result.name },

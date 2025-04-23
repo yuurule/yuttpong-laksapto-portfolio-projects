@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogActions } from '@mui/material';
 import * as CampaignService from '../../services/campaignService';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import MyPagination from '../MyPagination/MyPagination';
 
 export default function ProductInCampaign({ selectedCampaign, data, handleRefreshData }) {
 
@@ -58,7 +59,7 @@ export default function ProductInCampaign({ selectedCampaign, data, handleRefres
           <div className='mt-3 mb-2'>
             <button 
               type="button"
-              className='btn my-btn narrow-btn purple-btn me-3'
+              className='btn my-btn narrow-btn green-btn me-3'
               onClick={() => setOpenAddDialog(true)}
             ><FontAwesomeIcon icon={faPlus} className='me-2' />Add Items</button>
             {
@@ -116,7 +117,9 @@ export default function ProductInCampaign({ selectedCampaign, data, handleRefres
                 }
               </tbody>
             </table>
-            <PaginationArrow />
+            <MyPagination
+
+            />
             </>
             :
             <p className='my-4 text-center'>ยังไม่มีรายการสินค้าใน campaign</p>
@@ -131,27 +134,27 @@ export default function ProductInCampaign({ selectedCampaign, data, handleRefres
       <h5 className='my-5 text-center'>Select some campaign</h5>
     }
 
-    <Dialog open={openDeleteDialog}>
+    <Dialog open={openDeleteDialog} className='custom-dialog'>
       <DialogContent>
-        <p className='h3'>Do you confirm remove?</p>
+        <p className='h4 text-center'>Do you confirm remove your selected items from campaign?</p>
       </DialogContent>
       <DialogActions className='d-flex justify-content-center'>
         <button 
           type="button"
-          className='btn btn-success px-4 me-2'
+          className='btn my-btn green-btn big-btn w-50'
           onClick={handleConfirmDelete}
         >
           <FontAwesomeIcon icon={faTrashAlt} className='me-2' />
-          Confirm Delete
+          Yes, confirm
         </button>
         <button 
           type="button"
-          className='btn btn-danger px-4'
+          className='btn my-btn red-btn big-btn w-50'
           onClick={() => {
             setSelectedDeleteProducts([]);
             setOpenDeleteDialog(false)
           }}
-        ><FontAwesomeIcon icon={faClose} className='me-2' />Cancel</button>
+        ><FontAwesomeIcon icon={faClose} className='me-2' />No, cancel</button>
       </DialogActions>
     </Dialog>
     

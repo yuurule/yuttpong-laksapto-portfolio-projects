@@ -105,11 +105,10 @@ export default function UpsertCampaign({
   }
 
   return (
-    <Dialog open={openDialog}>
+    <Dialog open={openDialog} className='custom-dialog'>
     
-      <DialogTitle className='pb-0'>
+      <DialogTitle className='pb-0 text-center'>
         <h4>{upsertAction === 'CREATE' && 'Creat New'}{upsertAction === 'EDIT' && 'Edit'} Campaign</h4>
-        <hr />
       </DialogTitle>
       
       <form onSubmit={handleSubmit(onSubmit)} style={{width: 480}}>
@@ -148,14 +147,14 @@ export default function UpsertCampaign({
         <DialogActions className='d-flex justify-content-center'>
           <button 
             type="submit"
-            className='btn btn-success px-4 me-2'
+            className='btn my-btn green-btn px-5 me-1'
           >
             <FontAwesomeIcon icon={faSave} className='me-2' />
             {isSubmitting ? 'Processing...' : `${upsertAction === 'CREATE' ? 'Create' : 'Save'}`}
           </button>
           <button 
             type="button"
-            className='btn btn-danger px-4'
+            className='btn my-btn red-btn px-5'
             onClick={() => {
               handleCloseDialog();
               reset();

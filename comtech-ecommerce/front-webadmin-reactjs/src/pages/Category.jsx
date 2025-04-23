@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Form, InputGroup, Button  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faSearch, faClose } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faSearch, faClose, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../components/MyPagination/MyPagination';
 import * as CategoryService from '../services/categoryService';
 import UpsertCategory from '../components/Category/UpsetCategory';
@@ -214,12 +214,12 @@ export default function Category() {
     }
   }
   const renderMutipleCategoryName = (ids) => {
-    let result = "[";
+    let result = "";
     ids.map((i, index) => {
       const category = categories.find(x => x.id === parseInt(i))?.name;
       result += `"${category}"${index < ids.length - 1 ? ', ' : ''}`;
     });
-    result += "]";
+    //result += "";
     return result;
   }
   const handleDeleteCategories = async () => {
@@ -382,7 +382,7 @@ export default function Category() {
                               <div className='d-flex'>
                                 <button 
                                   type="button"
-                                  className='btn btn-link p-0 btn-lg'
+                                  className='btn my-btn narrow-btn blue-btn px-3'
                                   onClick={() => handlerClickUpdate(i.id, i.name, i.description)}
                                 ><FontAwesomeIcon icon={faEdit} /></button>
                                 {/* <button 
@@ -429,8 +429,8 @@ export default function Category() {
       
       {
         !loading &&
-        <Dialog open={confirmDeletesDialog}>
-          <DialogContent style={{minWidth: 450}}>
+        <Dialog open={confirmDeletesDialog} className='custom-dialog confirm-dialog'>
+          <DialogContent>
             <div className='text-center pt-3'>
               <p className='h3'>
                 { deleteType === 'single' && `Delete category "${renderCategoryName(selectDeleteCategory)}"`}
@@ -441,13 +441,13 @@ export default function Category() {
           </DialogContent>
           <DialogActions className='text-center px-4 pb-3'>
             <button
-              className='btn btn-primary w-50'
+              className='btn my-btn big-btn green-btn w-50'
               onClick={handleDeleteCategories}
-            >{onSubmit ? 'Processing...' : 'Confirm Delete'}</button>
+            >{onSubmit ? 'Processing...' : <><FontAwesomeIcon icon={faTrashAlt} className='me-2' />Yes, confirm</>}</button>
             <button
-              className='btn btn-secondary w-50'
+              className='btn my-btn big-btn red-btn w-50'
               onClick={closeConfirmDeleteDialog}
-            >Cancel</button>
+            ><FontAwesomeIcon icon={faClose} className='me-2' />No, Cancel</button>
           </DialogActions>
         </Dialog>
       }

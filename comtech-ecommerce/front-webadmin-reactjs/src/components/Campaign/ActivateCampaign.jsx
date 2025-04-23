@@ -105,11 +105,10 @@ export default function ActivateCampaign({
   }
 
   return (
-    <Dialog open={openDialog}>
+    <Dialog open={openDialog} className='custom-dialog'>
     
       <DialogTitle className='pb-0'>
-        <p className='h4'>Activate/Deactivate Campaign</p>
-        <hr />
+        <p className='h4 text-center'>Activate/Deactivate Campaign</p>
       </DialogTitle>
       
       <form onSubmit={handleSubmit(onSubmit)} style={{width: 480}}>
@@ -186,7 +185,7 @@ export default function ActivateCampaign({
         <DialogActions className='d-flex justify-content-center'>
           <button 
             type="submit"
-            className='btn btn-success px-4 me-2'
+            className='btn my-btn green-btn px-5 me-1'
             disabled={isSubmitting}
           >
             <FontAwesomeIcon icon={faSave} className='me-2' />
@@ -194,7 +193,7 @@ export default function ActivateCampaign({
           </button>
           <button 
             type="button"
-            className='btn btn-danger px-4'
+            className='btn my-btn red-btn px-5'
             disabled={isSubmitting}
             onClick={() => {
               handleCloseDialog();

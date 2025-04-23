@@ -298,7 +298,7 @@ export default function Stock() {
                             <div className='d-flex'>
                               <button
                                 type="button"
-                                className='btn btn-primary me-2'
+                                className='btn my-btn narrow-btn green-btn px-3 me-2'
                                 onClick={() => {
                                   setSelectedProduct({
                                     id: product.id,
@@ -311,7 +311,7 @@ export default function Stock() {
                               ><FontAwesomeIcon icon={faAdd} /></button>
                               <button 
                                 type="button"
-                                className='btn btn-danger'
+                                className='btn my-btn narrow-btn red-btn px-3'
                                 onClick={() => {
                                   setSelectedProduct({
                                     id: product.id,
@@ -359,10 +359,11 @@ export default function Stock() {
         
       </div>
 
-      <Dialog open={openManageStockDialog}>
+      <Dialog open={openManageStockDialog} className='custom-dialog instock-dialog'>
 
-        <DialogTitle>
-          {actionType} in stock for "{selectedProduct?.name} / SKU: {selectedProduct?.sku}"
+        <DialogTitle className='text-center'>
+          {actionType} "{selectedProduct?.name}" {actionType === 'ADD' && 'to'}{actionType === 'REMOVE' && 'from'} stock
+          {/* <small className='opacity-50'>SKU: {selectedProduct?.sku}</small> */}
         </DialogTitle>
         
         <form onSubmit={handleSubmit(onSubmitManage)}>
@@ -397,11 +398,11 @@ export default function Stock() {
           <DialogActions className='d-flex justify-content-center'>
             <button 
               type="submit"
-              className='btn btn-success px-4 me-2'
+              className='btn my-btn green-btn px-5 me-1'
             ><FontAwesomeIcon icon={faSave} className='me-2' />Save</button>
             <button 
               type="button"
-              className='btn btn-danger px-4'
+              className='btn my-btn red-btn px-5'
               onClick={() => {
                 setOpenManageStockDialog(false);
                 setTimeout(() => {

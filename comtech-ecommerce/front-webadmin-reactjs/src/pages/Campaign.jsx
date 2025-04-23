@@ -384,7 +384,7 @@ export default function Campaign() {
                               <div className='d-flex'>
                                 <button 
                                   type="button"
-                                  className='btn btn-link p-0 btn-lg'
+                                  className='btn my-btn narrow-btn blue-btn px-3'
                                   onClick={() => {
                                     setUpsertAction('EDIT');
                                     setSelectEditCampaign({
@@ -496,27 +496,27 @@ export default function Campaign() {
 
       </div>
 
-      <Dialog open={openDeleteDialog}>
+      <Dialog open={openDeleteDialog} className='custom-dialog'>
         <DialogContent>
-          <p className='h3'>Do you confirm remove campaigns to trash?</p>
+          <p className='h4 text-center'>Do you confirm remove these campaigns to trash?</p>
         </DialogContent>
         <DialogActions className='d-flex justify-content-center'>
           <button 
             type="button"
-            className='btn btn-success px-4 me-2'
+            className='btn my-btn green-btn big-btn w-50'
             onClick={handleConfirmDelete}
           >
             <FontAwesomeIcon icon={faTrashAlt} className='me-2' />
-            Confirm Delete
+            Yes, confirm
           </button>
           <button 
             type="button"
-            className='btn btn-danger px-4'
+            className='btn my-btn red-btn big-btn w-50'
             onClick={() => {
               setSelectedDeleteCampaigns([]);
               setOpenDeleteDialog(false)
             }}
-          ><FontAwesomeIcon icon={faClose} className='me-2' />Cancel</button>
+          ><FontAwesomeIcon icon={faClose} className='me-2' />No, cancel</button>
         </DialogActions>
       </Dialog>
 

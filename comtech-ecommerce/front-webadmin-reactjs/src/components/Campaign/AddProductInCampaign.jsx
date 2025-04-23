@@ -122,124 +122,117 @@ export default function AddProductInCampaign({
   if(loadData) return <>กำลังโหลด...</>
 
   return (
-    <Dialog open={openDialog}>
+    <Dialog open={openDialog} className='custom-dialog select-product-campaign-dialog'>
     
-      <DialogTitle className='pb-0'>
+      <DialogTitle className='pb-0 text-center'>
         <p className='h4 mb-0'>Select Products</p>
         <small className='opacity-50' style={{fontSize: '12px'}}>First, select filter items what you need. this will show only items that not set in campaign.</small>
-        <hr />
       </DialogTitle>
-      
-      {/* <form onSubmit={handleSubmit(onSubmit)} style={{width: 550}}> */}
-        <DialogContent style={{width: 600}}>
-          
-          <div className='row'>
-
-            <div className='col-3'>
-              <strong>Product Brand</strong>
-              {
-                brandList.map((brand, index) => {
-                  return (
-                    <Form.Check
-                      key={`brand_form_checkbox_${brand.id}`}
-                      type="checkbox"
-                      label={`${brand.name}`}
-                      checked={(selectBrands.find(i => i.id === brand.id).isChecked)}
-                      onChange={(e) => {
-                        const tempSelectBrands = [...selectBrands];
-                        tempSelectBrands.find(i => i.id === brand.id).isChecked = e.target.checked;
-                        setSelectBrands(tempSelectBrands);
-                        handleSelectFilter('brand', tempSelectBrands);
-                      }}
-                    />
-                  )
-                })
-              }
-              
-              <strong className='mt-3 d-block'>Category</strong>
-              {
-                categoryList.map((category, index) => {
-                  return (
-                    <Form.Check
-                      key={`category_form_checkbox_${category.id}`}
-                      type="checkbox"
-                      label={`${category.name}`}
-                      checked={(selectCategories.find(i => i.id === category.id).isChecked)}
-                      onChange={(e) => {
-                        const tempSelectCategories = [...selectCategories];
-                        tempSelectCategories.find(i => i.id === category.id).isChecked = e.target.checked;
-                        setSelectCategories(tempSelectCategories);
-                        handleSelectFilter('category', tempSelectCategories);
-                      }}
-                    />
-                  )
-                })
-              }
-            </div>
-
-            <div className='col-9'>
-              
-                <div style={{maxHeight: 600, overflowY: 'auto'}}>
-                  <p className='mb-0 opacity-50'>Result {productList.length} items</p>
-                  {
-                    !loadProduct
-                    ? productList.map((product, index) => (
-                      <div key={`product_list_${index}`} className='card w-100 mb-2'>
-                        <div className='card-body d-flex justify-content-between'>
-                          <div className='d-flex'>
-                            <Form.Check
-                              type="checkbox"
-                              label=""
-                              checked={(selectedProducts.filter(i => i === product.id).length > 0)}
-                              onChange={(e) => {
-                                const tempSelectedProducts = [...selectedProducts];
-                                if(e.target.checked === true) {
-                                  tempSelectedProducts.push(product.id);
-                                  setSelctedProducts(tempSelectedProducts);
-                                }
-                                else {
-                                  const removeResult = tempSelectedProducts.filter(i => i !== product.id);
-                                  setSelctedProducts(removeResult);
-                                }
-                              }}
-                            />
-                            <div>
-                              <p className='mb-0'>{product.name}</p>
-                              <small className='opacity-50'>sku: {product.sku}</small>
-                            </div>
-                          </div>
-                          <p className='mb-0'>฿{parseFloat(product.price).toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
-                        </div>
-                      </div>
-                    ))
-                    : <p>Loading...</p>
-                  }
-                </div>
-              
-            </div>
-
+      <hr />
+      <DialogContent>
+        <div className='row'>
+          <div className='col-3'>
+            <strong>Product Brand</strong>
+            {
+              brandList.map((brand, index) => {
+                return (
+                  <Form.Check
+                    key={`brand_form_checkbox_${brand.id}`}
+                    type="checkbox"
+                    label={`${brand.name}`}
+                    checked={(selectBrands.find(i => i.id === brand.id).isChecked)}
+                    onChange={(e) => {
+                      const tempSelectBrands = [...selectBrands];
+                      tempSelectBrands.find(i => i.id === brand.id).isChecked = e.target.checked;
+                      setSelectBrands(tempSelectBrands);
+                      handleSelectFilter('brand', tempSelectBrands);
+                    }}
+                  />
+                )
+              })
+            }
+            
+            <strong className='mt-3 d-block'>Category</strong>
+            {
+              categoryList.map((category, index) => {
+                return (
+                  <Form.Check
+                    key={`category_form_checkbox_${category.id}`}
+                    type="checkbox"
+                    label={`${category.name}`}
+                    checked={(selectCategories.find(i => i.id === category.id).isChecked)}
+                    onChange={(e) => {
+                      const tempSelectCategories = [...selectCategories];
+                      tempSelectCategories.find(i => i.id === category.id).isChecked = e.target.checked;
+                      setSelectCategories(tempSelectCategories);
+                      handleSelectFilter('category', tempSelectCategories);
+                    }}
+                  />
+                )
+              })
+            }
           </div>
-
-        </DialogContent>
-        <DialogActions className='d-flex justify-content-center'>
-          <button 
-            type="button"
-            className='btn btn-success px-4 me-2'
-            onClick={handleConfirmAdd}
-          >
-            <FontAwesomeIcon icon={faSave} className='me-2' />
-            {/* {isSubmitting ? 'Processing...' : 'Add'} */}
-            Confirm Add
-          </button>
-          <button 
-            type="button"
-            className='btn btn-danger px-4'
-            onClick={() => {
-              handleCloseDialog();
-            }}
-          ><FontAwesomeIcon icon={faClose} className='me-2' />Cancel</button>
-        </DialogActions>
-      {/* </form> */}
+          <div className='col-9'>
+            
+              <div style={{maxHeight: 600, overflowY: 'auto'}}>
+                <p className='mb-0 opacity-50'>Result {productList.length} items</p>
+                {
+                  !loadProduct
+                  ? productList.map((product, index) => (
+                    <div key={`product_list_${index}`} className='card w-100 mb-2'>
+                      <div className='card-body d-flex justify-content-between'>
+                        <div className='d-flex pe-3'>
+                          <Form.Check
+                            type="checkbox"
+                            label=""
+                            checked={(selectedProducts.filter(i => i === product.id).length > 0)}
+                            onChange={(e) => {
+                              const tempSelectedProducts = [...selectedProducts];
+                              if(e.target.checked === true) {
+                                tempSelectedProducts.push(product.id);
+                                setSelctedProducts(tempSelectedProducts);
+                              }
+                              else {
+                                const removeResult = tempSelectedProducts.filter(i => i !== product.id);
+                                setSelctedProducts(removeResult);
+                              }
+                            }}
+                          />
+                          <div>
+                            <p className='mb-0'>{product.name}</p>
+                            <small className='opacity-50'>sku: {product.sku}</small>
+                          </div>
+                        </div>
+                        <p className='mb-0'>฿{parseFloat(product.price).toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                      </div>
+                    </div>
+                  ))
+                  : <p>Loading...</p>
+                }
+              </div>
+            
+          </div>
+        </div>
+      </DialogContent>
+      <hr />
+      <DialogActions className='d-flex justify-content-center'>
+        <button 
+          type="button"
+          className='btn my-btn green-btn px-5 me-1'
+          onClick={handleConfirmAdd}
+        >
+          <FontAwesomeIcon icon={faSave} className='me-2' />
+          {/* {isSubmitting ? 'Processing...' : 'Add'} */}
+          Confirm Add
+        </button>
+        <button 
+          type="button"
+          className='btn my-btn red-btn px-5'
+          onClick={() => {
+            handleCloseDialog();
+          }}
+        ><FontAwesomeIcon icon={faClose} className='me-2' />Cancel</button>
+      </DialogActions>
 
     </Dialog>
   )
