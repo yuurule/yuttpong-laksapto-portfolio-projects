@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Form, InputGroup, Button  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faSearch, faArrowUp, faMinus } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faSearch, faArrowUp, faMinus, faClose } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../../components/MyPagination/MyPagination';
 import { Link } from 'react-router';
 import { toast } from 'react-toastify';
@@ -15,9 +15,11 @@ export default function Customers() {
   const [loadData, setLoadData] = useState(false);
   const [refresh, setRefresh] = useState(0);
   const [customerList, setCustomerList] = useState([]);
+
+  const setPageSize = 8;
   const [paramsQuery, setParamsQuery] = useState({
     page: 1,
-    pageSize: 8,
+    pageSize: setPageSize,
     orderBy: 'createdAt',
     orderDir: 'desc',
     search: null,
@@ -25,17 +27,22 @@ export default function Customers() {
   });
   const [orderBy, setOrderBy] = useState([
     { column: 'name', value: null },
-    { column: 'expense', value: null },
+    { column: 'totalExpense', value: null },
     { column: 'createdAt', value: null },
   ]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState(null);
+  const [useSearchQuery, setUseSearchQuery] = useState(null);
 
   useEffect(() => {
     const fecthCustomers = async () => {
       setLoadData(true);
       try {
         const customers = await CustomerService.getStatisticCustomers(paramsQuery);
-        const resultData = customers.data.RESULT_DATA;
-        setCustomerList(resultData);
+        setCustomerList(customers.data.RESULT_DATA);
+        setCurrentPage(customers.data.RESULT_META.currentPage);
+        setTotalPage(customers.data.RESULT_META.totalPages);
       }
       catch(error) {
         console.log(error);
@@ -59,17 +66,78 @@ export default function Customers() {
 
   const handleChangeOrderBy = (columnName) => {
     const tempResult = [...orderBy];
+    let newValue = null;
     tempResult.map(i => {
       if(i.column === columnName) {
-        if(i.value === null) i.value = 'desc';
-        else if(i.value === 'desc') i.value = 'asc';
-        else if(i.value === 'asc') i.value = null;
+        if(i.value === null) {
+          i.value = 'desc';
+          newValue = 'desc';
+        }
+        else if(i.value === 'desc') {
+          i.value = 'asc';
+          newValue = 'asc';
+        }
+        else if(i.value === 'asc') {
+          i.value = null;
+          newValue = null;
+        }
       }
       else {
         i.value = null;
       }
     });
+
+    const tempParamsQuery = handleResetParamsQuery();
+    switch(columnName) {
+      case 'name':
+        if(newValue !== null) {
+          tempParamsQuery.orderBy = 'name';
+          tempParamsQuery.orderDir = newValue;
+        }
+        break;
+      case 'totalExpense':
+        tempParamsQuery.totalExpense = newValue;
+        break;
+      case 'discount':
+        if(newValue !== null) {
+          tempParamsQuery.orderBy = 'discount';
+          tempParamsQuery.orderDir = newValue;
+        }
+        break;
+    }
+
+    setParamsQuery(tempParamsQuery);
     setOrderBy(tempResult);
+  }
+  const handleSearchQuery = () => {
+    if(searchQuery !== null && searchQuery.trim() !== '') {
+      const tempParamsQuery = handleResetParamsQuery();
+      tempParamsQuery.search = searchQuery;
+      setUseSearchQuery(searchQuery);
+      setParamsQuery(tempParamsQuery);
+    }
+  }
+  const handleClearSearchQuery = () => {
+    setSearchQuery(null);
+    setUseSearchQuery(null);
+    const tempParamsQuery = handleResetParamsQuery();
+    tempParamsQuery.search = null;
+    setParamsQuery(tempParamsQuery);
+  }
+  const handleResetParamsQuery = () => {
+    return {
+      page: 1,
+      pageSize: setPageSize,
+      orderBy: 'createdAt',
+      orderDir: 'desc',
+      search: useSearchQuery,
+      totalExpense: null
+    }
+  }
+  const handleSelectPage = (pageNumber) => {
+    const tempParamsQuery = {...paramsQuery};
+    tempParamsQuery.page = pageNumber;
+    setParamsQuery(tempParamsQuery);
   }
 
   if(loadData) return <>Loading...</>
@@ -95,13 +163,29 @@ export default function Customers() {
                   </button>
                 </div>
                 <div className="search-input">
-                  <InputGroup className="">
+                  <InputGroup>
                     <Form.Control
-                      placeholder="Search customer"
-                      aria-label="Recipient's username"
-                      aria-describedby="basic-addon2"
+                      value={searchQuery}
+                      placeholder="Search campaign"
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                      }}
                     />
-                    <Button variant="primary" id="button-addon2">
+                    {
+                      (searchQuery !== null && (searchQuery.trim()) !== '') &&
+                      <Button
+                        type="button"
+                        style={{borderRight: 'none'}}
+                        title="clear search"
+                        onClick={handleClearSearchQuery}
+                      >
+                        <FontAwesomeIcon icon={faClose} />
+                      </Button>
+                    }
+                    <Button
+                      type="button"
+                      onClick={handleSearchQuery}
+                    >
                       <FontAwesomeIcon icon={faSearch} />
                     </Button>
                   </InputGroup>
@@ -122,7 +206,7 @@ export default function Customers() {
                       Total Expense 
                       <OrderByBtn 
                         currentStatus={orderBy[1].value}
-                        handleOnClick={() => handleChangeOrderBy('expense')}
+                        handleOnClick={() => handleChangeOrderBy('totalExpense')}
                       />
                     </th>
                     <th>Account Status </th>
@@ -160,7 +244,11 @@ export default function Customers() {
                 </tbody>
               </table>
               <div className='d-flex justify-content-center'>
-                <MyPagination />
+                <MyPagination
+                  currentPage={currentPage}
+                  totalPage={totalPage}
+                  handleSelectPage={handleSelectPage}
+                />
               </div>
             </div>
           </div>

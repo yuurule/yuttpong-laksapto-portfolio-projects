@@ -22,7 +22,7 @@ export default function Orders() {
     orderBy: 'createdAt',
     orderDir: 'desc',
     search: null,
-  })
+  });
   const [orderBy, setOrderBy] = useState([
     { column: 'orderId', value: null },
     { column: 'total', value: null },

@@ -36,18 +36,33 @@ export default function Campaign() {
   const [showInTrash, setShowInTrash] = useState(false);
   const [refresh, setRefresh] = useState(0);
 
+  const setPageSize = 8;
+  const [paramsQuery, setParamsQuery] = useState({
+    page: 1,
+    pageSize: setPageSize,
+    pagination: true,
+    orderBy: 'createdAt',
+    orderDir: 'desc',
+    search: null,
+  });
   const [orderBy, setOrderBy] = useState([
-    { column: 'campaignName', value: null },
+    { column: 'name', value: null },
     { column: 'discount', value: null },
   ]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState(null);
+  const [useSearchQuery, setUseSearchQuery] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoadData(true);
       try {
-        const campaigns = await CampaignService.getAllCampaign();
+        const campaigns = await CampaignService.getAllCampaign(paramsQuery);
         setCampaignList(campaigns.data.RESULT_DATA.filter(i => i.deletedAt === null));
-        setDeletedCampaignList(campaigns.data.RESULT_DATA.filter(i => i.deletedAt !== null));
+        //setDeletedCampaignList(campaigns.data.RESULT_DATA.filter(i => i.deletedAt !== null));
+        setCurrentPage(campaigns.data.RESULT_META.currentPage);
+        setTotalPage(campaigns.data.RESULT_META.totalPages);
       }
       catch(error) {
         console.log(error.message);
@@ -59,7 +74,7 @@ export default function Campaign() {
     }
 
     fetchData();
-  }, [refresh]);
+  }, [refresh, paramsQuery]);
 
   const handleRefreshData = () => setRefresh(prevState => prevState + 1);
   const handleRefreshDataAfterAddRemoveProducts = async (campaignId, campaignName) => {
@@ -120,17 +135,75 @@ export default function Campaign() {
 
   const handleChangeOrderBy = (columnName) => {
     const tempResult = [...orderBy];
+    let newValue = null;
     tempResult.map(i => {
       if(i.column === columnName) {
-        if(i.value === '') i.value = 'desc';
-        else if(i.value === 'desc') i.value = 'asc';
-        else if(i.value === 'asc') i.value = '';
+        if(i.value === null) {
+          i.value = 'desc';
+          newValue = 'desc';
+        }
+        else if(i.value === 'desc') {
+          i.value = 'asc';
+          newValue = 'asc';
+        }
+        else if(i.value === 'asc') {
+          i.value = null;
+          newValue = null;
+        }
       }
       else {
-        i.value = '';
+        i.value = null;
       }
     });
+
+    const tempParamsQuery = handleResetParamsQuery();
+    switch(columnName) {
+      case 'name':
+        if(newValue !== null) {
+          tempParamsQuery.orderBy = 'name';
+          tempParamsQuery.orderDir = newValue;
+        }
+        break;
+      case 'discount':
+        if(newValue !== null) {
+          tempParamsQuery.orderBy = 'discount';
+          tempParamsQuery.orderDir = newValue;
+        }
+        break;
+    }
+
+    setParamsQuery(tempParamsQuery);
     setOrderBy(tempResult);
+  }
+  const handleSearchQuery = () => {
+    if(searchQuery !== null && searchQuery.trim() !== '') {
+      const tempParamsQuery = handleResetParamsQuery();
+      tempParamsQuery.search = searchQuery;
+      setUseSearchQuery(searchQuery);
+      setParamsQuery(tempParamsQuery);
+    }
+  }
+  const handleClearSearchQuery = () => {
+    setSearchQuery(null);
+    setUseSearchQuery(null);
+    const tempParamsQuery = handleResetParamsQuery();
+    tempParamsQuery.search = null;
+    setParamsQuery(tempParamsQuery);
+  }
+  const handleResetParamsQuery = () => {
+    return {
+      page: 1,
+      pageSize: setPageSize,
+      pagination: true,
+      orderBy: 'createdAt',
+      orderDir: 'desc',
+      search: useSearchQuery,
+    }
+  }
+  const handleSelectPage = (pageNumber) => {
+    const tempParamsQuery = {...paramsQuery};
+    tempParamsQuery.page = pageNumber;
+    setParamsQuery(tempParamsQuery);
   }
 
   if(loadData) return <div>กำลังโหลด...</div>
@@ -196,9 +269,27 @@ export default function Campaign() {
                 <div className="search-input">
                   <InputGroup>
                     <Form.Control
-                      placeholder="Search product"
+                      value={searchQuery}
+                      placeholder="Search campaign"
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                      }}
                     />
-                    <Button>
+                    {
+                      (searchQuery !== null && (searchQuery.trim()) !== '') &&
+                      <Button
+                        type="button"
+                        style={{borderRight: 'none'}}
+                        title="clear search"
+                        onClick={handleClearSearchQuery}
+                      >
+                        <FontAwesomeIcon icon={faClose} />
+                      </Button>
+                    }
+                    <Button
+                      type="button"
+                      onClick={handleSearchQuery}
+                    >
                       <FontAwesomeIcon icon={faSearch} />
                     </Button>
                   </InputGroup>
@@ -219,7 +310,7 @@ export default function Campaign() {
                           Campaign Name
                           <OrderByBtn 
                             currentStatus={orderBy[0].value}
-                            handleOnClick={() => handleChangeOrderBy('campaignName')}
+                            handleOnClick={() => handleChangeOrderBy('name')}
                           />
                         </th>
                         <th>
@@ -313,7 +404,11 @@ export default function Campaign() {
                     </tbody>
                   </table>
                   <div className='d-flex justify-content-center'>
-                    <MyPagination />
+                    <MyPagination
+                      currentPage={currentPage}
+                      totalPage={totalPage}
+                      handleSelectPage={handleSelectPage}
+                    />
                   </div>
                   </>
                   :

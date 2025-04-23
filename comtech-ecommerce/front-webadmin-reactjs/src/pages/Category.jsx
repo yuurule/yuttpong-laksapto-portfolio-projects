@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Form, InputGroup, Button  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faSearch, faClose } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../components/MyPagination/MyPagination';
 import * as CategoryService from '../services/categoryService';
 import UpsertCategory from '../components/Category/UpsetCategory';
@@ -24,16 +24,15 @@ export default function Category() {
     name: '',
     description: '',
   });
-  const [selectedOrderBy, setSelectedOrderBy] = useState(''); // createdAt, name, haveProduct
-  //const [orderBy, setOrderBy] = useState('desc');
   const [deleteCategoriesId, setDeleteCategoriesId] = useState([]);
   const [confirmDeletesDialog, setConfirmDeletesDialog] = useState(false);
   const [selectDeleteCategory, setSelectDeleteCategory] = useState(null);
   const [deleteType, setDeleteType] = useState('single'); // 'single', 'multiple'
 
+  const setPageSize = 8;
   const [paramsQuery, setParamsQuery] = useState({
     page: 1,
-    pageSize: 8,
+    pageSize: setPageSize,
     orderBy: 'createdAt',
     orderDir: 'desc',
     search: null,
@@ -41,9 +40,13 @@ export default function Category() {
   });
   const [orderBy, setOrderBy] = useState([
     { column: 'name', value: null },
-    { column: 'products', value: null },
+    { column: 'productAmount', value: null },
     { column: 'createdAt', value: null },
   ]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState(null);
+  const [useSearchQuery, setUseSearchQuery] = useState(null);
 
   useEffect(() => {
     getAllCategory();
@@ -55,6 +58,8 @@ export default function Category() {
       .then((res) => {
         //console.log(res.data.RESULT_DATA);
         setCategories(res.data.RESULT_DATA);
+        setCurrentPage(res.data.RESULT_META.currentPage);
+        setTotalPage(res.data.RESULT_META.totalPages);
       })
       .catch((error) => {
         console.log(error);
@@ -93,17 +98,78 @@ export default function Category() {
 
   const handleChangeOrderBy = (columnName) => {
     const tempResult = [...orderBy];
+    let newValue = null;
     tempResult.map(i => {
       if(i.column === columnName) {
-        if(i.value === null) i.value = 'desc';
-        else if(i.value === 'desc') i.value = 'asc';
-        else if(i.value === 'asc') i.value = null;
+        if(i.value === null) {
+          i.value = 'desc';
+          newValue = 'desc';
+        }
+        else if(i.value === 'desc') {
+          i.value = 'asc';
+          newValue = 'asc';
+        }
+        else if(i.value === 'asc') {
+          i.value = null;
+          newValue = null;
+        }
       }
       else {
         i.value = null;
       }
     });
+
+    const tempParamsQuery = handleResetParamsQuery();
+    switch(columnName) {
+      case 'name':
+        if(newValue !== null) {
+          tempParamsQuery.orderBy = 'name';
+          tempParamsQuery.orderDir = newValue;
+        }
+        break;
+      case 'productAmount':
+        tempParamsQuery.productAmount = newValue;
+        break;
+      case 'createdAt':
+        if(newValue !== null) {
+          tempParamsQuery.orderBy = 'createdAt';
+          tempParamsQuery.orderDir = newValue;
+        }
+        break;
+    }
+
+    setParamsQuery(tempParamsQuery);
     setOrderBy(tempResult);
+  }
+  const handleSearchQuery = () => {
+    if(searchQuery !== null && searchQuery.trim() !== '') {
+      const tempParamsQuery = handleResetParamsQuery();
+      tempParamsQuery.search = searchQuery;
+      setUseSearchQuery(searchQuery);
+      setParamsQuery(tempParamsQuery);
+    }
+  }
+  const handleClearSearchQuery = () => {
+    setSearchQuery(null);
+    setUseSearchQuery(null);
+    const tempParamsQuery = handleResetParamsQuery();
+    tempParamsQuery.search = null;
+    setParamsQuery(tempParamsQuery);
+  }
+  const handleResetParamsQuery = () => {
+    return {
+      page: 1,
+      pageSize: setPageSize,
+      orderBy: 'createdAt',
+      orderDir: 'desc',
+      search: useSearchQuery,
+      productAmount: null
+    }
+  }
+  const handleSelectPage = (pageNumber) => {
+    const tempParamsQuery = {...paramsQuery};
+    tempParamsQuery.page = pageNumber;
+    setParamsQuery(tempParamsQuery);
   }
 
   /**
@@ -224,13 +290,29 @@ export default function Category() {
                       >Delete categories</button>
                     </div>
                     <div className="search-input">
-                      <InputGroup className="">
+                      <InputGroup>
                         <Form.Control
+                          value={searchQuery}
                           placeholder="Search category"
-                          aria-label="Recipient's username"
-                          aria-describedby="basic-addon2"
+                          onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                          }}
                         />
-                        <Button variant="primary" id="button-addon2">
+                        {
+                          (searchQuery !== null && (searchQuery.trim()) !== '') &&
+                          <Button
+                            type="button"
+                            style={{borderRight: 'none'}}
+                            title="clear search"
+                            onClick={handleClearSearchQuery}
+                          >
+                            <FontAwesomeIcon icon={faClose} />
+                          </Button>
+                        }
+                        <Button
+                          type="button"
+                          onClick={handleSearchQuery}
+                        >
                           <FontAwesomeIcon icon={faSearch} />
                         </Button>
                       </InputGroup>
@@ -252,7 +334,7 @@ export default function Category() {
                           Have Products On 
                           <OrderByBtn 
                             currentStatus={orderBy[1].value}
-                            handleOnClick={() => handleChangeOrderBy('products')}
+                            handleOnClick={() => handleChangeOrderBy('productAmount')}
                           />
                         </th>
                         <th>
@@ -320,7 +402,11 @@ export default function Category() {
                     </tbody>
                   </table>
                   <div className='d-flex justify-content-center'>
-                    <MyPagination />
+                    <MyPagination
+                      currentPage={currentPage}
+                      totalPage={totalPage}
+                      handleSelectPage={handleSelectPage}
+                    />
                   </div>
                 </div>
               </div>

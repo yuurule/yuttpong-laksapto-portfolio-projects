@@ -13,13 +13,13 @@ export default function Dashboard() {
 
       <div className="row mt-4">
         
-        <div className="col-12 mt-4">
+        <div className="col-sm-9">
           <div className="row">
             {
-              [...Array(4)].map((i, index) => (
-                <div key={`dashboard_card_item_${index + 1}`} className="col-sm-3 mb-3">
+              [...Array(3)].map((i, index) => (
+                <div key={`dashboard_card_item_${index + 1}`} className="col-sm-4 mb-3">
                   <div className="card">
-                    <div className="card-body">
+                    <div className="card-body" style={{height: 140}}>
                       <strong className="h5">Card</strong>
                       <p>+ 10%</p>
                     </div>
@@ -27,23 +27,61 @@ export default function Dashboard() {
                 </div>
               ))
             }
-            
+            <div className='col-sm-8 mb-3'>
+              <div className="card">
+                <div className="card-body" style={{height: 400}}>
+                  <header className='d-flex justify-content-between align-items-center'>
+                    <h5 className='mb-0'>Recent Week Income<span></span></h5>
+                  </header>
+                </div>
+              </div>
+            </div>
+            <div className='col-sm-4 mb-3'>
+              <div className="card">
+                <div className="card-body" style={{height: 400}}>
+                  <header className='d-flex justify-content-between align-items-center'>
+                    <h5 className='mb-0'>Calendar<span></span></h5>
+                  </header>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className='col-12 text-white'>
-          
-            <p>Total income</p>
-            <p>Total customer</p>
-            <p>Total new customer</p>
-            <p>Calendar (just for design)</p>
-            <p>Recent week income chart</p>
-            <p>top 5 best sell product & brand</p>
-            <p>new order table</p>
-            <p>on active campaign</p>
-          
+        <div className='col-sm-3 mb-3'>
+          <div className='row'>
+            <div className='col-12'>
+              <div className="card">
+                <div className="card-body" style={{height: 555}}>
+                  <header className='d-flex justify-content-between align-items-center'>
+                    <h5 className='mb-0'>Best Seller Product<span></span></h5>
+                  </header>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
 
+      <div className='row'>
+        <div className='col-sm-7 mb-3'>
+          <div className="card">
+            <div className="card-body" style={{height: 370}}>
+              <header className='d-flex justify-content-between align-items-center'>
+                <h5 className='mb-0'>Latest Order<span></span></h5>
+              </header>
+            </div>
+          </div>
+        </div>
+        <div className='col-sm-5 mb-3'>
+          <div className="card">
+            <div className="card-body" style={{height: 370}}>
+              <header className='d-flex justify-content-between align-items-center'>
+                <h5 className='mb-0'>Active Campaign<span></span></h5>
+              </header>
+            </div>
+          </div>
+        </div>
       </div>
       
     </div>

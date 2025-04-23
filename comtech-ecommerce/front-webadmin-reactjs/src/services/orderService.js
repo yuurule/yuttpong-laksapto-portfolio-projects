@@ -20,8 +20,8 @@ export async function getOrders(paramsQuery) {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error getAllOrderAPI: ${err.message} ${err.response.data.MESSAGE}`);
-				reject(`${err.message} ${err.response.data.MESSAGE}`);
+				console.log(`Error getAllOrderAPI: ${err}`);
+				reject(err);
 			});
 	};
 

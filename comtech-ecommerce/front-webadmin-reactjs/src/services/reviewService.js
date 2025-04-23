@@ -1,17 +1,25 @@
 import { SERVER_API } from './serviceConfig';
 import axiosInstance from '../utils/axiosInstance';
 
-export async function getReviews() {
+export async function getReviews(paramsQuery) {
   const getAllReviewAPI = (resolve, reject) => {
-		let url = SERVER_API + `/api/review`;
+		const {
+			page,
+			pageSize,
+			pagination,
+			orderBy,
+			orderDir,
+		} = paramsQuery;
+
+		let url = SERVER_API + `/api/review?page=${page}&pageSize=${pageSize}&pagination=${pagination}&orderBy=${orderBy}&orderDir=${orderDir}`;
 		axiosInstance
 			.get(url)
 			.then((res) => {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error getAllReviewAPI: ${err.message} ${err.response.data.MESSAGE}`);
-				reject(`${err.message} ${err.response.data.MESSAGE}`);
+				console.log(`Error getAllReviewAPI: ${err}`);
+				reject(err);
 			});
 	};
 

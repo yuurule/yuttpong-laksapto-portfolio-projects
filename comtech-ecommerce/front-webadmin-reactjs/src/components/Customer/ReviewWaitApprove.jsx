@@ -4,6 +4,7 @@ import { faChevronLeft, faChevronRight, faCancel, faCheck } from '@fortawesome/f
 import * as ReviewService from '../../services/reviewService';
 import { toast } from 'react-toastify';
 import { formatTimestamp } from '../../utils/utils';
+import MyPagination from '../MyPagination/MyPagination';
 
 export default function ReviewWaitApprove() {
 
@@ -12,13 +13,21 @@ export default function ReviewWaitApprove() {
   const [currentShowReview, setCurrentShowReview] = useState(0);
   const [onSubmit, setOnSubmit] = useState(false);
   const [refresh, setRefresh] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
 
   useEffect(() => {
     const fecthReview = async () => {
       try {
-        const reviews = await ReviewService.getReviews();
+        const reviews = await ReviewService.getReviews({
+          page: 1,
+          pageSize: 1,
+          pagination: true
+        });
         //console.log(reviews.data.RESULT_DATA)
-        setReviewList(reviews.data.RESULT_DATA.filter(i => i.approved === null));
+        setReviewList(reviews.data.RESULT_DATA);
+        setCurrentPage(reviews.data.RESULT_META.currentPage);
+        setTotalPage(reviews.data.RESULT_META.totalPages);
       }
       catch(error) {
         console.log(error);
@@ -98,7 +107,7 @@ export default function ReviewWaitApprove() {
             <p className='mb-0' style={{fontSize: '0.9rem', opacity: '0.6'}}><strong>Product</strong>: {reviewList[currentShowReview]?.product?.name}</p>
           </div>
           <div className='w-100 d-flex justify-content-between align-items-center mt-3'>
-            <button 
+            {/* <button 
               type="button"
               className='btn btn-link p-0'
               disabled={currentShowReview === 0 || onSubmit}
@@ -114,7 +123,12 @@ export default function ReviewWaitApprove() {
               onClick={() => handleChangeCurrentReview('next')}
             >
               <FontAwesomeIcon icon={faChevronRight} />
-            </button>
+            </button> */}
+            <MyPagination
+              currentPage={currentPage}
+              totalPage={totalPage}
+              handleSelectPage={handleSelectPage}
+            />
           </div>
           </>
           : <p className='my-5 text-center'>Not have waiting approve review</p>
