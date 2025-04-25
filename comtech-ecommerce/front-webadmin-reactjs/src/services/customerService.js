@@ -62,3 +62,50 @@ export async function getStatisticCustomers(paramsQuery) {
 
 	return new Promise(getStatisticCustomersAPI);
 }
+
+export async function getSuspenseCustomers(paramsQuery) {
+	const getSuspenseCustomersAPI = (resolve, reject) => {
+		const {
+			page,
+			pageSize,
+			orderBy,
+			orderDir
+		} = paramsQuery;
+		let url = SERVER_API + `/api/suspense/customer?page=${page}&pageSize=${pageSize}&orderBy=${orderBy}&orderDir=${orderDir}`;
+
+		axiosInstance
+			.get(url)
+			.then((res) => {
+				resolve(res);
+			})
+			.catch((err) => {
+				console.log(`Error getSuspenseCustomersAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
+			});
+	};
+
+	return new Promise(getSuspenseCustomersAPI);
+}
+
+export async function suspenseCustomers(customersId, userId) {
+  const suspenseCustomersAPI = (resolve, reject) => {
+		let url = SERVER_API + `/api/suspense/customer`;
+
+		const requestData = {
+			customersId: customersId, 
+			userId: userId
+		}
+
+		axiosInstance
+			.delete(url, { data: requestData })
+			.then((res) => {
+				resolve(res);
+			})
+			.catch((err) => {
+				console.log(`Error suspenseCustomersAPI: ${err}`);
+				reject(err);
+			});
+	};
+
+	return new Promise(suspenseCustomersAPI);
+}

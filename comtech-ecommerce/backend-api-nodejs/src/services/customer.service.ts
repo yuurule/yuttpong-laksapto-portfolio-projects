@@ -152,6 +152,8 @@ export class CustomerService {
     return result;
   }
 
+  //---------------------------------------------------------------------------//
+
   async findAll() {
     try {
       const customers = await prisma.customer.findMany({
@@ -217,6 +219,8 @@ export class CustomerService {
     totalExpense: string, // 'desc', 'asc'
   ) {
     let where: Prisma.CustomerWhereInput = {};
+    where.onDelete = null;
+
     if(search) {
       where.OR = [
         {
@@ -340,5 +344,111 @@ export class CustomerService {
         pageSize
       }
     };
+  }
+
+  async findAllSuspense(
+    page: number, 
+    pageSize: number,
+    orderBy: string = 'createdAt',
+    orderDir: string = 'desc',
+  ) {
+    try {
+      let where: Prisma.CustomerWhereInput = {};
+      where.onDelete = {
+        not: null
+      }
+
+      const totalCustomers = await prisma.customer.findMany({ where });
+      const totalPages = Math.ceil(totalCustomers.length / pageSize);
+      const customers = await prisma.customer.findMany({
+        where,
+        include: {
+          customerDetail: true,
+          orders: true,
+          cartItems: true,
+          createdReviews: true,
+          stockSellEvents: true,
+          wishlists: true
+        },
+        orderBy: {
+          [orderBy]: orderDir
+        },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      });
+
+      return {
+        data: customers,
+        meta: {
+          totalItems: totalCustomers.length,
+          totalPages: totalPages,
+          currentPage: page,
+          pageSize
+        }
+      };
+    }
+    catch(error: any) {
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error find all suspense customer due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
+
+  async suspenseCustomers(customersId: number[], userId: number) {
+    try {
+      // ตรวจสอบ user มีอยู่จริง
+      const findUser = await prisma.user.findUnique({ where: { id: userId } });
+      if(!findUser) throw new exception.NotFoundException(`Not found user with id ${userId}`);
+
+      // ตรวจสอบ customer มีอยู่จริง
+      const existingCustomers = await prisma.customer.findMany({
+        where: { 
+          id: { in: customersId },
+          onDelete: null // ตรวจสอบว่ายังไม่ถูกลบไปแล้ว
+        },
+        select: { id: true }
+      });
+
+      if (existingCustomers.length !== customersId.length) {
+        throw new exception.NotFoundException("Some customer not found or already deleted");
+      }
+
+      const transaction = await prisma.$transaction(async (tx) => {
+        const softDeleteCustomers = [];
+
+        for(const thisId of customersId) {
+          const suspenseCustomer = await tx.customer.update({
+            where: { id: thisId },
+            data: {
+              onDelete: new Date()
+            },
+            select: {
+              id: true,
+              displayName: true,
+              customerDetail: {
+                select: {
+                  firstName: true,
+                  lastName: true
+                }
+              }
+            }
+          });
+
+          softDeleteCustomers.push(suspenseCustomer);
+        }
+
+        return softDeleteCustomers;
+      });
+
+      return transaction;
+    }
+    catch(error: any) {
+      if(error instanceof exception.NotFoundException) throw error;
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error suspense customers due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
   }
 }

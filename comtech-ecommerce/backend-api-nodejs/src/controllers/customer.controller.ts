@@ -93,4 +93,47 @@ export class CustomerController {
       sendError(res, error.statusCode, error.message);
     }
   }
+
+  async getSuspenseCustomers(req: Request, res: Response) {
+    const page = parseInt(req.query.page as string || '1');
+    const pageSize = parseInt(req.query.pageSize as string || '8');
+    const orderBy = req.query.orderBy as string || 'createdAt';
+    const orderDir = req.query.orderDir as string || 'desc';
+
+    try {
+      const customers = await customerService.findAllSuspense(page, pageSize, orderBy, orderDir);
+      sendResponse(res, 200, `Get all suspense customers statistic ok`, customers.data, customers.meta);
+    }
+    catch (error: any) {
+      console.error('Get all suspense customers statistic error: ', error);
+      sendError(res, error.statusCode, error.message);
+    }
+  }
+
+  async suspenseCustomers(req: Request, res: Response) {
+    const { customersId, userId } = req.body;
+        
+    if(!isValidHaveValue([customersId, userId])) {
+      sendError(res, 400, `customersId and userId is required`);
+    }
+
+    for(const id of customersId) {
+      if(!isValidId(id)) {
+        sendError(res, 400, `Customer id must not zero or negative number`);
+      }
+    }
+
+    if(!isValidId(userId)) {
+      sendError(res, 400, `User id must not zero or negative number`);
+    }
+
+    try {
+      const softDeleteCustomers = await customerService.suspenseCustomers(customersId, userId);
+      sendResponse(res, 200, `Suspense customer ok`, softDeleteCustomers)
+    }
+    catch (error: any) {
+      console.error('Suspense customer error: ', error);
+      sendError(res, error.statusCode, error.message);
+    }
+  }
 }

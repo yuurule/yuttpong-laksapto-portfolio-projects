@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Form, InputGroup, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faSearch, faArrowUp, faArrowLeft, faClose, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faSearch, faArrowUp, faArrowLeft, faClose, faTrashAlt, faArrowLeftLong } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../../components/MyPagination/MyPagination';
 import { Link, useNavigate } from 'react-router';
 import * as ProductService from '../../services/productService';
@@ -378,7 +378,7 @@ export default function Products() {
                   <div className='d-flex justify-content-between align-items-center mb-3'>
                     <div className='d-flex'>
                       <button className='btn my-btn narrow-btn gray-btn me-2' onClick={() => setShowSoftDelete(false)}>
-                        <FontAwesomeIcon icon={faArrowLeft} className='me-1' /> Back
+                        <FontAwesomeIcon icon={faArrowLeftLong} className='me-1' /> Back
                       </button>
                       {/* <button className='btn btn-danger'>Delete</button> */}
                     </div>

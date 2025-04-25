@@ -86,6 +86,8 @@ router.post('/customer/auth/refresh', customerController.refresh);
 router.post('/customer/auth/logout', authenticate, customerController.logout);
 router.get('/customer', authenticate, customerController.getCustomers);
 router.get('/customer/:id', authenticate, customerController.getOneCustomer);
+router.get('/suspense/customer', authenticate, customerController.getSuspenseCustomers);
+router.delete('/suspense/customer', authenticate, customerController.suspenseCustomers);
 
 // Review
 router.get('/review', reviewController.getReviews);
