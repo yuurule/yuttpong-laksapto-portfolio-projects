@@ -19,7 +19,6 @@ import OrderByBtn from '../components/OrderByBtn/OrderByBtn';
 export default function Campaign() {
 
   const authUser = useSelector(state => state.auth.user);
-
   const [loadData, setLoadData] = useState(false);
   const [campaignList, setCampaignList] = useState([]);
   const [deletedCampaignList, setDeletedCampaignList] = useState([]);

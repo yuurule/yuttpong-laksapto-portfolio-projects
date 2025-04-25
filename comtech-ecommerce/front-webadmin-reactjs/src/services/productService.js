@@ -84,11 +84,17 @@ export async function updateProduct(id, data) {
 	return new Promise(updateProductAPI);
 }
 
-export async function moveProductsToTrash(data) {
+export async function moveProductsToTrash(productsId, userId) {
   const moveProductsToTrashAPI = (resolve, reject) => {
-		let url = SERVER_API + `/api/category/delete`;
+		let url = SERVER_API + `/api/product/delete`;
+
+		const requestData = {
+			productsId: productsId, 
+			userId: userId
+		}
+
 		axiosInstance
-			.delete(url, { data })
+			.delete(url, { data: requestData })
 			.then((res) => {
 				resolve(res);
 			})
@@ -99,6 +105,30 @@ export async function moveProductsToTrash(data) {
 	};
 
 	return new Promise(moveProductsToTrashAPI);
+}
+
+export async function getAllProductInTrash(paramsQuery) {
+  const getAllProductInTrashAPI = (resolve, reject) => {
+		const {
+			page,
+			pageSize,
+			orderBy,
+			orderDir
+		} = paramsQuery;
+
+		let url = SERVER_API + `/api/trash/product?page=${page}&pageSize=${pageSize}&orderBy=${orderBy}&orderDir=${orderDir}`;
+		axiosInstance
+			.get(url)
+			.then((res) => {
+				resolve(res);
+			})
+			.catch((err) => {
+				console.log(`Error getAllProductInTrashAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
+			});
+	};
+
+	return new Promise(getAllProductInTrashAPI);
 }
 
 // Statistics

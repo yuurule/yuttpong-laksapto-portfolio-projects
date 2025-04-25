@@ -1,5 +1,3 @@
-import { ClassSharp } from "@mui/icons-material";
-
 export function formatTimestamp(timestamp) {
   const date = new Date(timestamp);
   
@@ -16,4 +14,20 @@ export function formatTimestamp(timestamp) {
 export function formatMoney(value) {
   let parse = parseFloat(value);
   return parse.toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+}
+
+export function sumTotalSale(ordersData) {
+  let resultTotalSale = 0;
+  let resultTotalSaleAmount = 0;
+  ordersData.map(i => {
+    if(i.order.paymentStatus === 'PAID') {
+      resultTotalSale += parseFloat(i.sale_price);
+      resultTotalSaleAmount += i.quantity
+    }
+  });
+
+  return {
+    saleAmount: resultTotalSaleAmount,
+    totalSale: '฿' + resultTotalSale.toLocaleString('th-TH')
+  }
 }

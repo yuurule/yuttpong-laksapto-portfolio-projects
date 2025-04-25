@@ -1,9 +1,17 @@
 import { SERVER_API } from './serviceConfig';
 import axiosInstance from '../utils/axiosInstance';
 
-export async function getAllStockAction() {
+export async function getAllStockAction(paramsQuery) {
   const getAllStockActionAPI = (resolve, reject) => {
-		let url = SERVER_API + `/api/stock-action`;
+		const {
+			page,
+			pageSize,
+			pagination,
+			orderBy,
+			orderDir,
+		} = paramsQuery;
+
+		let url = SERVER_API + `/api/stock-action?page=${page}&pageSize=${pageSize}&pagination=${pagination}&orderBy=${orderBy}&orderDir=${orderDir}`;
 		axiosInstance
 			.get(url)
 			.then((res) => {
@@ -52,9 +60,17 @@ export async function createStockAction(data) {
 	return new Promise(createStockActionAPI);
 }
 
-export async function getAllStockSellAction() {
+export async function getAllStockSellAction(paramsQuery) {
   const getAllStockSellActionAPI = (resolve, reject) => {
-		let url = SERVER_API + `/api/stock-sell-action`;
+		const {
+			page,
+			pageSize,
+			pagination,
+			orderBy,
+			orderDir,
+		} = paramsQuery;
+
+		let url = SERVER_API + `/api/stock-sell-action?page=${page}&pageSize=${pageSize}&pagination=${pagination}&orderBy=${orderBy}&orderDir=${orderDir}`;
 		axiosInstance
 			.get(url)
 			.then((res) => {

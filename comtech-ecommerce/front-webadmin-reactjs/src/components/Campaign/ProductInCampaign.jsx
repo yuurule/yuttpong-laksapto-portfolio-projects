@@ -117,9 +117,9 @@ export default function ProductInCampaign({ selectedCampaign, data, handleRefres
                 }
               </tbody>
             </table>
-            <MyPagination
+            {/* <MyPagination
 
-            />
+            /> */}
             </>
             :
             <p className='my-4 text-center'>ยังไม่มีรายการสินค้าใน campaign</p>

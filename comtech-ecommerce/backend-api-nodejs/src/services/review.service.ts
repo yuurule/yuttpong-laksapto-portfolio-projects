@@ -12,11 +12,23 @@ export class ReviewService {
     pagination: boolean = false,
     orderBy: string = 'createdAt',
     orderDir: string = 'desc',
+    waitApproved: boolean
   ) {
     try { 
-      const totalReviews = await prisma.campaign.findMany();
+      let where: Prisma.ReviewWhereInput = {};
+      if(waitApproved) {
+        where.approved = null;
+      }
+      else {
+        where.approved = {
+          not: null
+        }
+      }
+
+      const totalReviews = await prisma.review.findMany({ where });
       const totalPages = Math.ceil(totalReviews.length / pageSize);
       const reviews = await prisma.review.findMany({
+        where,
         include: {
           product: {
             select: {

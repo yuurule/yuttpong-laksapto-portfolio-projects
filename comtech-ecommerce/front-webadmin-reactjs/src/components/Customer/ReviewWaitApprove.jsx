@@ -13,18 +13,23 @@ export default function ReviewWaitApprove() {
   const [currentShowReview, setCurrentShowReview] = useState(0);
   const [onSubmit, setOnSubmit] = useState(false);
   const [refresh, setRefresh] = useState(0);
+  const setPageSize = 1;
+  const [paramsQuery, setParamsQuery] = useState({
+    page: 1,
+    pageSize: setPageSize,
+    pagination: true,
+    orderBy: 'createdAt',
+    orderDir: 'desc',
+    waitApproved: true,
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
 
   useEffect(() => {
     const fecthReview = async () => {
       try {
-        const reviews = await ReviewService.getReviews({
-          page: 1,
-          pageSize: 1,
-          pagination: true
-        });
-        //console.log(reviews.data.RESULT_DATA)
+        const reviews = await ReviewService.getReviews(paramsQuery);
+        console.log(reviews.data.RESULT_DATA)
         setReviewList(reviews.data.RESULT_DATA);
         setCurrentPage(reviews.data.RESULT_META.currentPage);
         setTotalPage(reviews.data.RESULT_META.totalPages);
@@ -39,13 +44,19 @@ export default function ReviewWaitApprove() {
     }
 
     fecthReview();
-  }, [refresh]);
+  }, [refresh, paramsQuery]);
 
   const handleChangeCurrentReview = (dir) => {
     let currentIndex = currentShowReview;
     if(dir === 'next' && currentIndex < reviewList.length - 1) currentIndex++;
     else if(dir === 'previous' && currentIndex > 0) currentIndex--;
     setCurrentShowReview(currentIndex);
+  }
+
+  const handleSelectPage = (pageNumber) => {
+    const tempParamsQuery = {...paramsQuery};
+    tempParamsQuery.page = pageNumber;
+    setParamsQuery(tempParamsQuery);
   }
 
   const handleSubmitApproveReview = async (reviewId, approve) => {
@@ -106,7 +117,7 @@ export default function ReviewWaitApprove() {
             </div>
             <p className='mb-0' style={{fontSize: '0.9rem', opacity: '0.6'}}><strong>Product</strong>: {reviewList[currentShowReview]?.product?.name}</p>
           </div>
-          <div className='w-100 d-flex justify-content-between align-items-center mt-3'>
+          <div className='w-100 d-flex justify-content-center align-items-center mt-3'>
             {/* <button 
               type="button"
               className='btn btn-link p-0'

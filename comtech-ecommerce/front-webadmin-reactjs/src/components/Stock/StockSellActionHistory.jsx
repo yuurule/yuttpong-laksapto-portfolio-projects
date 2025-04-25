@@ -1,20 +1,59 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faArrowUp, faAdd, faMinus, faSave, faClose } from '@fortawesome/free-solid-svg-icons';
-import MyPagination from '../../components/MyPagination/MyPagination';
+import { useState, useEffect } from 'react';
+import MyPagination from '../MyPagination/MyPagination';
 import { formatTimestamp } from '../../utils/utils';
+import * as StockService from '../../services/stockService';
+import { toast } from 'react-toastify';
 
-export default function StockSellActionHistory({ data }) {
+export default function StockSellActionHistory({ refresh }) {
 
+  const [loadData, setLoadData] = useState(false);
+  const [stockActions, setStockActions] = useState([]);
+  const setPageSize = 5;
+  const [paramsQuery, setParamsQuery] = useState({
+    page: 1,
+    pageSize: setPageSize,
+    pagination: true,
+    orderBy: 'actionedAt',
+    orderDir: 'desc',
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoadData(true);
+      try {
+        const stockActions = await StockService.getAllStockSellAction(paramsQuery);
+        setStockActions(stockActions.data.RESULT_DATA);
+        setCurrentPage(stockActions.data.RESULT_META.currentPage);
+        setTotalPage(stockActions.data.RESULT_META.totalPages);
+      }
+      catch(error) {
+        console.log(error.message);
+        toast.error(error.message);
+      }
+      finally {
+        setLoadData(false);
+      }
+    }
+
+    fetchData();
+  }, [refresh, paramsQuery]);
+
+  const handleSelectPage = (pageNumber) => {
+    const tempParamsQuery = {...paramsQuery};
+    tempParamsQuery.page = pageNumber;
+    setParamsQuery(tempParamsQuery);
+  }
 
   return (
     <>
     <header>
       <h5 className="mb-0">Sell Action History<span></span></h5>
-      <small className="opacity-50">Remove(sell) or reserve in stock by customer order</small>
+      <small className="opacity-50 d-block">Remove(sell) or reserve in stock by customer order</small>
     </header>
     {
-      data.length > 0
+      stockActions.length > 0
       ?
       <>
       <table className='table mt-2'>
@@ -29,21 +68,27 @@ export default function StockSellActionHistory({ data }) {
         </thead>
         <tbody>
           {
-            data.map((action, index) => (
+            stockActions.map((action, index) => (
               <tr key={`stock_action_history_row_${index + 1}`}>
-                <td>Asus ROG Flow Z13<br /><small>SKU:471138788</small></td>
-                <td><span className='badge text-bg-success'>ADD</span></td>
-                <td>20</td>
-                <td>12 Jan 25<br /><small>13:30:55</small></td>
-                <td>Webadmin</td>
+                <td>{i?.product?.name}<br /><small className='opacity-50'>SKU:{i?.product?.sku}</small></td>
+                <td>
+                  <small className={`badge ${i?.action === 'ADD' ? 'text-bg-success' : ''} ${i?.action === 'REMOVE' ? 'text-bg-danger' : ''}`}>{i?.action}</small>
+                </td>
+                <td>{i?.quantity}</td>
+                <td>{formatTimestamp(i?.actionedAt)}</td>
+                <td>{i?.actionedBy?.displayName}</td>
               </tr>
             ))
           }
         </tbody>
       </table>
-      {/* <div className='d-flex justify-content-center'>
-        <MyPagination />
-      </div> */}
+      <div className='d-flex justify-content-center'>
+        <MyPagination
+          currentPage={currentPage}
+          totalPage={totalPage}
+          handleSelectPage={handleSelectPage}
+        />
+      </div>
       </>
       :
       <p className='my-5 text-center'>ยังไม่มีข้อมูล</p>

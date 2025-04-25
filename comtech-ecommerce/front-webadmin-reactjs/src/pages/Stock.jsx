@@ -52,8 +52,6 @@ export default function Stock() {
     totalSale: null,
   });
   const [products, setProducts] = useState([]);
-  const [stockActions, setStockActions] = useState([]);
-  const [stockSellActions, setStockSellActions] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [actionType, setActionType] = useState(null); // 'ADD', 'REMOVE'
   const [openManageStockDialog, setOpenManageStockDialog] = useState(false);
@@ -84,14 +82,9 @@ export default function Stock() {
       setLoadData(true);
       try {
         const products = await ProductService.getStatisticProduct(productParamsQuery);
-        const stockActions = await StockService.getAllStockAction();
-        const stockSellActions = await StockService.getAllStockSellAction();
-
         setProducts(products.data.RESULT_DATA);
         setCurrentPage(products.data.RESULT_META.currentPage);
         setTotalPage(products.data.RESULT_META.totalPages);
-        setStockActions(stockActions.data.RESULT_DATA);
-        setStockSellActions(stockSellActions.data.RESULT_DATA);
       }
       catch(error) {
         console.log(error.message);
@@ -346,13 +339,13 @@ export default function Stock() {
         <div className='col-sm-6'>
           <div className='card mb-3'>
             <div className='card-body'>
-              <StockActionHistory data={stockActions} />
+              <StockActionHistory refresh={refresh} />
             </div>
           </div>
 
           <div className='card'>
             <div className='card-body'>
-              <StockSellActionHistory data={stockSellActions} />
+              <StockSellActionHistory refresh={refresh} />
             </div>
           </div>
         </div>

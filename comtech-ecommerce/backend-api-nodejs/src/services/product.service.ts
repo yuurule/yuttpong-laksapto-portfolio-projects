@@ -667,6 +667,9 @@ export class ProductService {
   ) {
     try {
       let where: Prisma.ProductWhereInput = {};
+
+      where.deletedAt = null;
+
       if(search) {
         where.name = {
           contains: search
@@ -849,6 +852,105 @@ export class ProductService {
         meta: {
           totalItems: (inStock || sale || totalSale) ? resultProducts.length : totalProducts.length,
           totalPages: (inStock || sale || totalSale) ? calculateTotalPages : totalPages,
+          currentPage: page,
+          pageSize
+        }
+      };
+    }
+    catch(error: any) {
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error find all product due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
+
+  async findAllInTrash(
+    page: number, 
+    pageSize: number, 
+    orderBy: string = 'createdAt',
+    orderDir: string = 'desc',
+  ) {
+    try {
+
+      let where: Prisma.ProductWhereInput = {};
+
+      where.deletedAt = {
+        not: null
+      }
+
+      const totalProducts = await prisma.product.findMany({
+        where,
+        include: {
+          specs: true,
+          categories: { include: { category: { select: { id: true, name: true } } } },
+          tags: { include: { tag: { select: { id: true, name: true } } } },
+          images: true,
+          inStock: true,
+          stockSellEvents: {
+            where: {
+              action: StockSellAction.SELL
+            } 
+          },
+          reviews: {
+            orderBy: {
+              createdAt: 'desc'
+            }
+          },
+          orderItems: true,
+          campaignProducts: {
+            include: {
+              campaign: true
+            }
+          }
+        }
+      });
+      const totalPages = Math.ceil(totalProducts.length / pageSize);
+      const products = await prisma.product.findMany({
+        where,
+        include: {
+          specs: true,
+          categories: { include: { category: { select: { id: true, name: true } } } },
+          tags: { include: { tag: { select: { id: true, name: true } } } },
+          images: true,
+          inStock: true,
+          stockSellEvents: {
+            where: {
+              action: StockSellAction.SELL
+            } 
+          },
+          reviews: {
+            orderBy: {
+              createdAt: 'desc'
+            }
+          },
+          orderItems: {
+            include: {
+              order: {
+                select: {
+                  paymentStatus: true
+                }
+              }
+            }
+          },
+          campaignProducts: {
+            include: {
+              campaign: true
+            }
+          }
+        },
+        orderBy: {
+          [orderBy]: orderDir
+        },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      });
+
+      return {
+        data: products,
+        meta: {
+          totalItems: totalProducts.length,
+          totalPages: totalPages,
           currentPage: page,
           pageSize
         }

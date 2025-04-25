@@ -257,30 +257,30 @@ export default function Customers() {
         <div className='col-sm-4'>
 
           <div className='row'>
-            <div className='col-sm-6'>
+            {/* <div className='col-sm-12'>
               <div className='card mb-3'>
                 <div className='card-body'>
                   <header className='d-flex justify-content-between align-items-center'>
                     <h5 className='mb-0'>Total Customer<span></span></h5>
                   </header>
-                  {/* <div className='d-flex justify-content-center align-items-center'>
+                  <div className='d-flex justify-content-center align-items-center'>
                     <p className='mb-0'>"Pie Chart Here"</p>
-                  </div> */}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className='col-sm-6'>
+            </div> */}
+            {/* <div className='col-sm-6'>
               <div className='card mb-3'>
                 <div className='card-body'>
                   <header className='d-flex justify-content-between align-items-center'>
                     <h5 className='mb-0'>New Register<span></span></h5>
                   </header>
-                  {/* <div className='d-flex justify-content-center align-items-center'>
+                  <div className='d-flex justify-content-center align-items-center'>
                     <p className='mb-0'>"Pie Chart Here"</p>
-                  </div> */}
+                  </div>
                 </div>
               </div>
-            </div>
+            </div> */}
             <div className='col-12'>
               <ReviewWaitApprove />
             </div>

@@ -9,9 +9,13 @@ export async function getReviews(paramsQuery) {
 			pagination,
 			orderBy,
 			orderDir,
+			waitApproved
 		} = paramsQuery;
 
 		let url = SERVER_API + `/api/review?page=${page}&pageSize=${pageSize}&pagination=${pagination}&orderBy=${orderBy}&orderDir=${orderDir}`;
+		if(waitApproved) {
+			url += `&waitApproved=${waitApproved}`;
+		}
 		axiosInstance
 			.get(url)
 			.then((res) => {

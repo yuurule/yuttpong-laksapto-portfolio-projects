@@ -321,4 +321,22 @@ export class ProductController {
       sendError(res, error.statusCode, error.message);
     }
   }
+
+  async getProductsInTrash(req: Request, res: Response) {
+    // pagination
+    const page = parseInt(req.query.page as string || '1');
+    const pageSize = parseInt(req.query.pageSize as string || '8');
+    // sorting
+    const orderBy = req.query.orderBy as string || 'createdAt';
+    const orderDir = req.query.orderDir as string || 'desc';
+
+    try {
+      const products = await productService.findAllInTrash(page, pageSize, orderBy, orderDir);
+      sendResponse(res, 200, `Get all product in trash ok`, products.data, products.meta);
+    }
+    catch (error: any) {
+      console.error('Get all product in trash error: ', error);
+      sendError(res, error.statusCode, error.message);
+    }
+  }
 }

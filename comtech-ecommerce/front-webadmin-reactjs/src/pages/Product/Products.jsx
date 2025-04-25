@@ -1,21 +1,26 @@
 import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { Form, InputGroup, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faSearch, faArrowUp, faArrowDown, faMinus, faChevronLeft, faChevronRight, faArrowLeft, faClose } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faSearch, faArrowUp, faArrowLeft, faClose, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import MyPagination from '../../components/MyPagination/MyPagination';
 import { Link, useNavigate } from 'react-router';
 import * as ProductService from '../../services/productService';
-import * as BrandService from '../../services/brandService';
 import { toast } from 'react-toastify';
 import OrderByBtn from '../../components/OrderByBtn/OrderByBtn';
+import TopTotalSellProduct from '../../components/Product/TopTotalSellProduct';
+import { formatTimestamp, sumTotalSale } from '../../utils/utils';
+import { Dialog, DialogContent, DialogActions } from '@mui/material';
 
 export default function Products() {
 
+  const authUser = useSelector(state => state.auth.user);
   const navigate = useNavigate();
   const [loadData, setLoadData] = useState(false);
   const [onSubmit, setOnSubmit] = useState(false);
   const [showSoftDelete, setShowSoftDelete] = useState(false);
   const [productList, setProductList] = useState([]);
+  const [productInTrashList, setProductInTrashList] = useState([]);
   const [refresh, setRefresh] = useState(0);
   const setPageSize = 8;
   const [productParamsQuery, setProductParamsQuery] = useState({
@@ -28,6 +33,12 @@ export default function Products() {
     sale: null,
     totalSale: null,
   });
+  const [productTrashParamsQuery, setProductTrashParamsQuery] = useState({
+    page: 1,
+    pageSize: setPageSize,
+    orderBy: 'createdAt',
+    orderDir: 'desc',
+  });
 
   const [orderBy, setOrderBy] = useState([
     { column: 'name', value: null },
@@ -38,17 +49,30 @@ export default function Products() {
   ]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [useSearchQuery, setUseSearchQuery] = useState(null);
+
+  const [selectedDeleteProducts, setSelectedDeleteProducts] = useState([]);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [onDeleteProducts, setOnDeleteProducts] = useState(false);
+
+  const [trashCurrentPage, setTrashCurrentPage] = useState(1);
+  const [trashTotalPage, setTrashTotalPage] = useState(1);
 
   useEffect(() => {
     const fecthData = async () => {
       setLoadData(true);
       try {
         const products = await ProductService.getStatisticProduct(productParamsQuery);
+        const productsInTrash = await ProductService.getAllProductInTrash(productTrashParamsQuery)
+        //console.log(products.data.RESULT_DATA);
         setProductList(products.data.RESULT_DATA);
         setCurrentPage(products.data.RESULT_META.currentPage);
         setTotalPage(products.data.RESULT_META.totalPages);
+
+        setProductInTrashList(productsInTrash.data.RESULT_DATA);
+        setTrashCurrentPage(productsInTrash.data.RESULT_META.currentPage);
+        setTrashTotalPage(productsInTrash.data.RESULT_META.totalPages);
       }
       catch(error) {
         console.log(error);
@@ -150,6 +174,34 @@ export default function Products() {
     tempParamsQuery.page = pageNumber;
     setProductParamsQuery(tempParamsQuery);
   }
+  const handleSelectTrashPage = (pageNumber) => {
+    const tempParamsQuery = {...productTrashParamsQuery};
+    tempParamsQuery.page = pageNumber;
+    setProductTrashParamsQuery(tempParamsQuery);
+  }
+
+  const handleConfirmDelete = async () => {
+    setOnDeleteProducts(true);
+    try {
+      await ProductService.moveProductsToTrash(selectedDeleteProducts, authUser.id)
+        .then(res => {
+          handleRefreshData();
+          toast.success(`Move products to trash is successfully.`);
+          setSelectedDeleteProducts([]);
+          setOpenDeleteDialog(false);
+        })
+        .catch(error => {
+          throw new Error(`Move products to trash is failed due to: ${error}`);
+        }); 
+    }
+    catch(error) {
+      console.log(error.message);
+      toast.error(error.message);
+    }
+    finally {
+      setOnDeleteProducts(false);
+    }
+  }
 
   if(loadData) return <div>กำลังโหลด...</div> 
 
@@ -178,7 +230,12 @@ export default function Products() {
                   <div className='d-flex justify-content-between align-items-center mb-3'>
                     <div className='d-flex align-items-center'>
                       <div>
-                        <button className='btn my-btn narrow-btn red-btn me-2'>
+                        <button 
+                          className='btn my-btn narrow-btn red-btn me-2'
+                          type="button"
+                          disabled={(selectedDeleteProducts.length === 0)}
+                          onClick={() => setOpenDeleteDialog(true)}
+                        >
                           <FontAwesomeIcon icon={faTrash} className='me-2' />
                           Move to trash
                         </button>
@@ -189,7 +246,7 @@ export default function Products() {
                           onClick={() => setShowSoftDelete(true)}
                         >
                           In Trash
-                          <div className='amount-label'>10</div>
+                          <div className='amount-label'>{productInTrashList.length}</div>
                         </button>
                       </div>
                     </div>
@@ -273,6 +330,18 @@ export default function Products() {
                                   type={"checkbox"}
                                   id={`select-product`}
                                   label={``}
+                                  checked={(selectedDeleteProducts.filter(i => i === product.id).length > 0)}
+                                  onChange={(e) => {
+                                    const tempSelectedDeletedProducts = [...selectedDeleteProducts];
+                                    if(e.target.checked === true) {
+                                      tempSelectedDeletedProducts.push(product.id);
+                                      setSelectedDeleteProducts(tempSelectedDeletedProducts);
+                                    }
+                                    else {
+                                      const removeResult = tempSelectedDeletedProducts.filter(i => i !== product.id);
+                                      setSelectedDeleteProducts(removeResult);
+                                    }
+                                  }}
                                 />
                               </div>
                             </td>
@@ -289,8 +358,8 @@ export default function Products() {
                             </td>
                             <td>{product.inStock.inStock}</td>
                             <td>฿{parseFloat(product.price).toLocaleString('th-TH')}</td>
-                            <td>{product.stockSellEvents.length === 0 ? '0' : 'n/a'}</td>
-                            <td>{product.orderItems.length === 0 ? '0' : 'n/a'}</td>
+                            <td>{product.orderItems.length === 0 ? '0' : sumTotalSale(product.orderItems).saleAmount}</td>
+                            <td>{product.orderItems.length === 0 ? '0' : sumTotalSale(product.orderItems).totalSale}</td>
                           </tr>
                         ))
                       }
@@ -314,14 +383,14 @@ export default function Products() {
                       {/* <button className='btn btn-danger'>Delete</button> */}
                     </div>
                     <div className="search-input">
-                      <InputGroup>
+                      {/* <InputGroup>
                         <Form.Control
                           placeholder="Search product"
                         />
                         <Button>
                           <FontAwesomeIcon icon={faSearch} />
                         </Button>
-                      </InputGroup>
+                      </InputGroup> */}
                     </div>
                   </div>
                   <table className="table">
@@ -330,12 +399,12 @@ export default function Products() {
                         <th className='selectRow'></th>
                         <th>Product <FontAwesomeIcon icon={faArrowUp} /></th>
                         <th>Deleted at</th>
-                        <th></th>
+                        {/* <th></th> */}
                       </tr>
                     </thead>
                     <tbody>
                       {
-                        [...Array(8)].map((i, index) => (
+                        productInTrashList.map((i, index) => (
                           <tr key={`product_row_${index + 1}`}>
                             <td className='selectRow'>
                               <div className='flexCenterXY'>
@@ -347,22 +416,22 @@ export default function Products() {
                               </div>
                             </td>
                             <td>
-                              <Link to="/product/1" className="d-flex align-items-center">
-                                <figure className='me-2'>
+                              <div className='d-flex'>
+                                <figure className='me-2 mb-0'>
                                   <img src="/images/dummy-product.jpg" style={{width: 60}} />
                                 </figure>
                                 <div>
-                                  <p className='mb-0'>Asus ROG Flow Z13 GZ302EA-RU087WA Off Black</p>
-                                  sku: <small className='opacity-50'>123456789</small>
+                                  <p className='mb-0'>{i.name}</p>
+                                  sku: <small className='opacity-50'>{i.sku}</small>
                                 </div>
-                              </Link>
+                              </div>
                             </td>
-                            <td>20 Jan 25</td>
-                            <td>
+                            <td>{formatTimestamp(i.deletedAt)}</td>
+                            {/* <td>
                               <div className='d-flex'>
                                 <button className='btn btn-primary me-2'>Restore</button>
                               </div>
-                            </td>
+                            </td> */}
                           </tr>
                         ))
                       }
@@ -370,9 +439,9 @@ export default function Products() {
                   </table>
                   <div className='d-flex justify-content-center'>
                     <MyPagination
-                      currentPage={1}
-                      totalPage={1}
-
+                      currentPage={trashCurrentPage}
+                      totalPage={trashTotalPage}
+                      handleSelectPage={handleSelectTrashPage}
                     />
                   </div>
                 </div>
@@ -383,45 +452,34 @@ export default function Products() {
         </div>
 
         <div className='col-sm-3'>
-          <div className='card'>
-            <div className='card-body'>
-              <header>
-                <h5>Top 10 sell of the month<span></span></h5>
-              </header>
-              <figure className='text-center'>
-                <img src="/images/dummy-product.jpg" />
-              </figure>
-              <div className='row mb-3'>
-                <div className='col-6'>
-                  <table className='w-100'>
-                    <tbody>
-                      <tr>
-                        <td><small>Sale Amount</small></td>
-                        <td className='text-end'>20</td>
-                      </tr>
-                      <tr>
-                        <td><small>Sales off</small></td>
-                        <td className='text-end'>-$159.00</td>
-                      </tr>
-                      <tr>
-                        <td><small>Total Views</small></td>
-                        <td className='text-end'>3,652</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div className='col-6 text-center'>
-                  <strong className='h3'>$255,490</strong>
-                  <p>Total Revenue</p>
-                </div>
-              </div>
-              <MyPagination />
-            </div>
-          </div>
+          <TopTotalSellProduct />
         </div>
         
       </div>
       
+      <Dialog open={openDeleteDialog} className='custom-dialog'>
+        <DialogContent>
+          <p className='h4 text-center'>Do you confirm remove these campaigns to trash?</p>
+        </DialogContent>
+        <DialogActions className='d-flex justify-content-center'>
+          <button 
+            type="button"
+            className='btn my-btn green-btn big-btn w-50'
+            onClick={handleConfirmDelete}
+          >
+            <FontAwesomeIcon icon={faTrashAlt} className='me-2' />
+            Yes, confirm
+          </button>
+          <button 
+            type="button"
+            className='btn my-btn red-btn big-btn w-50'
+            onClick={() => {
+              setSelectedDeleteProducts([]);
+              setOpenDeleteDialog(false)
+            }}
+          ><FontAwesomeIcon icon={faClose} className='me-2' />No, cancel</button>
+        </DialogActions>
+      </Dialog>
     </div>
   )
 }

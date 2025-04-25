@@ -15,10 +15,11 @@ export class ReviewController {
     const pagination = parseBoolean(req.query.noPagination as string) || true;
     const orderBy = req.query.orderBy as string || 'createdAt';
     const orderDir = req.query.orderDir as string || 'desc';
+    const waitApproved = parseBoolean(req.query.waitApproved as string) || true;
 
     try {
-      const reviews = await reviewService.findAll(page, pageSize, pagination, orderBy, orderDir);
-      sendResponse(res, 200, `Get all review ok`, reviews)
+      const reviews = await reviewService.findAll(page, pageSize, pagination, orderBy, orderDir, waitApproved);
+      sendResponse(res, 200, `Get all review ok`, reviews.data, reviews.meta)
     }
     catch (error: any) {
       console.error('Get all review error: ', error);
