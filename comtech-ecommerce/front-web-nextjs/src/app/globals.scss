@@ -61,6 +61,21 @@ button {
     border-image: var(--primary-gradient) 1;
     color: var(--end-gradient);
   }
+
+  &.soft-btn {
+    background-color: #f4f4f4;
+    color: #7c7c7c;
+    text-align: left;
+    width: 100%;
+    padding: 12px 0 12px 20px;
+    margin-bottom: 8px;
+
+    &.active, &:hover {
+      background: var(--primary-gradient);
+      background-color: none;
+      color: #FFF;
+    }
+  }
 }
 
 /* Tabs */
@@ -154,4 +169,19 @@ button {
   border-radius: 0;
   border: none;
   box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+/* My account */
+.box-label {
+  border: 1px solid var(--very-soft-gray);
+  position: relative;
+  padding: 45px 30px 15px 45px;
+
+  .box-label-header {
+    position: absolute;
+    top: -15px;
+    left: 20px;
+    background-color: #FFF;
+    padding: 2px 15px;
+  }
 }

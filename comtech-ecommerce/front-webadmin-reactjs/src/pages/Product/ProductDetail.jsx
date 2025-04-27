@@ -1,12 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faArrowUp, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import MyPagination from '../../components/MyPagination/MyPagination';
+import { faEdit, faTrash, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import * as ProductService from '../../services/productService';
 import * as OrderService from '../../services/orderService';
-import { formatTimestamp } from '../../utils/utils';
+import * as StockService from '../../services/stockService';
+import * as ReviewService from '../../services/reviewService';
+import { formatTimestamp, formatMoney } from '../../utils/utils';
+import { Line } from 'react-chartjs-2';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 export default function ProductDetail() {
 
@@ -15,7 +20,27 @@ export default function ProductDetail() {
   const [productData, setProductData] = useState(null);
   const [productSpecs, setProductSpecs] = useState([]);
   const [totalSale, setTotalSale] = useState(0);
+  const [saleAmount, setSaleAmount] = useState(0);
   const [latestSale, setLatestSale] = useState([]);
+  const [stockActions, setStockActions] = useState([]);
+  const [reviewData, setReviewData] = useState([]);
+
+  const data = {
+    labels: ['21/04/68', '22/04/68', '23/04/68', '24/04/68ธ์', '25/04/68', '26/04/68', '27/04/68'],
+    datasets: [
+      {
+        label: 'ยอดขาย',
+        data: [0, 754000, 200000, 245990, 509900, 0, 754000],
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      }
+    ]
+  };
+  
+  const options = {
+    responsive: true,
+    // options ต่างๆ
+  };
 
   useState(() => {
     const fecthData = async () => {
@@ -23,15 +48,20 @@ export default function ProductDetail() {
       try {
         const product = await ProductService.getOneProduct(params.id);
         const orders = await OrderService.getOrders({
-          page: 1,
-          pageSize: 5,
-          pagination: true,
-          orderBy: 'createdAt',
-          orderDir: 'desc',
-          search: null,
+          paymentStatus: 'PAID',
         });
+        const last7DayOrders = await OrderService.getOrders({
+          paymentStatus: 'PAID',
+          startDate: '2025-04-15',
+          endDate: '2025-04-15'
+        });
+        const stockAction = await StockService.getAllStockAction({
+          productId: params.id
+        });
+        const reviews = await ReviewService.getReviewsByProduct(params.id);
 
-        //console.log(product.data.RESULT_DATA);
+        //============================================================================================
+
         const result = product.data.RESULT_DATA;
         const resultProductSpecs = [
           { title: "Title", value: result.name },
@@ -53,13 +83,14 @@ export default function ProductDetail() {
           { title: "Warranty", value: result.specs.warranty },
           { title: "Option", value: result.specs.option },
         ];
-        const ordersPaidResult = orders.data.RESULT_DATA.filter(i => i.paymentStatus === 'PAID');
         let tempTotalSale = 0;
+        let tempSaleAmount = 0;
         let tempLatestSale = [];
-        ordersPaidResult.map(i => {
+        orders.data.RESULT_DATA.map(i => {
           i.orderItems.map(y => {
             if(y.productId === parseInt(params.id)) {
               tempTotalSale += (parseFloat(y.product.price) * y.quantity);
+              tempSaleAmount += y.quantity;
               tempLatestSale.push({
                 orderId: i.id,
                 quantity: y.quantity,
@@ -72,7 +103,10 @@ export default function ProductDetail() {
         setProductData(result);
         setProductSpecs(resultProductSpecs);
         setTotalSale(tempTotalSale);
+        setSaleAmount(tempSaleAmount);
         setLatestSale(tempLatestSale);
+        setStockActions(stockAction.data.RESULT_DATA);
+        setReviewData(reviews.data.RESULT_DATA);
       }
       catch(error) {
         console.log(error);
@@ -112,12 +146,12 @@ export default function ProductDetail() {
       <div className="row">
         <div className="col-12 mb-3">
           <div className='d-flex justify-content-end align-items-center'>
-            <Link to={`/product/edit/${params.id}`} className='btn my-btn purple-btn big-btn me-3'><FontAwesomeIcon icon={faEdit} className='me-2' />Edit</Link>
-            <button 
+            <Link to={`/product/edit/${params.id}`} className='btn my-btn purple-btn big-btn px-5'><FontAwesomeIcon icon={faEdit} className='me-2' />Edit</Link>
+            {/* <button 
               type="button"
               className='btn my-btn red-btn big-btn'
               onClick={null}
-            ><FontAwesomeIcon icon={faTrash} className='me-2' />Delete</button>
+            ><FontAwesomeIcon icon={faTrash} className='me-2' />Delete</button> */}
           </div>
         </div>
         <div className='col-sm-8'>
@@ -130,24 +164,30 @@ export default function ProductDetail() {
                       <img src="/images/dummy-product.jpg" style={{width: 200}} />
                     </figure>
                   </div>
-                  <div className='d-flex align-items-center'>
-                    <div className='text-center me-5'>
-                      <strong className='h3 d-block mb-1'>฿{parseFloat(productData.price).toLocaleString('th-TH')}</strong>
+                  <div className='d-flex align-items-start'>
+                    <div className='text-center px-4'>
+                      <strong className='h3 d-block mb-1'>
+                        ฿{formatMoney(productData.price)}
+                      </strong>
                       <p className='mb-0 opacity-50'>Price</p>
                     </div>
-                    <div className='text-center me-5'>
-                      <strong className='h3 d-block mb-1'>฿{parseFloat(totalSale).toLocaleString('th-TH')}</strong>
+                    <div className='text-center px-4'>
+                      <strong className='h3 d-block mb-1'>
+                        ฿{formatMoney(totalSale)}
+                      </strong>
                       <p className='mb-0 opacity-50'>Total Sale</p>
                     </div>
-                    <div className='text-center me-5'>
-                      <strong className='h3 d-block mb-1'>$1,880 <FontAwesomeIcon icon={faArrowUp} className='text-success h5' /></strong>
-                      <p className='mb-0 opacity-50'>Last Month Sale</p>
+                    <div className='text-center px-4'>
+                      <strong className='h3 d-block mb-1'>
+                        {saleAmount}
+                      </strong>
+                      <p className='mb-0 opacity-50'>Sale Amount</p>
                     </div>
-                    <div className='text-center me-5'>
+                    <div className='text-center px-4'>
                       <strong className='h3 d-block mb-1'>{renderRating()}</strong>
                       <p className='mb-0 opacity-50'>Rating</p>
                     </div>
-                    <div className='text-center me-5'>
+                    <div className='text-center px-4'>
                       <strong className='h3 d-block mb-1'>{productData.inStock.inStock}</strong>
                       <p className='mb-0 opacity-50'>In Stock</p>
                     </div>
@@ -182,11 +222,11 @@ export default function ProductDetail() {
               <div className='card mb-3'>
                 <div className='card-body'>
                   <header className='d-flex justify-content-between align-items-center'>
-                    <h5 className='mb-0'>Weekly Sale Statistic<span></span></h5>
+                    <h5 className='mb-0'>Latest Sale in 1 week<span></span></h5>
                     <small>12 - 17 Jan 2025</small>
                   </header>
-                  <div className='d-flex justify-content-center align-items-center' style={{height: 300}}>
-                    <p className='mb-0'>"Chart Line Here"</p>
+                  <div className='d-flex justify-content-center align-items-center my-3'>
+                    <Line data={data} options={options} />
                   </div>
                 </div>
               </div>
@@ -194,10 +234,10 @@ export default function ProductDetail() {
               <div className='card mb-3'>
                 <div className='card-body'>
                   <header className='d-flex justify-content-between align-items-center mb-3'>
-                    <h5 className='mb-0'>Recent Review by Customer<span></span></h5>
+                    <h5 className='mb-0'>Latest Review by Customer<span></span></h5>
                   </header>
                   {
-                    productData.reviews && productData.reviews.map((i, index) => {
+                    reviewData.map((i, index) => {
                       if(index < 3) {
                         return (
                           <div key={index} className='reviewItem'>
@@ -239,19 +279,21 @@ export default function ProductDetail() {
                       <tbody>
                         {
                           latestSale.map((i, index) => {
-                            return (
-                              <tr key={`sale_history_${i.orderId}`}>
-                                <td>#{i.orderId}</td>
-                                <td>x{i.quantity}</td>
-                                <td>{formatTimestamp(i.datetime)}</td>
-                              </tr>
-                            )
+                            if(index < 5) {
+                              return (
+                                <tr key={`sale_history_${i.orderId}`}>
+                                  <td>#{i.orderId}</td>
+                                  <td>x{i.quantity}</td>
+                                  <td>{formatTimestamp(i.datetime)}</td>
+                                </tr>
+                              )
+                            }
                           })
                         }
                       </tbody>
                     </table>
                     :
-                    <p className='my-4 text-center'>Not have sale</p>
+                    <p className='my-3 text-center opacity-50'>Not have sale</p>
                   }
                   
                 </div>
@@ -261,7 +303,7 @@ export default function ProductDetail() {
               <div className='card'>
                 <div className='card-body'>
                   <header>
-                    <h5>Recent In Stock Action<span></span></h5>
+                    <h5>Latest In Stock Action<span></span></h5>
                   </header>
                   <table className='table'>
                     <thead>
@@ -269,21 +311,23 @@ export default function ProductDetail() {
                         <th>action</th>
                         <th>quantity</th>
                         <th>date/Time</th>
+                        <th>by</th>
                       </tr>
                     </thead>
                     <tbody>
                       {
-                        [...Array(5)].map((i, index) => (
-                          <tr key={`stock_history_${index + 1}`}>
-                            <td>Add</td>
-                            <td>x20</td>
-                            <td>
-                              20 Jan 25, 12:30:55
-                              <br />
-                              <small className='opacity-50'>by Webadmin</small>
-                            </td>
-                          </tr>
-                        ))
+                        stockActions.map((i, index) => {
+                          if(index < 5) {
+                            return (
+                              <tr key={`stock_history_${index + 1}`}>
+                                <td>{i.action}</td>
+                                <td>x{i.quantity}</td>
+                                <td>{formatTimestamp(i.actionedAt)}</td>
+                                <td>{i.actionedBy.displayName}</td>
+                              </tr>
+                            )
+                          }
+                        })
                       }
                     </tbody>
                   </table>

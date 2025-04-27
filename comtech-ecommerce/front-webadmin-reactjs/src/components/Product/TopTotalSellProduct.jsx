@@ -53,7 +53,7 @@ export default function TopTotalSellProduct() {
     <div className='card'>
       <div className='card-body'>
         <header>
-          <h5>Top Sell of the month<span></span></h5>
+          <h5>Top Seller Products<span></span></h5>
         </header>
         {
           productList.map(i => {
@@ -65,11 +65,23 @@ export default function TopTotalSellProduct() {
                 <p>{i.name}</p>
                 <div className='d-flex justify-content-around align-items-end'>
                   <div>
-                    <strong className='h3'>{sumTotalSale(i.orderItems).totalSale}</strong>
+                    <strong 
+                      className='h3'
+                      style={{
+                        fontWeight: 600,
+                        color: 'var(--main-orange)'
+                      }}
+                    >{sumTotalSale(i.orderItems).totalSale}</strong>
                     <p>Total Sale</p>
                   </div>
                   <div>
-                    <strong className='h5'>{sumTotalSale(i.orderItems).saleAmount}</strong>
+                    <strong 
+                      className='h3'
+                      style={{
+                        fontWeight: 600,
+                        color: 'var(--main-purple)'
+                      }}
+                    >{sumTotalSale(i.orderItems).saleAmount}</strong>
                     <p>Sale Amount</p>
                   </div>
                 </div>

@@ -22,11 +22,15 @@ export default function Orders() {
     orderBy: 'createdAt',
     orderDir: 'desc',
     search: null,
+    paymentStatus: null,
+    deliveryStatus: null,
   });
   const [orderBy, setOrderBy] = useState([
     { column: 'orderId', value: null },
     { column: 'total', value: null },
     { column: 'createdAt', value: null },
+    { column: 'paymentStatus', value: null },
+    { column: 'deliveryStatus', value: null },
   ]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
@@ -109,11 +113,36 @@ export default function Orders() {
           tempParamsQuery.orderDir = newValue;
         }
         break;
+      case 'paymentStatus':
+        tempParamsQuery.paymentStatus = newValue;
+        break;
+      case 'deliveryStatus':
+        tempParamsQuery.deliveryStatus = newValue;
+        break;
     }
 
     setParamsQuery(tempParamsQuery);
     setOrderBy(tempResult);
   }
+
+  const handleChangeOrderByStatus = (newValue, columnName) => {
+    const tempResult = [...orderBy];
+    const tempParamsQuery = handleResetParamsQuery();
+    switch(columnName) {
+      case 'paymentStatus':
+        tempResult.paymentStatus = newValue;
+        tempParamsQuery.paymentStatus = newValue;
+        break;
+      case 'deliveryStatus':
+        tempResult.deliveryStatus = newValue;
+        tempParamsQuery.deliveryStatus = newValue;
+        break;
+    }
+
+    setParamsQuery(tempParamsQuery);
+    setOrderBy(tempResult);
+  }
+
   const handleSearchQuery = () => {
     if(searchQuery !== null && searchQuery.trim() !== '') {
       const tempParamsQuery = handleResetParamsQuery();
@@ -137,6 +166,8 @@ export default function Orders() {
       orderBy: 'createdAt',
       orderDir: 'desc',
       search: useSearchQuery,
+      paymentStatus: null,
+      deliveryStatus: null,
     }
   }
   const handleSelectPage = (pageNumber) => {
@@ -159,23 +190,20 @@ export default function Orders() {
         <div className='col-sm-8'>
           <div className="card">
             <div className="card-body">
-              {
-                orderList.length > 0
-                ?
-                <>
+              
                 <div className='d-flex justify-content-between align-items-center mb-3'>
                   <div>
-                    <div className="dropdown">
+                    {/* <div className="dropdown">
                       <button className="btn my-btn narrow-btn purple-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Shipping Actions
                       </button>
                       <ul className="dropdown-menu">
-                        <li><a className="dropdown-item" href="#">Mark as Waiting</a></li>
-                        <li><a className="dropdown-item" href="#">Mark as Prepare Shipping</a></li>
-                        <li><a className="dropdown-item" href="#">Mark as Shipping</a></li>
-                        <li><a className="dropdown-item" href="#">Mark as Finish Shipping</a></li>
+                        <li><a className="dropdown-item" href="#">Mark as Pending</a></li>
+                        <li><a className="dropdown-item" href="#">Mark as Delivering</a></li>
+                        <li><a className="dropdown-item" href="#">Mark as Completed</a></li>
+                        <li><a className="dropdown-item" href="#">Mark as Cancel</a></li>
                       </ul>
-                    </div>
+                    </div> */}
                     {/* <button className='btn btn-danger'>
                       <FontAwesomeIcon icon={faTrash} className='me-1' />(10)
                     </button> */}
@@ -245,18 +273,27 @@ export default function Orders() {
                           ><strong>Status</strong></button>
                           <ul className="dropdown-menu">
                             {
-                              ['all', 'pending', 'paid', 'failed', 'cencel'].map((i, index) => (
+                              ['all', 'pending', 'paid', 'failed', 'cancel'].map((i, index) => (
                                 <button 
                                   key={`order_status_dropdown_item_${index + 1}`}
                                   className='dropdown-item'
-                                  onClick={() => {}}
+                                  type="button"
+                                  onClick={() => {
+                                    if(i !== 'all') {
+                                      const newValue = i.toUpperCase();
+                                      handleChangeOrderByStatus(newValue, 'paymentStatus');
+                                    }
+                                    else {
+                                      handleChangeOrderByStatus(null, 'paymentStatus');
+                                    }
+                                  }}
                                 >{i}</button>
                               ))
                             }
                           </ul>
                         </div>
                       </th>
-                      <th>
+                      {/* <th>
                         <div className="dropdown">
                           <button 
                             className={`btn btn-link p-0 dropdown-toggle text-dark`} 
@@ -266,74 +303,104 @@ export default function Orders() {
                           ><strong>Shipping</strong></button>
                           <ul className="dropdown-menu">
                             {
-                              ['all', 'waiting', 'prepare shipping', 'shipping', 'completed'].map((i, index) => (
+                              ['all', 'pending', 'delivering', 'completed'].map((i, index) => (
                                 <button 
                                   key={`order_shipping_status_dropdown_item_${index + 1}`}
                                   className='dropdown-item'
-                                  onClick={() => {}}
+                                  onClick={() => {
+                                    if(i !== 'all') {
+                                      const newValue = i.toUpperCase();
+                                      handleChangeOrderByStatus(newValue, 'deliveryStatus');
+                                    }
+                                    else {
+                                      handleChangeOrderByStatus(null, 'deliveryStatus');
+                                    }
+                                  }}
                                 >{i}</button>
                               ))
                             }
                           </ul>
                         </div>
-                      </th>
-                      <th className='px-0'></th>
+                      </th> */}
+                      {/* <th className='px-0'></th> */}
                     </tr>
                   </thead>
                   <tbody>
                     {
-                      orderList.map((order, index) => (
-                        <tr key={`product_stock_row_${index + 1}`}>
-                          <td className='selectRow'>
-                            <div className='flexCenterXY'>
-                              <Form.Check
-                                type={"checkbox"}
-                                id={`select-product`}
-                                label={``}
-                              />
-                            </div>
-                          </td>
-                          <td>
-                            <Link
-                              to={null}
-                              onClick={() => handlePreviewOrder(order.id)}
-                            >{order.id}</Link>
-                          </td>
-                          <td>฿{parseFloat(order.total).toLocaleString('th-TH')}</td>
-                          <td>
-                            {order?.customer?.customerDetail?.firstName} {order?.customer?.customerDetail?.lastName}
-                          </td>
-                          <td>{formatTimestamp(order.createdAt)}</td>
-                          <td>
-                            <small className='badge text-bg-success'>{order.paymentStatus}</small>
-                            {/* <br /><small>12 Jan 2025</small> */}
-                          </td>
-                          <td><small className='badge text-bg-success'>{order.status}</small></td>
-                          <td className='px-0'>
-                            <button
-                              type="button"
-                              className='btn my-btn narrow-btn purple-btn'
-                              onClick={() => {
-                                handlePreviewOrder(order.id)
-                              }}
-                            ><small>Detail</small></button>
-                          </td>
-                        </tr>
-                      ))
+                      orderList.length > 0
+                      ?
+                      <>
+                      {
+                        orderList.map((order, index) => (
+                          <tr key={`product_stock_row_${index + 1}`}>
+                            <td className='selectRow'>
+                              <div className='flexCenterXY'>
+                                <Form.Check
+                                  type={"checkbox"}
+                                  id={`select-product`}
+                                  label={``}
+                                />
+                              </div>
+                            </td>
+                            <td>
+                              <button
+                                className='btn btn-link p-0'
+                                style={{textDecoration: 'none'}}
+                                type="button"
+                                onClick={() => handlePreviewOrder(order.id)}
+                              >
+                                {/* {order.id} */}
+                                20250130-000001
+                              </button>
+                            </td>
+                            <td>฿{parseFloat(order.total).toLocaleString('th-TH')}</td>
+                            <td>
+                              {order?.customer?.customerDetail?.firstName} {order?.customer?.customerDetail?.lastName}
+                            </td>
+                            <td>{formatTimestamp(order.createdAt)}</td>
+                            <td>
+                              <small className='badge text-bg-success'>{order.paymentStatus}</small>
+                              {/* <br /><small>12 Jan 2025</small> */}
+                            </td>
+                            {/* <td><small className='badge text-bg-success'>{order.status}</small></td> */}
+                            {/* <td className='px-0'>
+                              <button
+                                type="button"
+                                className='btn my-btn narrow-btn purple-btn'
+                                onClick={() => {
+                                  handlePreviewOrder(order.id)
+                                }}
+                              ><small>Detail</small></button>
+                            </td> */}
+                          </tr>
+                        ))
+                      }
+                      </>
+                      :
+                      <tr>
+                        <td colSpan={7}>
+                          <p className='my-5 text-center'>Not have order</p>
+                        </td>
+                      </tr>
                     }
+                    
                   </tbody>
                 </table>
-                <div className='d-flex justify-content-center'>
-                  <MyPagination
-                    currentPage={currentPage}
-                    totalPage={totalPage}
-                    handleSelectPage={handleSelectPage}
-                  />
-                </div>
-                </>
-                :
-                <p className='my-5 text-center'>Not have order yet.</p>
-              }
+                {
+                  orderList.length ?
+                  <div className='d-flex justify-content-center'>
+                    <MyPagination
+                      currentPage={currentPage}
+                      totalPage={totalPage}
+                      handleSelectPage={handleSelectPage}
+                    />
+                  </div>
+                  : null
+                }
+                
+                
+                
+              
             </div>
           </div>
         </div>

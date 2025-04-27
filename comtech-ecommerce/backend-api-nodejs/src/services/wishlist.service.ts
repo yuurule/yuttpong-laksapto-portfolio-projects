@@ -67,4 +67,57 @@ export class WishlistService {
     }
   }
 
+  async findAllByCustomer(
+    customerId: number,
+    page: number, 
+    pageSize: number,
+    pagination: boolean = false,
+    orderBy: string = 'createdAt',
+    orderDir: string = 'desc',
+  ) {
+    try {
+      // ตรวจสอบ customer มีอยู่จริง
+      const findCustomer = await prisma.customer.findUnique({ where: { id: customerId } });
+      if(!findCustomer) throw new exception.NotFoundException(`Not found customer with id ${customerId}`);
+
+      let where: Prisma.WishlistWhereInput = {};
+      where.customerId = customerId
+
+      const totalWishlists = await prisma.wishlist.findMany({ where });
+      const totalPages = Math.ceil(totalWishlists.length / pageSize);
+      const wishlists = await prisma.wishlist.findMany({
+        where,
+        include: {
+          product: true,
+          customer: {
+            include: {
+              customerDetail: true
+            }
+          }
+        },
+        orderBy: {
+          [orderBy]: orderDir
+        },
+        skip: pagination ? (page - 1) * pageSize : undefined,
+        take: pagination ? pageSize : undefined,
+      });
+      
+      return {
+        data: wishlists,
+        meta: {
+          totalItems: totalWishlists.length,
+          totalPages: totalPages,
+          currentPage: page,
+          pageSize
+        }
+      };
+    }
+    catch(error: any) {
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error find all review due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
+
 }

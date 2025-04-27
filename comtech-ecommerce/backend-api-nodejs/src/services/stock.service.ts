@@ -6,17 +6,25 @@ const prisma = new PrismaClient();
 
 export class StockService {
 
-  async findAll(
+  async findAll( // stock event
     page: number, 
     pageSize: number,
     pagination: boolean = false,
     orderBy: string = 'actionedAt',
     orderDir: string = 'desc',
+    productId: number,
   ) {
     try {
-      const totalStockActions = await prisma.stockEvent.findMany();
+      let where: Prisma.StockEventWhereInput = {}; 
+
+      if(productId) {
+        where.productId = productId;
+      }
+
+      const totalStockActions = await prisma.stockEvent.findMany({ where });
       const totalPages = Math.ceil(totalStockActions.length / pageSize);
       const stockActions = await prisma.stockEvent.findMany({
+        where,
         include: {
           product: true,
           actionedBy: true,
@@ -125,11 +133,19 @@ export class StockService {
     pagination: boolean = false,
     orderBy: string = 'actionedAt',
     orderDir: string = 'desc',
+    productId: number,
   ) {
     try {
-      const totalStockSellActions = await prisma.stockSellEvent.findMany();
+      let where: Prisma.StockSellEventWhereInput = {}; 
+
+      if(productId) {
+        where.productId = productId;
+      }
+
+      const totalStockSellActions = await prisma.stockSellEvent.findMany({ where });
       const totalPages = Math.ceil(totalStockSellActions.length / pageSize);
       const stockSellActions = await prisma.stockSellEvent.findMany({
+        where,
         include: {
           product: true,
           actionedBy: true,

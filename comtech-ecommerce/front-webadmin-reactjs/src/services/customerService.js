@@ -109,3 +109,35 @@ export async function suspenseCustomers(customersId, userId) {
 
 	return new Promise(suspenseCustomersAPI);
 }
+
+export async function getWishlistByCustomer(customerId, paramsQuery={}) {
+  const getWishlistByCustomerAPI = (resolve, reject) => {
+		const {
+			page,
+			pageSize,
+			pagination,
+			orderBy,
+			orderDir
+		} = paramsQuery;
+
+		let url = SERVER_API + `/api/wishlistByCustomer/${customerId}?`;
+
+		if(page) url += `page=${page}&`;
+		if(pageSize) url += `pageSize=${pageSize}&`;
+		if(pagination) url += `pagination=${pagination}&`;
+		if(orderBy) url += `orderBy=${orderBy}&`;
+		if(orderDir) url += `orderDir=${orderDir}&`;
+
+		axiosInstance
+			.get(url)
+			.then((res) => {
+				resolve(res);
+			})
+			.catch((err) => {
+				console.log(`Error getWishlistByCustomerAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				reject(`${err.message} ${err.response.data.MESSAGE}`);
+			});
+	};
+
+	return new Promise(getWishlistByCustomerAPI);
+}

@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Form, InputGroup, Button  } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowUp, faChevronLeft, faChevronRight, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
-import MyPagination from '../../components/MyPagination/MyPagination';
-import { useParams, Link } from 'react-router';
+import { faArrowUp, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import { useParams } from 'react-router';
 import { toast } from 'react-toastify';
 import * as CustomerService from '../../services/customerService';
-import { formatTimestamp } from '../../utils/utils';
+import * as OrderService from '../../services/orderService';
+import { formatTimestamp, formatMoney } from '../../utils/utils';
+import MyPagination from '../../components/MyPagination/MyPagination';
+import { Pie } from 'react-chartjs-2';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 export default function CustomerDetail() {
 
@@ -15,24 +19,62 @@ export default function CustomerDetail() {
   const [customerData, setCustomerData] = useState(null);
   const [paidOrders, setPaidOrders] = useState([]);
   const [totalExpense, setTotalExpense] = useState(0);
+  const [totalPendingExpense, setTotalPendingExpense] = useState(0);
+  const [wishlists, setWishlists] = useState([]);
+
+  const [wishlistPageName, setWishlistPageNumber] = useState(1);
+  const [wishlistCurrentPage, setWishlistCurrentPage] = useState(1);
+  const [wishlistTotalPage, setWishlistTotalPage] = useState(1);
+
+  const data = {
+    labels: ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม'],
+    datasets: [
+      {
+        label: 'ยอดขาย',
+        data: [12, 16, 3, 5, 2],
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      }
+    ]
+  };
+  
+  const options = {
+    responsive: true,
+    // options ต่างๆ
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       setLoadData(true);
       try {
         const customer = await CustomerService.getOneCustomer(params.id);
-        //console.log(customer.data.RESULT_DATA);
+        const orders = await OrderService.getOrders();
+        const wishlists = await CustomerService.getWishlistByCustomer(params.id, {
+          page: wishlistPageName,
+          pageSize: 3
+        });
+
         const result = customer.data.RESULT_DATA;
-        const ordersPaidResult = result.orders.filter(i => i.paymentStatus === 'PAID');
+        const customerOrders = orders.data.RESULT_DATA.filter(i => i.customerId === parseInt(params.id));
+        const paidOrders = customerOrders.filter(i => i.paymentStatus === 'PAID');
+        const unPaidOrders = customerOrders.filter(i => i.paymentStatus === 'PENDING');
 
         let tempTotalExpense = 0;
-        ordersPaidResult.map(i => {
-          tempTotalExpense += parseInt(i.total);
+        let tempTotalUnpaid = 0;
+        paidOrders.map(i => {
+          tempTotalExpense += parseFloat(i.total);
+        });
+        unPaidOrders.map(i => {
+          tempTotalUnpaid += parseFloat(i.total);
         });
 
         setCustomerData(result);
         setTotalExpense(tempTotalExpense);
-        setPaidOrders(ordersPaidResult);
+        setTotalPendingExpense(tempTotalUnpaid);
+        setPaidOrders(paidOrders);
+        setWishlists(wishlists.data.RESULT_DATA);
+        setWishlistCurrentPage(wishlists.data.RESULT_META.currentPage);
+        setWishlistTotalPage(wishlists.data.RESULT_META.totalPages);
       }
       catch(error) {
         console.log(error);
@@ -44,7 +86,11 @@ export default function CustomerDetail() {
     }
 
     fetchData();
-  }, [params]);
+  }, [params, wishlistPageName]);
+
+  const handleSelectPage = (pageNumber) => {
+    setWishlistPageNumber(pageNumber);
+  }
 
   if(loadData) return <p>Loading...</p>
   if(customerData === null) return <p>Something wrong...</p>
@@ -60,9 +106,9 @@ export default function CustomerDetail() {
         <header className="col-12 mb-3">
           <div className='d-flex justify-content-end align-items-center'>
             {/* <button className='btn btn-info px-4 me-3'><FontAwesomeIcon icon={faGift} className='me-2' />Send Campign</button> */}
-            <button className='btn my-btn red-btn big-btn'>
+            {/* <button className='btn my-btn red-btn big-btn'>
               <FontAwesomeIcon icon={faCircleXmark} className='me-2' />Suspend
-            </button>
+            </button> */}
           </div>
         </header>
         <div className='col-sm-8'>
@@ -76,20 +122,28 @@ export default function CustomerDetail() {
                     </figure>
                   </div>
                   <div className='d-flex align-items-center'>
-                    <div className='text-center me-5'>
-                      <strong className='h3 d-block mb-1'>฿{totalExpense.toLocaleString('th-TH')}</strong>
+                    <div className='text-center me-5 px-2'>
+                      <strong className='h3 d-block mb-1'>
+                        ฿{formatMoney(totalExpense)}
+                      </strong>
                       <p className='mb-0 opacity-50'>Total Expense</p>
                     </div>
-                    <div className='text-center me-5'>
-                      <strong className='h3 d-block mb-1'>฿1,880 <FontAwesomeIcon icon={faArrowUp} className='text-success h5' /></strong>
-                      <p className='mb-0 opacity-50'>Last Month Expense</p>
+                    <div className='text-center me-5 px-2'>
+                      <strong className='h3 d-block mb-1'>
+                        ฿{formatMoney(totalPendingExpense)}
+                      </strong>
+                      <p className='mb-0 opacity-50'>Pending Order</p>
                     </div>
-                    <div className='text-center me-5'>
-                      <strong className='h5 d-block mb-1'>{customerData.onDelete === null ? 'Active' : 'Suspend'}</strong>
+                    <div className='text-center me-5 px-2'>
+                      <strong className='h5 d-block mb-1'>
+                        {customerData.onDelete === null ? 'Active' : 'Suspend'}
+                      </strong>
                       <p className='mb-0 opacity-50'>Status</p>
                     </div>
-                    <div className='text-center me-5'>
-                      <strong className='h5 d-block mb-1'>{formatTimestamp(customerData.lastActive)}</strong>
+                    <div className='text-center me-5 px-2'>
+                      <strong className='h5 d-block mb-1'>
+                        {formatTimestamp(customerData.lastActive)}
+                      </strong>
                       <p className='mb-0 opacity-50'>Last Active</p>
                     </div>
                   </div>
@@ -106,9 +160,15 @@ export default function CustomerDetail() {
                     <tbody>
                       <tr>
                         <td style={{width: '35%'}}>
-                          <strong>Name</strong>
+                          <strong>Full Name</strong>
                         </td>
                         <td>{customerData.customerDetail.firstName} {customerData.customerDetail.lastName}</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <strong>Diaplay Name</strong>
+                        </td>
+                        <td>{customerData.displayName}</td>
                       </tr>
                       <tr>
                         <td>
@@ -138,13 +198,7 @@ export default function CustomerDetail() {
                         <td>
                           <strong>Address</strong>
                         </td>
-                        <td>n/a</td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <strong>Shipping Address</strong>
-                        </td>
-                        <td>n/a</td>
+                        <td>{customerData.customerDetail.street} {customerData.customerDetail.city} {customerData.customerDetail.region} {customerData.customerDetail.postcode}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -159,8 +213,8 @@ export default function CustomerDetail() {
                   <header className='d-flex justify-content-between align-items-center'>
                     <h5 className='mb-0'>{customerData?.customerDetail?.firstName} {customerData.customerDetail.lastName} Interesting<span></span></h5>
                   </header>
-                  <div className='d-flex justify-content-center align-items-center' style={{height: 300}}>
-                    <p className='mb-0'>"Pie Chart Here"</p>
+                  <div className='w-100' style={{height: 300}}>
+                    <Pie data={data} options={options} />
                   </div>
                 </div>
               </div>
@@ -168,7 +222,7 @@ export default function CustomerDetail() {
               <div className='card'>
                 <div className='card-body'>
                   <header>
-                    <h5>Wishlist Products<span></span></h5>
+                    <h5>{customerData?.customerDetail?.firstName} {customerData.customerDetail.lastName} Wishlist<span></span></h5>
                   </header>
                   <table className='table mt-3'>
                     <thead>
@@ -179,7 +233,7 @@ export default function CustomerDetail() {
                     </thead>
                     <tbody>
                       {
-                        customerData.wishlists.map((wish, index) => (
+                        wishlists.map((wish, index) => (
                           <tr key={`customer_wishlist_row_${wish.id}`}>
                             <td>{wish?.product?.name}</td>
                             <td>{formatTimestamp(wish.assignedAt)}</td>
@@ -188,7 +242,11 @@ export default function CustomerDetail() {
                       }
                     </tbody>
                   </table>
-                  <MyPagination />
+                  <MyPagination
+                    currentPage={wishlistCurrentPage}
+                    totalPage={wishlistTotalPage}
+                    handleSelectPage={handleSelectPage}
+                  />
                 </div>
               </div>
               
@@ -200,53 +258,61 @@ export default function CustomerDetail() {
           <div className='card mb-3'>
             <div className='card-body'>
               <header>
-                <h5>Buy History<span></span></h5>
+                <h5>Recent Orders<span></span></h5>
               </header>
-              <table className='table mt-3'>
-                <thead>
-                  <tr>
-                    <th>Order Number</th>
-                    <th>Price</th>
-                    <th>Date/Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    paidOrders.map((order, index) => {
-                      if(index < 5) {
-                        return (
-                          <tr key={`order_history_${order.id}`}>
-                            <td>#{order.id}</td>
-                            <td>฿{parseFloat(order.total).toLocaleString('th-TH')}</td>
-                            <td>{formatTimestamp(order.createdAt)}</td>
-                          </tr>
-                        )
-                      }
-                    })
-                  }
-                </tbody>
-              </table>
-              <MyPagination />
+              {
+                paidOrders.length > 0
+                ?
+                <table className='table mt-3'>
+                  <thead>
+                    <tr>
+                      <th>Order Number</th>
+                      <th>Price</th>
+                      <th>Date/Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      paidOrders.map((order, index) => {
+                        if(index < 5) {
+                          return (
+                            <tr key={`order_history_${order.id}`}>
+                              <td>#{order.id}</td>
+                              <td>฿{formatMoney(order.total)}</td>
+                              <td>{formatTimestamp(order.createdAt)}</td>
+                            </tr>
+                          )
+                        }
+                      })
+                    }
+                  </tbody>
+                </table>
+                :
+                <p className='my-3 text-center opacity-50'>Not have order</p>
+              }
             </div>
           </div>
 
           <div className='card mb-3'>
             <div className='card-body'>
               <header className='d-flex justify-content-between align-items-center mb-3'>
-                <h5 className='mb-0'>Reviews by {customerData?.customerDetail?.firstName}<span></span></h5>
+                <h5 className='mb-0'>Latest Reviews by {customerData?.customerDetail?.firstName} {customerData.customerDetail.lastName}<span></span></h5>
                 {/* <small>Total 20 reviews</small> */}
               </header>
               {
-                customerData.createdReviews.map((review, index) => (
-                  <div key={`customer_review_${review.id}`} className='reviewItem'>
-                    <p>"{review.message}"</p>
-                    <strong>Product</strong> : {review.product.name}<br />
-                    <strong>Rating</strong> : {review.rating.toFixed(1)}<br />
-                    <strong>At</strong> : {formatTimestamp(review.createdAt)}
-                  </div>
-                ))
+                customerData.createdReviews.map((review, index) => {
+                  if(index < 3) {
+                    return (
+                      <div key={`customer_review_${review.id}`} className='reviewItem'>
+                        <p>"{review.message}"</p>
+                        <strong>Product</strong> : {review.product.name}<br />
+                        <strong>Rating</strong> : {review.rating.toFixed(1)}<br />
+                        <strong>At</strong> : {formatTimestamp(review.createdAt)}
+                      </div>
+                    )
+                  }
+                })
               }
-              <MyPagination />
             </div>
           </div>
          

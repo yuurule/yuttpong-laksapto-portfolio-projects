@@ -92,6 +92,7 @@ router.delete('/suspense/customer', authenticate, customerController.suspenseCus
 // Review
 router.get('/review', reviewController.getReviews);
 router.get('/review/:id', reviewController.getOneReview);
+router.get('/reviewByProduct/:id', reviewController.getReviewByProduct);
 router.post('/review/create', authenticate, reviewController.createReview);
 router.put('/review/update/:id', authenticate, reviewController.updateReview);
 router.put('/review/approve/:id', authenticate, reviewController.approveReview);
@@ -112,6 +113,7 @@ router.put('/order/:id/payment', authenticate, orderController.updatePayment);
 router.put('/order/:id/delivery', authenticate, orderController.updateDelivery);
 
 // Wishlist
+router.get('/wishlistByCustomer/:id', authenticate, wishlistController.getWishlistsByCustomer);
 router.post('/wishlist/add', authenticate, wishlistController.addWishlist);
 router.delete('/wishlist/:id', authenticate, wishlistController.removeWishlist);
 

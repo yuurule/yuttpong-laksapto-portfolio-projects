@@ -77,7 +77,16 @@ export class ReviewService {
       if(!findProduct) throw new exception.NotFoundException(`Not found product with id ${productId}`);
 
       const reviewsByProduct = await prisma.review.findMany({
-        where: { productId: productId }
+        where: { 
+          productId: productId,
+          approved: {
+            not: null
+          }
+        },
+        include: {
+          product: true,
+          createdBy: true
+        }
       });
       return reviewsByProduct;
     }

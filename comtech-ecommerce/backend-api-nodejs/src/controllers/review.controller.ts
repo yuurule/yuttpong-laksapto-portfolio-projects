@@ -44,6 +44,23 @@ export class ReviewController {
     }
   }
 
+  async getReviewByProduct(req: Request, res: Response) {
+    const id = parseInt(req.params.id);
+
+    if(!isValidId(id)) {
+      sendError(res, 400, `Product id must not zero or negative number`);
+    }
+
+    try {
+      const review = await reviewService.findByProduct(id);
+      sendResponse(res, 200, `Get review by product ok`, review);
+    }
+    catch (error: any) {
+      console.error('Get review by product error: ', error);
+      sendError(res, error.statusCode, error.message);
+    }
+  }
+
   async createReview(req: Request, res: Response) {
     const { productId, message, rating, customerId } = req.body;
 

@@ -30,21 +30,21 @@ export async function getReviews(paramsQuery) {
 	return new Promise(getAllReviewAPI);
 }
 
-export async function getReviewsByCustomer(customerId) {
-  const getReviewsByCustomerAPI = (resolve, reject) => {
-		let url = SERVER_API + `/api/review/${customerId}`;
+export async function getReviewsByProduct(productId) {
+  const getReviewsByProductAPI = (resolve, reject) => {
+		let url = SERVER_API + `/api/reviewByProduct/${productId}`;
 		axiosInstance
 			.get(url)
 			.then((res) => {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error getReviewsByCustomerAPI: ${err.message} ${err.response.data.MESSAGE}`);
+				console.log(`Error getReviewsByProductAPI: ${err.message} ${err.response.data.MESSAGE}`);
 				reject(`${err.message} ${err.response.data.MESSAGE}`);
 			});
 	};
 
-	return new Promise(getReviewsByCustomerAPI);
+	return new Promise(getReviewsByProductAPI);
 }
 
 export async function approveReview(reviewId, data) {

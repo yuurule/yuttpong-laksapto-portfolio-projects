@@ -1,7 +1,7 @@
 import { SERVER_API } from './serviceConfig';
 import axiosInstance from '../utils/axiosInstance';
 
-export async function getAllCampaign(paramsQuery) {
+export async function getAllCampaign(paramsQuery={}) {
   const getAllCampaignAPI = (resolve, reject) => {
 		const {
 			page,
@@ -12,8 +12,15 @@ export async function getAllCampaign(paramsQuery) {
 			search,
 		} = paramsQuery;
 
-		let url = SERVER_API + `/api/campaign?page=${page}&pageSize=${pageSize}&pagination=${pagination}&orderBy=${orderBy}&orderDir=${orderDir}`;
-		if(search) url += `&search=${search}`;
+		let url = SERVER_API + `/api/campaign?`;
+
+		if(page) url += `page=${page}&`;
+		if(pageSize) url += `pageSize=${pageSize}&`;
+		if(pagination) url += `pagination=${pagination}&`;
+		if(orderBy) url += `orderBy=${orderBy}&`;
+		if(orderDir) url += `orderDir=${orderDir}&`;
+		if(search) url += `search=${search}&`;
+
 		axiosInstance
 			.get(url)
 			.then((res) => {

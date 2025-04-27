@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { sendResponse, sendError } from '../libs/response';
 import { isValidId, isValidHaveValue } from '../libs/validation';
 import { WishlistService } from '../services/wishlist.service';
+import { parseBoolean } from '../libs/utility';
 
 const wishlistService = new WishlistService();
 
@@ -40,5 +41,29 @@ export class WishlistController {
       sendError(res, error.statusCode, error.message);
     }
   }
+
+  async getWishlistsByCustomer(req: Request, res: Response) {
+
+      const customerId = parseInt(req.params.id);
+
+      if(!isValidId(customerId)) {
+        sendError(res, 400, `Customer id must not zero or negative number`);
+      }
+
+      const page = parseInt(req.query.page as string || '1');
+      const pageSize = parseInt(req.query.pageSize as string || '8');
+      const pagination = parseBoolean(req.query.noPagination as string) || true;
+      const orderBy = req.query.orderBy as string || 'assignedAt';
+      const orderDir = req.query.orderDir as string || 'desc';
+  
+      try {
+        const wishlists = await wishlistService.findAllByCustomer(customerId, page, pageSize, pagination, orderBy, orderDir);
+        sendResponse(res, 200, `Get all wishlists by customer ok`, wishlists.data, wishlists.meta)
+      }
+      catch (error: any) {
+        console.error('Get all wishlists by customer error: ', error);
+        sendError(res, error.statusCode, error.message);
+      }
+    }
 
 }

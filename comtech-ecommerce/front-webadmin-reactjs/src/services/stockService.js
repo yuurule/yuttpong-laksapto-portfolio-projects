@@ -1,7 +1,7 @@
 import { SERVER_API } from './serviceConfig';
 import axiosInstance from '../utils/axiosInstance';
 
-export async function getAllStockAction(paramsQuery) {
+export async function getAllStockAction(paramsQuery={}) {
   const getAllStockActionAPI = (resolve, reject) => {
 		const {
 			page,
@@ -9,9 +9,18 @@ export async function getAllStockAction(paramsQuery) {
 			pagination,
 			orderBy,
 			orderDir,
+			productId,
 		} = paramsQuery;
 
-		let url = SERVER_API + `/api/stock-action?page=${page}&pageSize=${pageSize}&pagination=${pagination}&orderBy=${orderBy}&orderDir=${orderDir}`;
+		let url = SERVER_API + `/api/stock-action?`;
+
+		if(page) url += `page=${page}&`;
+		if(pageSize) url += `pageSize=${pageSize}&`;
+		if(pagination) url += `pagination=${pagination}&`;
+		if(orderBy) url += `orderBy=${orderBy}&`;
+		if(orderDir) url += `orderDir=${orderDir}&`;
+		if(productId) url += `productId=${productId}&`;
+
 		axiosInstance
 			.get(url)
 			.then((res) => {

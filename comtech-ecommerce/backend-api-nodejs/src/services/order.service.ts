@@ -9,14 +9,16 @@ const stockService = new StockService;
 export class OrderService {
 
   async findAll(
-    page: number, 
-    pageSize: number,
+    page: number = 1, 
+    pageSize: number = 8,
     pagination: boolean = false,
     orderBy: string = 'createdAt', // createdAt, name, total
     orderDir: string = 'desc',
     search: string,
     paymentStatus: string,
     deliveryStatus: string,
+    startDate?: string,
+    endDate?: string,
   ) {
     try {
       let where: Prisma.OrderWhereInput = {};
@@ -36,6 +38,25 @@ export class OrderService {
               }
             ]
           }
+        }
+      }
+      if(paymentStatus) {
+        where.paymentStatus = paymentStatus as PaymentStatus;
+      }
+      if(deliveryStatus) {
+        where.status = deliveryStatus as OrderStatus;
+      }
+
+      if(startDate && endDate) {
+
+        let stDate = new Date(startDate);
+        stDate.setHours(0,0,0,0);
+        let enDate = new Date(endDate);
+        enDate.setHours(23, 59, 59, 999);
+
+        where.createdAt = {
+          gte: new Date(stDate), // วันที่เริ่มต้น
+          lte: new Date(enDate)  // วันที่สิ้นสุด
         }
       }
 
@@ -294,4 +315,7 @@ export class OrderService {
     }
   }
   
+  async findAllByDateRange(startDate: string, endDate: string, productId?: number) {
+
+  }
 }

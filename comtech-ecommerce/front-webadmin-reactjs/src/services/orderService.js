@@ -1,7 +1,7 @@
 import { SERVER_API } from './serviceConfig';
 import axiosInstance from '../utils/axiosInstance';
 
-export async function getOrders(paramsQuery) {
+export async function getOrders(paramsQuery={}) {
   const getAllOrderAPI = (resolve, reject) => {
 		const {
 			page,
@@ -10,10 +10,27 @@ export async function getOrders(paramsQuery) {
 			orderBy,
 			orderDir,
 			search,
+			paymentStatus,
+			deliveryStatus,
+			startDate,
+			endDate
 		} = paramsQuery;
 
-		let url = SERVER_API + `/api/order?page=${page}&pageSize=${pageSize}&pagination=${pagination}&orderBy=${orderBy}&orderDir=${orderDir}`;
-		if(search) url += `&search=${search}`;
+		let url = SERVER_API + `/api/order?`;
+		
+		if(page) url += `page=${page}&`;
+		if(pageSize) url += `pageSize=${pageSize}&`;
+		if(pagination) url += `pagination=${pagination}&`;
+		if(orderBy) url += `orderBy=${orderBy}&`;
+		if(orderDir) url += `orderDir=${orderDir}&`;
+		if(search) url += `search=${search}&`;
+		if(paymentStatus) url += `paymentStatus=${paymentStatus}&`;
+		if(deliveryStatus) url += `deliveryStatus=${deliveryStatus}&`;
+		if(startDate) url += `startDate=${startDate}&`;
+		if(endDate) url += `endDate=${endDate}&`;
+		
+		console.log(url)
+
 		axiosInstance
 			.get(url)
 			.then((res) => {

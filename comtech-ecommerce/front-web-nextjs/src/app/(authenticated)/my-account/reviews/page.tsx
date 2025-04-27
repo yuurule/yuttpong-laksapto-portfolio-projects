@@ -3,9 +3,9 @@ import PageHeader from "@/components/PageHeader/PageHeader";
 import MyAccountMenu from "@/components/MyAccount/MyAccountMenu";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
-export default function WishlistsPage() {
+export default function ReviewsPage() {
 
 
 
@@ -15,7 +15,7 @@ export default function WishlistsPage() {
       <div className='container'>
         <div className="row">
           <header className="col-12">
-            <PageHeader pageTitle="My Wishlist" />
+            <PageHeader pageTitle="My Review" />
           </header>
           <div className="col-sm-3">
             <MyAccountMenu />
@@ -24,23 +24,22 @@ export default function WishlistsPage() {
             <table className={`table table-design`}>
               <thead>
                 <tr>
-                  <th>Product</th>
-                  <th>Wishlist at</th>
-                  <th>Remove</th>
+                  <th>Review</th>
+                  <th>Rating</th>
+                  <th>On Product</th>
+                  <th>Review At</th>
+                  <th>Edit</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>
-                    <Link href="/" className="d-flex align-items-center">
-                      <img src="/images/dummy-product.jpg" className="product-image" />
-                      <p className="mb-0">Asus Rog cv7260RF</p>
-                    </Link>
-                  </td>
+                  <td>"Lorem ipslum dolor sitamet"</td>
+                  <td>4</td>
+                  <td>Asus Rog cv7260RF</td>
                   <td>20 Mar 2025</td>
                   <td>
-                    <Link href="/" className="btn btn-danger btn-sm">
-                      <FontAwesomeIcon icon={faTrashAlt} />
+                    <Link href="/" className="btn btn-primary btn-sm">
+                      <FontAwesomeIcon icon={faEdit} />
                     </Link>
                   </td>
                 </tr>

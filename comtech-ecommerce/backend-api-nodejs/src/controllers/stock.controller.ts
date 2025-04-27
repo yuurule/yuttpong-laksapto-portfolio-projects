@@ -15,9 +15,10 @@ export class StockController {
     const pagination = parseBoolean(req.query.noPagination as string) || true;
     const orderBy = req.query.orderBy as string || 'actionedAt';
     const orderDir = req.query.orderDir as string || 'desc';
+    const productId = parseInt(req.query.page as string);
 
     try {
-      const stockActions = await stockService.findAll(page, pageSize, pagination, orderBy, orderDir);
+      const stockActions = await stockService.findAll(page, pageSize, pagination, orderBy, orderDir, productId);
       sendResponse(res, 200, `Get all stock action ok`, stockActions.data, stockActions.meta);
     }
     catch (error: any) {
@@ -85,9 +86,10 @@ export class StockController {
     const pagination = parseBoolean(req.query.noPagination as string) || true;
     const orderBy = req.query.orderBy as string || 'actionedAt';
     const orderDir = req.query.orderDir as string || 'desc';
+    const productId = parseInt(req.query.page as string);
 
     try {
-      const stockSellActions = await stockService.findAllSell(page, pageSize, pagination, orderBy, orderDir);
+      const stockSellActions = await stockService.findAllSell(page, pageSize, pagination, orderBy, orderDir, productId);
       sendResponse(res, 200, `Get all stock sell action ok`, stockSellActions.data, stockSellActions.meta)
     }
     catch (error: any) {
