@@ -29,7 +29,7 @@ export async function getOrders(paramsQuery={}) {
 		if(startDate) url += `startDate=${startDate}&`;
 		if(endDate) url += `endDate=${endDate}&`;
 		
-		console.log(url)
+		//console.log(url)
 
 		axiosInstance
 			.get(url)

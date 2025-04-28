@@ -197,6 +197,26 @@ async function main() {
             lastName: 'Gomez'
           }
         },
+        {
+          email: 'yammy@mail.com',
+          password: await hashPassword('123456'),
+          displayName: 'Yammy',
+          lastActive: new Date(),
+          customerDetail: {
+            firstName: 'Yam',
+            lastName: 'Laksapto'
+          }
+        },
+        {
+          email: 'xmas@mail.com',
+          password: await hashPassword('123456'),
+          displayName: 'xMas',
+          lastActive: new Date(),
+          customerDetail: {
+            firstName: 'Merry',
+            lastName: 'Christmas'
+          }
+        },
       ];
 
       for (const user of users) {
@@ -414,6 +434,7 @@ async function main() {
           total: 79990,
           paymentStatus: 'PAID',
           status: 'COMPLETED',
+          createdAt: new Date('2025-04-25'),
           items: [{
             productId: 1,
             quantity: 1,
@@ -425,10 +446,71 @@ async function main() {
           total: 57990,
           paymentStatus: 'PAID',
           status: 'COMPLETED',
+          createdAt: new Date('2025-04-23'),
           items: [{
             productId: 3,
             quantity: 1,
             sale_price: 57990
+          }] 
+        },
+        { 
+          customerId: 3, 
+          total: 55990,
+          paymentStatus: 'PAID',
+          status: 'COMPLETED',
+          createdAt: new Date('2025-04-27'),
+          items: [{
+            productId: 2,
+            quantity: 1,
+            sale_price: 55990
+          }] 
+        },
+        { 
+          customerId: 3, 
+          total: 79990,
+          paymentStatus: 'PAID',
+          status: 'COMPLETED',
+          createdAt: new Date('2025-04-25'),
+          items: [{
+            productId: 1,
+            quantity: 1,
+            sale_price: 79990
+          }] 
+        },
+        { 
+          customerId: 4, 
+          total: 57990,
+          paymentStatus: 'PAID',
+          status: 'COMPLETED',
+          createdAt: new Date('2025-04-22'),
+          items: [{
+            productId: 3,
+            quantity: 1,
+            sale_price: 57990
+          }] 
+        },
+        { 
+          customerId: 2, 
+          total: 245990,
+          paymentStatus: 'PAID',
+          status: 'COMPLETED',
+          createdAt: new Date('2025-04-24'),
+          items: [{
+            productId: 4,
+            quantity: 1,
+            sale_price: 245990
+          }] 
+        },
+        { 
+          customerId: 1, 
+          total: 245990,
+          paymentStatus: 'PAID',
+          status: 'COMPLETED',
+          createdAt: new Date('2025-04-28'),
+          items: [{
+            productId: 4,
+            quantity: 1,
+            sale_price: 245990
           }] 
         },
       ]
