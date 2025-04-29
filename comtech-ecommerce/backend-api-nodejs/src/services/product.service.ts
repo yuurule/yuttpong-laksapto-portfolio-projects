@@ -290,7 +290,16 @@ export class ProductService {
               createdAt: 'desc'
             }
           },
-          orderItems: true,
+          orderItems: {
+            include: {
+              order: {
+                select: {
+                  paymentStatus: true,
+                  createdAt: true,
+                }
+              }
+            }
+          },
           campaignProducts: {
             include: {
               campaign: true

@@ -132,7 +132,7 @@ export async function getAllProductInTrash(paramsQuery) {
 }
 
 // Statistics
-export async function getStatisticProduct(paramsQuery) {
+export async function getStatisticProduct(paramsQuery={}) {
 	const getStatisticProductAPI = (resolve, reject) => {
 		const {
 			page,
@@ -145,11 +145,16 @@ export async function getStatisticProduct(paramsQuery) {
 			totalSale
 		} = paramsQuery;
 
-		let url = SERVER_API + `/api/statistic/products?page=${page}&pageSize=${pageSize}&orderBy=${orderBy}&orderDir=${orderDir}`;
-		if(search) url += `&search=${search}`;
-		if(inStock) url += `&inStock=${inStock}`;
-		if(sale) url += `&sale=${sale}`;
-		if(totalSale) url += `&totalSale=${totalSale}`;
+		let url = SERVER_API + `/api/statistic/products?`;
+
+		if(page) url += `page=${page}&`;
+		if(pageSize) url += `pageSize=${pageSize}&`;
+		if(orderBy) url += `orderBy=${orderBy}&`;
+		if(orderDir) url += `orderDir=${orderDir}&`;
+		if(search) url += `search=${search}&`;
+		if(inStock) url += `inStock=${inStock}&`;
+		if(sale) url += `sale=${sale}&`;
+		if(totalSale) url += `totalSale=${totalSale}&`;
 
 		axiosInstance
 			.get(url)

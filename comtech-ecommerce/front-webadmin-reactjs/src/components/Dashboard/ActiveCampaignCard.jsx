@@ -69,7 +69,7 @@ export default function ActiveCampaignCard() {
               </tbody>
             </table>
             :
-            <p className='h4 opacity-50 my-5'>Not have active campaigns right now</p>
+            <p className='h5 opacity-50 my-5 text-center'>Not have active campaigns right now</p>
           }
           </>
         }

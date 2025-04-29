@@ -25,21 +25,52 @@ export default function ProductDetail() {
   const [stockActions, setStockActions] = useState([]);
   const [reviewData, setReviewData] = useState([]);
 
-  const data = {
-    labels: ['21/04/68', '22/04/68', '23/04/68', '24/04/68ธ์', '25/04/68', '26/04/68', '27/04/68'],
-    datasets: [
-      {
-        label: 'ยอดขาย',
-        data: [0, 754000, 200000, 245990, 509900, 0, 754000],
-        borderColor: 'rgb(75, 192, 192)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-      }
-    ]
-  };
-  
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: [],
+  });
   const options = {
     responsive: true,
-    // options ต่างๆ
+    plugins: {
+      // ซ่อน legend ทั้งหมด
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: 'แผนภูมิเส้นแสดงยอดขาย 7 วันล่าสุด'
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            return `${context.dataset.label}: ${(context.parsed.y).toLocaleString('th-TH')} บาท`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'ยอดขาย (บาท)'
+        },
+        ticks: {
+          // ซ่อน label บนแกน y
+          // display: false, // ถ้าต้องการซ่อน label แกน y ให้เปิดใช้บรรทัดนี้
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'วันที่'
+        },
+        ticks: {
+          // ซ่อน label บนแกน x
+          // display: false, // ถ้าต้องการซ่อน label แกน x ให้เปิดใช้บรรทัดนี้
+        }
+      }
+    }
   };
 
   useState(() => {
@@ -50,11 +81,6 @@ export default function ProductDetail() {
         const orders = await OrderService.getOrders({
           paymentStatus: 'PAID',
         });
-        const last7DayOrders = await OrderService.getOrders({
-          paymentStatus: 'PAID',
-          startDate: '2025-04-15',
-          endDate: '2025-04-15'
-        });
         const stockAction = await StockService.getAllStockAction({
           productId: params.id
         });
@@ -63,6 +89,7 @@ export default function ProductDetail() {
         //============================================================================================
 
         const result = product.data.RESULT_DATA;
+        //console.log(result)
         const resultProductSpecs = [
           { title: "Title", value: result.name },
           { title: "Screen size", value: result.specs.screen_size },
@@ -98,6 +125,35 @@ export default function ProductDetail() {
               })
             }
           });
+        });
+
+        const daysWeek = [];
+        const totalIncomeWeek = [];
+        for(let i = 0; i < 7; i++) {
+          let presentDay = new Date();
+          presentDay.setDate(presentDay.getDate() - i);
+          daysWeek.unshift(presentDay.toLocaleDateString('th-TH'));
+
+          let tempTotalIncome = 0;
+          result.orderItems.map(x => {
+            const d = new Date(x.order.createdAt);
+            if(x.order.paymentStatus === 'PAID' && (presentDay.toLocaleDateString('th-TH') === d.toLocaleDateString('th-TH'))) {
+              tempTotalIncome += parseFloat(x.sale_price) * x.quantity;
+            }
+          });
+          totalIncomeWeek.unshift(tempTotalIncome);
+        }
+
+        setChartData({
+          labels: daysWeek,
+          datasets: [
+            {
+              label: 'ยอดขาย',
+              data: totalIncomeWeek,
+              borderColor: 'rgb(75, 192, 192)',
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            }
+          ]
         });
 
         setProductData(result);
@@ -137,7 +193,7 @@ export default function ProductDetail() {
   if(productData === null) return <p>Something wrong...</p>
 
   return (
-    <div className={`page`}>
+    <div className={`page product-detail`}>
       <header className="page-title smaller">
         <h1>{productData.name}</h1>
         <p>SKU: {productData.sku}</p>
@@ -154,7 +210,7 @@ export default function ProductDetail() {
             ><FontAwesomeIcon icon={faTrash} className='me-2' />Delete</button> */}
           </div>
         </div>
-        <div className='col-sm-8'>
+        <div className='col-sm-9 left-col'>
           <div className='row'>
             <div className='col-12 mb-3'>
               <div className='card'>
@@ -223,10 +279,10 @@ export default function ProductDetail() {
                 <div className='card-body'>
                   <header className='d-flex justify-content-between align-items-center'>
                     <h5 className='mb-0'>Latest Sale in 1 week<span></span></h5>
-                    <small>12 - 17 Jan 2025</small>
+                    {/* <small>12 - 17 Jan 2025</small> */}
                   </header>
                   <div className='d-flex justify-content-center align-items-center my-3'>
-                    <Line data={data} options={options} />
+                    <Line data={chartData} options={options} />
                   </div>
                 </div>
               </div>
@@ -257,7 +313,7 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        <div className='col-sm-4'>
+        <div className='col-sm-3 right-col'>
           <div className='row'>
             <div className='col-12 mb-3'>
               <div className='card'>
@@ -271,7 +327,7 @@ export default function ProductDetail() {
                     <table className='table'>
                       <thead>
                         <tr>
-                          <th>order Number</th>
+                          <th>order ID</th>
                           <th>quantity</th>
                           <th>date/Time</th>
                         </tr>
@@ -311,7 +367,6 @@ export default function ProductDetail() {
                         <th>action</th>
                         <th>quantity</th>
                         <th>date/Time</th>
-                        <th>by</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -322,8 +377,10 @@ export default function ProductDetail() {
                               <tr key={`stock_history_${index + 1}`}>
                                 <td>{i.action}</td>
                                 <td>x{i.quantity}</td>
-                                <td>{formatTimestamp(i.actionedAt)}</td>
-                                <td>{i.actionedBy.displayName}</td>
+                                <td>
+                                  {formatTimestamp(i.actionedAt)}
+                                  <small className='d-block opacity-50'>{i.actionedBy.displayName}</small>
+                                </td>
                               </tr>
                             )
                           }

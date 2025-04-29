@@ -375,7 +375,14 @@ async function main() {
       const wishlists = [
         { customerId: 1, productId: 1 },
         { customerId: 1, productId: 2 },
+        { customerId: 2, productId: 1 },
+        { customerId: 2, productId: 2 },
         { customerId: 2, productId: 3 },
+        { customerId: 3, productId: 1 },
+        { customerId: 3, productId: 3 },
+        { customerId: 4, productId: 1 },
+        { customerId: 4, productId: 2 },
+        { customerId: 4, productId: 4 },
       ]
       for (const wish of wishlists) {
         await tx.wishlist.create({
@@ -414,19 +421,19 @@ async function main() {
         });
       }
 
-      const carts = [
-        { customerId: 1, productId: 1, quantity: 1 },
-        { customerId: 2, productId: 3, quantity: 2 },
-      ]
-      for (const cart of carts) {
-        await tx.cartItem.create({
-          data: {
-            customer: { connect: { id: cart.customerId } },
-            product: { connect: { id: cart.productId } },
-            quantity: cart.quantity
-          }
-        });
-      }
+      // const carts = [
+      //   { customerId: 1, productId: 1, quantity: 1 },
+      //   { customerId: 2, productId: 3, quantity: 2 },
+      // ]
+      // for (const cart of carts) {
+      //   await tx.cartItem.create({
+      //     data: {
+      //       customer: { connect: { id: cart.customerId } },
+      //       product: { connect: { id: cart.productId } },
+      //       quantity: cart.quantity
+      //     }
+      //   });
+      // }
 
       const orders = [
         { 

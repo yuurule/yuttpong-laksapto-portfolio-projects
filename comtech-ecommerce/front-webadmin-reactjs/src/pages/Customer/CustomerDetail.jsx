@@ -7,7 +7,7 @@ import * as CustomerService from '../../services/customerService';
 import * as OrderService from '../../services/orderService';
 import { formatTimestamp, formatMoney } from '../../utils/utils';
 import MyPagination from '../../components/MyPagination/MyPagination';
-import { Pie } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -26,21 +26,52 @@ export default function CustomerDetail() {
   const [wishlistCurrentPage, setWishlistCurrentPage] = useState(1);
   const [wishlistTotalPage, setWishlistTotalPage] = useState(1);
 
-  const data = {
-    labels: ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม'],
-    datasets: [
-      {
-        label: 'ยอดขาย',
-        data: [12, 16, 3, 5, 2],
-        borderColor: 'rgb(75, 192, 192)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-      }
-    ]
-  };
-  
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: [],
+  });
   const options = {
     responsive: true,
-    // options ต่างๆ
+    plugins: {
+      // ซ่อน legend ทั้งหมด
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: 'แผนภูมิเส้นแสดงการใช้จ่าย 7 วันล่าสุด'
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            return `${context.dataset.label}: ${(context.parsed.y).toLocaleString('th-TH')} บาท`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'ค่าใช้จ่าย (บาท)'
+        },
+        ticks: {
+          // ซ่อน label บนแกน y
+          // display: false, // ถ้าต้องการซ่อน label แกน y ให้เปิดใช้บรรทัดนี้
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'วันที่'
+        },
+        ticks: {
+          // ซ่อน label บนแกน x
+          // display: false, // ถ้าต้องการซ่อน label แกน x ให้เปิดใช้บรรทัดนี้
+        }
+      }
+    }
   };
 
   useEffect(() => {
@@ -66,6 +97,35 @@ export default function CustomerDetail() {
         });
         unPaidOrders.map(i => {
           tempTotalUnpaid += parseFloat(i.total);
+        });
+
+        const daysWeek = [];
+        const totalIncomeWeek = [];
+        for(let i = 0; i < 7; i++) {
+          let presentDay = new Date();
+          presentDay.setDate(presentDay.getDate() - i);
+          daysWeek.unshift(presentDay.toLocaleDateString('th-TH'));
+
+          let tempTotalIncome = 0;
+          paidOrders.map(x => {
+            const d = new Date(x.createdAt);
+            if(presentDay.toLocaleDateString('th-TH') === d.toLocaleDateString('th-TH')) {
+              tempTotalIncome += parseFloat(x.total);
+            }
+          });
+          totalIncomeWeek.unshift(tempTotalIncome);
+        }
+
+        setChartData({
+          labels: daysWeek,
+          datasets: [
+            {
+              label: 'การใช้จ่าย',
+              data: totalIncomeWeek,
+              borderColor: 'rgb(75, 192, 192)',
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            }
+          ]
         });
 
         setCustomerData(result);
@@ -96,7 +156,7 @@ export default function CustomerDetail() {
   if(customerData === null) return <p>Something wrong...</p>
 
   return (
-    <div className={`page`}>
+    <div className={`page customer-detail`}>
       <header className="page-title smaller">
         <h1>{`${customerData.customerDetail.firstName} ${customerData.customerDetail.lastName}`}</h1>
         <p>Customer detail</p>
@@ -111,7 +171,7 @@ export default function CustomerDetail() {
             </button> */}
           </div>
         </header>
-        <div className='col-sm-8'>
+        <div className='col-sm-9 left-col'>
           <div className='row'>
             <div className='col-12 mb-3'>
               <div className='card'>
@@ -211,10 +271,10 @@ export default function CustomerDetail() {
               <div className='card mb-3'>
                 <div className='card-body'>
                   <header className='d-flex justify-content-between align-items-center'>
-                    <h5 className='mb-0'>{customerData?.customerDetail?.firstName} {customerData.customerDetail.lastName} Interesting<span></span></h5>
+                    <h5 className='mb-0'>{customerData?.customerDetail?.firstName} {customerData.customerDetail.lastName} Expense<span></span></h5>
                   </header>
-                  <div className='w-100' style={{height: 300}}>
-                    <Pie data={data} options={options} />
+                  <div className='d-flex justify-content-center align-items-center my-3'>
+                    <Line data={chartData} options={options} />
                   </div>
                 </div>
               </div>
@@ -254,7 +314,7 @@ export default function CustomerDetail() {
           </div>
         </div>
 
-        <div className='col-sm-4'>
+        <div className='col-sm-3 right-col'>
           <div className='card mb-3'>
             <div className='card-body'>
               <header>

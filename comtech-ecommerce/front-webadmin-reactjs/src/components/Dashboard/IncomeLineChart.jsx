@@ -15,7 +15,46 @@ export default function IncomeLineChart() {
   });
   const options = {
     responsive: true,
-    // options ต่างๆ
+    plugins: {
+      // ซ่อน legend ทั้งหมด
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: 'แผนภูมิเส้นแสดงยอดขาย 7 วันล่าสุด'
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            return `${context.dataset.label}: ${(context.parsed.y).toLocaleString('th-TH')} บาท`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'ยอดขาย (บาท)'
+        },
+        ticks: {
+          // ซ่อน label บนแกน y
+          // display: false, // ถ้าต้องการซ่อน label แกน y ให้เปิดใช้บรรทัดนี้
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'วันที่'
+        },
+        ticks: {
+          // ซ่อน label บนแกน x
+          // display: false, // ถ้าต้องการซ่อน label แกน x ให้เปิดใช้บรรทัดนี้
+        }
+      }
+    }
   };
 
   useEffect(() => {
@@ -32,10 +71,18 @@ export default function IncomeLineChart() {
         for(let i = 0; i < 7; i++) {
           let presentDay = new Date();
           presentDay.setDate(presentDay.getDate() - i);
-          daysWeek.unshift(presentDay.toLocaleDateString())
+          daysWeek.unshift(presentDay.toLocaleDateString('th-TH'));
+
+          const thisDayOrders = orders.data.RESULT_DATA.filter(x => {
+            const d = new Date(x.createdAt);
+            if(presentDay.toLocaleDateString('th-TH') === d.toLocaleDateString('th-TH')) {
+              return x;
+            }
+          })
 
           let tempTotalIncome = 0;
-          totalIncomeWeek.unshift(i * 100);
+          thisDayOrders.map(x => tempTotalIncome += parseFloat(x.total));
+          totalIncomeWeek.unshift(tempTotalIncome);
         }
 
         setChartData({
@@ -61,8 +108,6 @@ export default function IncomeLineChart() {
 
     fetchData();
   }, []);
-
-  
 
   return (
     <div className="card">
