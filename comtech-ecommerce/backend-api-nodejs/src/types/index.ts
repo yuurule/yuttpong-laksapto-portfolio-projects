@@ -33,8 +33,10 @@ export interface createProductDto {
     option: string,
   },
   images?: {
-    url_path: string, 
-    //order: number,
+    path: string, 
+    filename: string,
+    mimetype: string,
+    size: number
   }[]
 }
 export interface updateProductDto {
@@ -70,9 +72,15 @@ export interface updateProductDto {
     warranty?: string,
     option?: string,
   };
-  images?: {
-    create?: { url_path: string, sequence_order: number }[];
-    delete?: { id: number }[];
+  imagesUpdate?: {
+    // create?: { 
+    //   path: string, 
+    //   filename: string,
+    //   mimetype: string,
+    //   size: number,
+    //   sequence_order: number 
+    // }[];
+    delete?: number[];
     //update?: { id: number, urlPath: string, order: number }[]; 
   };
 }
@@ -159,4 +167,26 @@ export interface createOrderDto {
     discount?: number;
     salePrice: number
   }[]
+}
+
+export interface PaymentIntent {
+  id: string;
+  amount: number;
+  status: string;
+  client_secret: string | null;
+}
+
+export interface CreatePaymentResponse {
+  paymentIntent: PaymentIntent;
+}
+
+export interface PaymentVerificationResponse {
+  success: boolean;
+  payment?: {
+    id: string;
+    amount: number;
+    status: string;
+    created: number;
+  };
+  error?: string;
 }

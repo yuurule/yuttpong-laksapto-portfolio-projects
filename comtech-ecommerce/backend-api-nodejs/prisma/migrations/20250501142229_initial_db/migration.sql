@@ -58,10 +58,12 @@ CREATE TABLE `customer_details` (
     `lastName` VARCHAR(191) NULL,
     `phone` VARCHAR(191) NULL,
     `lineId` VARCHAR(191) NULL,
-    `region` VARCHAR(191) NULL,
-    `street` VARCHAR(191) NULL,
+    `address` VARCHAR(191) NULL,
+    `subDistrict` VARCHAR(191) NULL,
+    `district` VARCHAR(191) NULL,
+    `province` VARCHAR(191) NULL,
     `postcode` VARCHAR(191) NULL,
-    `city` VARCHAR(191) NULL,
+    `country` VARCHAR(191) NULL,
 
     UNIQUE INDEX `customer_details_customerId_key`(`customerId`),
     PRIMARY KEY (`id`)
@@ -130,11 +132,14 @@ CREATE TABLE `product_specs` (
 -- CreateTable
 CREATE TABLE `product_images` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `url_path` VARCHAR(191) NOT NULL,
+    `path` VARCHAR(191) NOT NULL,
+    `filename` VARCHAR(191) NOT NULL,
+    `mimetype` VARCHAR(191) NOT NULL,
+    `size` INTEGER NOT NULL,
     `productId` INTEGER NOT NULL,
     `sequence_order` INTEGER NOT NULL,
-    `assignedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `assignedById` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `createdById` INTEGER NOT NULL,
     `updatedAt` DATETIME(3) NOT NULL,
     `updatedById` INTEGER NULL,
 
@@ -327,6 +332,16 @@ CREATE TABLE `orders` (
     `customerId` INTEGER NOT NULL,
     `total` DECIMAL(18, 2) NOT NULL,
     `note` VARCHAR(191) NULL,
+    `useSameAddress` BOOLEAN NOT NULL DEFAULT false,
+    `firstName` VARCHAR(191) NULL,
+    `lastName` VARCHAR(191) NULL,
+    `phone` VARCHAR(191) NULL,
+    `address` VARCHAR(191) NULL,
+    `subDistrict` VARCHAR(191) NULL,
+    `district` VARCHAR(191) NULL,
+    `province` VARCHAR(191) NULL,
+    `postcode` VARCHAR(191) NULL,
+    `country` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `updatePaymentAt` DATETIME(3) NULL,
@@ -384,7 +399,7 @@ ALTER TABLE `product_specs` ADD CONSTRAINT `product_specs_productId_fkey` FOREIG
 ALTER TABLE `product_images` ADD CONSTRAINT `product_images_productId_fkey` FOREIGN KEY (`productId`) REFERENCES `products`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `product_images` ADD CONSTRAINT `product_images_assignedById_fkey` FOREIGN KEY (`assignedById`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `product_images` ADD CONSTRAINT `product_images_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `product_images` ADD CONSTRAINT `product_images_updatedById_fkey` FOREIGN KEY (`updatedById`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

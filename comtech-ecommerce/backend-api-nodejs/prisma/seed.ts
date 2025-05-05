@@ -64,7 +64,7 @@ async function main() {
             wireless: "Wi-Fi 7 (802.11be) (Triple band) + Bluetooth v5.4",
             battery: "70Wh, 4S1P, 4-Cell Li-ion",
             color: "Off Black",
-            dimension: "30.0 x 20.4 x 1.49",
+            dimension: "30.0x20.4x1.49",
             weight: "1.20 Kg.",
             warranty: "3 Year Onsite service / 1 Year Perfect warranty",
             option: "Keyboard TH/EN / Backlit Chiclet Keyboard 1-Zone RGB / Microsoft Office Home 2024 / Microsoft 365 Basic"
@@ -93,7 +93,7 @@ async function main() {
             wireless: "Wi-Fi 6E(802.11ax) (Triple band) 2*2 + Bluetooth v5.3",
             battery: "90Wh, 4S1P, 4-Cell Li-ion",
             color: "Jaeger Gray",
-            dimension: "35.4 x 26.9 x 1.79",
+            dimension: "35.4x26.9x1.79",
             weight: "2.20 Kg.",
             warranty: "2 Year (Onsite Service) / 1 Year (Perfect Warranty)",
             option: "Keyboard TH/EN"
@@ -122,7 +122,7 @@ async function main() {
             wireless: "Wi-Fi 6E (802.11ax) 2*2 + Bluetooth v5.3",
             battery: "73Wh",
             color: "Luna Gray",
-            dimension: "32.55 x 22.64 x 1.66",
+            dimension: "32.55x22.64x1.66",
             weight: "1.59 Kg.",
             warranty: "3 Year Premium Care(Onsite) / 3 Year (Accidental Damage Protection)",
             option: "Keyboard TH/EN // Microsoft Office Home & Student 2021"
@@ -151,7 +151,7 @@ async function main() {
             wireless: "Intel Killer Wi-Fi 7 BE1750 + Bluetooth v5.4",
             battery: "99.9Wh, 4-Cell",
             color: "Core Black",
-            dimension: "40.4 x 30.7 x 2.4",
+            dimension: "40.4x30.7x2.4",
             weight: "3.6 Kg.",
             warranty: "3 Year Warranty (1 Year Global / 2 Year Thailand )",
             option: "Keyboard TH/EN / Cherry Mechanical Per-Key RGB Gaming Keyboard by SteelSeries with Copilot Key, RGB Haptic Touchpad"
@@ -300,9 +300,12 @@ async function main() {
             } : undefined,
             images: product.images ? {
               create: product.images.map((image : any, index) => ({
-                url_path: image.url_path,
+                path: image.path,
+                filename: '',
+                mimetype: '',
+                size: 100,
                 sequence_order: index + 1,
-                assignedBy: {
+                createdBy: {
                   connect: { id: product.userId }
                 }
               }))

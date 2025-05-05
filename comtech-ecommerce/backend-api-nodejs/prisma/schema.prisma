@@ -110,10 +110,13 @@ model CustomerDetail {
   lastName      String?
   phone         String?
   lineId        String?
-  region        String?
-  street        String?
-  postcode      String?
-  city          String?
+  // Address
+  address       String? // ที่อยู่
+  subDistrict   String? // แขวง
+  district      String? // เขต
+  province      String? // จังหวัด/เมือง
+  postcode      String? // รหัสไปรษณีย์
+  country       String? // ประเทศ
 
   customer      Customer @relation(fields: [customerId], references: [id])
   
@@ -204,16 +207,19 @@ model ProductSpecs {
 
 model ProductImage {
   id              Int @id @default(autoincrement())
-  url_path        String
+  path            String
+  filename        String
+  mimetype        String
+  size            Int
   productId       Int
   sequence_order  Int
-  assignedAt      DateTime @default(now())
-  assignedById    Int
+  createdAt       DateTime @default(now())
+  createdById     Int
   updatedAt       DateTime @updatedAt
   updatedById     Int?
 
   product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  assignedBy      User @relation("UserAssignedProductImage", fields: [assignedById], references: [id])
+  createdBy      User @relation("UserAssignedProductImage", fields: [createdById], references: [id])
   updatedBy       User? @relation("UserUpdatedProductImage", fields: [updatedById], references: [id])
 
   @@map("product_images")
@@ -466,19 +472,30 @@ model CartItem {
 
 // Order
 model Order {
-  id              Int @id @default(autoincrement())
-  status          OrderStatus @default(PENDING)
-  paymentStatus   PaymentStatus @default(PENDING)
-  paymentIntent   String? // Stripe payment intent ID
-  customerId      Int
-  total           Decimal @db.Decimal(18, 2)
-  note            String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                Int @id @default(autoincrement())
+  status            OrderStatus @default(PENDING)
+  paymentStatus     PaymentStatus @default(PENDING)
+  paymentIntent     String? // Stripe payment intent ID
+  customerId        Int
+  total             Decimal @db.Decimal(18, 2)
+  note              String?
+  useSameAddress    Boolean @default(false) // ที่อยุ่จัดส่งใช้ที่อยู่เดียวกันกับที่อยู่ผู้ซื้อ/จ่ายเงิน
+  firstName         String?
+  lastName          String?
+  phone             String?
+  address           String? // ที่อยู่
+  subDistrict       String? // แขวง
+  district          String? // เขต
+  province          String? // จังหวัด/เมือง
+  postcode          String? // รหัสไปรษณีย์
+  country           String? // ประเทศ
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
   updatePaymentAt   DateTime?
 
-  customer        Customer @relation(fields: [customerId], references: [id])
-  orderItems      OrderItem[]
+  customer          Customer @relation(fields: [customerId], references: [id])
+  orderItems        OrderItem[]
 
   @@map("orders") 
 }

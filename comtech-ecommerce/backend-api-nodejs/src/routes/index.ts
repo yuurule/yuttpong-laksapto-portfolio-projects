@@ -1,5 +1,6 @@
 import express from 'express';
 import { authenticate, authorize } from '../middleware/auth.middleware';
+import upload from '../middleware/upload.middleware';
 import { AuthController } from '../controllers/auth.controller';
 import { CustomerController } from '../controllers/customer.controller';
 import { ProductController } from '../controllers/product.controller';
@@ -12,6 +13,7 @@ import { ReviewController } from '../controllers/review.controller';
 import { CartController } from '../controllers/cart.controller';
 import { OrderController } from '../controllers/order.controller';
 import { WishlistController } from '../controllers/wishlist.controller';
+import { PaymentController } from '../controllers/payment.controller';
 
 const router = express.Router();
 const authController = new AuthController();
@@ -26,6 +28,7 @@ const reviewController = new ReviewController();
 const cartController = new CartController();
 const orderController = new OrderController();
 const wishlistController = new WishlistController();
+const paymentController = new PaymentController();
 
 // Auth routes
 router.post('/auth/register', authController.register);
@@ -58,8 +61,8 @@ router.delete('/tag/delete', authenticate, tagController.deleteTags);
 router.get('/product', productController.getProducts);
 router.get('/trash/product', productController.getProductsInTrash);
 router.get('/product/:id', productController.getOneProduct);
-router.post('/product', authenticate, productController.createNewProduct);
-router.put('/product/:id', authenticate, productController.updateProduct);
+router.post('/product', authenticate, upload.array('images', 10), productController.createNewProduct);
+router.put('/product/:id', authenticate, upload.array('images', 10), productController.updateProduct);
 router.delete('/product/delete', authenticate, productController.moveProductToTrash);
 
 // Stock
@@ -111,6 +114,19 @@ router.get('/order/:id', authenticate, orderController.getOrderById);
 router.post('/order/create', authenticate, orderController.createOrder);
 router.put('/order/:id/payment', authenticate, orderController.updatePayment);
 router.put('/order/:id/delivery', authenticate, orderController.updateDelivery);
+
+// Payment
+// สร้าง Payment Intent
+router.post('/payment/create-payment-intent', authenticate, paymentController.createPaymentIntent);
+// ตรวจสอบสถานะการชำระเงิน
+router.get('/payment/verify-payment/:paymentId', authenticate, paymentController.verifyPayment);
+// Webhook สำหรับ Stripe (ไม่มีการแปลง JSON)
+router.post(
+  '/payment/webhook', 
+  authenticate,
+  express.raw({ type: 'application/json' }), 
+  paymentController.stripeWebhook
+);
 
 // Wishlist
 router.get('/wishlistByCustomer/:id', authenticate, wishlistController.getWishlistsByCustomer);

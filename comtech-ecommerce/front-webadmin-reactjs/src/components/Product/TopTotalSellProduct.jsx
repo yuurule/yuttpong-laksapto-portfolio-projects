@@ -5,6 +5,7 @@ import { sumTotalSale } from '../../utils/utils';
 
 export default function TopTotalSellProduct() {
 
+  const serverPath = import.meta.env.VITE_API_URL;
   const [loadData, setLoadData] = useState(false);
   const [productList, setProductList] = useState([]);
   const setPageSize = 1;
@@ -60,7 +61,13 @@ export default function TopTotalSellProduct() {
             return (
               <div key={`top_sell_item_${i.id}`} className='text-center'>
                 <figure className='text-center mb-0'>
-                  <img src="/images/dummy-product.jpg" className='img-fluid' />
+                  {
+                    i.images.length > 0
+                    ?
+                    <img src={`${serverPath}/${i.images[0].path}`} style={{width: 200}} />
+                    :
+                    <img src="https://placehold.co/200x160" style={{width: 200}} />
+                  }
                 </figure>
                 <p>{i.name}</p>
                 <div className='d-flex justify-content-around align-items-end'>

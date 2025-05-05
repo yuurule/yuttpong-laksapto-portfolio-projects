@@ -322,6 +322,10 @@ Utils
     height: 100px;
   }
 }
+.border-soft-light {
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
 
 /**
 Pages
@@ -333,6 +337,29 @@ Pages
   }
   .right-col {
     width: 30%;
+  }
+}
+
+.product-image-item {
+  height: 110px;
+  padding: 5px;
+  position: relative;
+  text-align: center;
+
+  .btn-delete {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border-radius: 0 0 8px 8px;
+    width: 100%;
+    background-color: var(--hover-red);
+    color: #FFF;
+    text-align: center;
+    padding: 1px 0;
+  }
+
+  &.active {
+    outline: 4px solid var(--light-blue);
   }
 }
 

@@ -30,6 +30,7 @@
     "multer": "^1.4.5-lts.1",
     "prisma": "^6.6.0",
     "prom-client": "11.5.3",
+    "stripe": "^18.1.0",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
@@ -41,6 +42,7 @@
     "@types/express-prometheus-middleware": "^1.2.3",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/ms": "^2.1.0",
+    "@types/multer": "^1.4.12",
     "@types/node": "^22.13.1",
     "prisma": "^6.6.0",
     "ts-node": "^10.9.2",

@@ -4,6 +4,8 @@ import { isValidId, isValidHaveValue } from '../libs/validation';
 import { ProductService } from '../services/product.service';
 import { createProductDto, updateProductDto } from '../types';
 import { parseBoolean } from '../libs/utility';
+import { AppError, catchAsync } from '../utils/errorHandler';
+import fs from 'fs/promises';
 
 const productService = new ProductService();
 
@@ -72,14 +74,8 @@ export class ProductController {
       })
     }
 
-    try {
-      const products = await productService.findAll(page, pageSize, noPagination, orderBy, orderDir, search, brands, categories, tags, onSale, topSale, campaigns);
-      sendResponse(res, 200, `Get all product ok`, products.data, products.meta);
-    }
-    catch (error: any) {
-      console.error('Get all product error: ', error);
-      sendError(res, error.statusCode, error.message);
-    }
+    const products = await productService.findAll(page, pageSize, noPagination, orderBy, orderDir, search, brands, categories, tags, onSale, topSale, campaigns);
+    sendResponse(res, 200, `Get all product ok`, products.data, products.meta);
   }
 
   async getOneProduct(req: Request, res: Response) {
@@ -99,7 +95,7 @@ export class ProductController {
     }
   }
 
-  async createNewProduct(req: Request, res: Response) {
+  createNewProduct = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { 
       userId, 
       name, 
@@ -112,6 +108,10 @@ export class ProductController {
       specs, 
       images 
     } = req.body;
+
+    const categoriesData = JSON.parse(categories);
+    const tagsData = JSON.parse(tags);
+    const specsData = JSON.parse(specs);
 
     const {
       screen_size,
@@ -131,30 +131,46 @@ export class ProductController {
       weight,
       warranty,
       option,
-    } = specs;
+    } = specsData;
 
-    if(!isValidHaveValue([userId, name, description, brandId, price, categories, specs])) {
-      sendError(res, 400, `userId, name, description, brandId, price, categories and specs is required`);
+    const removeUploadImages = async () => {
+      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+        for (const file of req.files as Express.Multer.File[]) {
+          try {
+            await fs.unlink(file.path);
+          } catch (error) {
+            console.error(`ไม่สามารถลบไฟล์ ${file.path}:`, error);
+          }
+        }
+      }
+    }
+
+    if(!isValidHaveValue([userId, name, description, brandId, price, categoriesData, specs])) {
+      removeUploadImages();
+      return next(new AppError('userId, name, description, brandId, price, categories and specs is required', 400));
     }
     if(!isValidHaveValue([screen_size, processor, display, memory, storage, graphic, operating_system, camera, optical_drive, connection_ports, wireless, battery, color, dimension, weight, warranty, option])) {
-      sendError(res, 400, `Some data in specs is missing`);
+      removeUploadImages();
+      return next(new AppError('Some data in specs is missing', 400));
     }
 
     if(!isValidId(userId)) {
-      sendError(res, 400, `User id must not zero or negative number`);
+      removeUploadImages();
+      return next(new AppError('User id must not zero or negative number', 400));
     }
 
     if(!isValidId(brandId)) {
-      sendError(res, 400, `Brand id must not zero or negative number`);
+      removeUploadImages();
+      return next(new AppError('Brand id must not zero or negative number', 400));
     }
 
     const data : createProductDto = {
       name: name,
       description: description,
-      brandId: brandId,
-      price: price,
-      publish: publish,
-      categories: categories,
+      brandId: Number(brandId),
+      price: Number(price),
+      publish: Boolean(publish),
+      categories: categoriesData,
       specs: {
         screen_size: screen_size,
         processor: processor,
@@ -176,24 +192,112 @@ export class ProductController {
       }
     }
 
-    if(isValidHaveValue([tags])) {
-      data.tags = tags;
+    if(isValidHaveValue([tagsData])) {
+      data.tags = tagsData;
     }
     if(isValidHaveValue([images])) {
       data.images = images;
     }
 
-    try {
-      const newProduct = await productService.create(data, userId);
-      sendResponse(res, 201, `Creating product ok`, newProduct)
-    }
-    catch (error: any) {
-      console.error('Creating product error: ', error);
-      sendError(res, error.statusCode, error.message);
-    }
-  }
+    const newProduct = await productService.create(
+      Number(userId), 
+      data, 
+      Array.isArray(req.files) ? req.files : []
+    );
 
-  async updateProduct(req: Request, res: Response) {
+    res.status(201).json({
+      status: 'success',
+      RESULT_DATA: { newProduct }
+    });
+  });
+
+  // async updateProduct(req: Request, res: Response) {
+  //   const id = parseInt(req.params.id);
+  //   const { 
+  //     userId, 
+  //     name, 
+  //     description, 
+  //     brandId, 
+  //     price, 
+  //     categories, 
+  //     tags, 
+  //     specs, 
+  //     images 
+  //   } = req.body;
+    
+  //   const {
+  //     screen_size,
+  //     processor,
+  //     display,
+  //     memory,
+  //     storage,
+  //     graphic,
+  //     operating_system,
+  //     camera,
+  //     optical_drive,
+  //     connection_ports,
+  //     wireless,
+  //     battery,
+  //     color,
+  //     dimension,
+  //     weight,
+  //     warranty,
+  //     option,
+  //   } = specs;
+
+  //   if(!isValidId(id)) {
+  //     sendError(res, 400, `Product id must not zero or negative number`);
+  //   }
+
+  //   if(!isValidHaveValue([userId])) {
+  //     sendError(res, 400, `userId is required`);
+  //   }
+
+  //   const data : updateProductDto = {
+  //     name: name,
+  //     description: description,
+  //     brandId: brandId,
+  //     price: price,
+  //     categories: categories,
+  //     specs: {
+  //       screen_size: screen_size,
+  //       processor: processor,
+  //       display: display,
+  //       memory: memory,
+  //       storage: storage,
+  //       graphic: graphic,
+  //       operating_system: operating_system,
+  //       camera: camera,
+  //       optical_drive: optical_drive,
+  //       connection_ports: connection_ports,
+  //       wireless: wireless,
+  //       battery: battery,
+  //       color: color,
+  //       dimension: dimension,
+  //       weight: weight,
+  //       warranty: warranty,
+  //       option: option
+  //     }
+  //   }
+
+  //   if(isValidHaveValue([tags])) {
+  //     data.tags = tags;
+  //   }
+  //   if(isValidHaveValue([images])) {
+  //     data.images = images;
+  //   }
+
+  //   try {
+  //     const updateProduct = await productService.updateOne(id, data, userId);
+  //     sendResponse(res, 200, `Updating product ok`, updateProduct)
+  //   }
+  //   catch (error: any) {
+  //     console.error('Updating product error: ', error);
+  //     sendError(res, error.statusCode, error.message);
+  //   }
+  // }
+
+  updateProduct = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
     const { 
       userId, 
@@ -204,9 +308,14 @@ export class ProductController {
       categories, 
       tags, 
       specs, 
-      images 
+      imagesUpdate // delete
     } = req.body;
-    
+
+    const categoriesData = JSON.parse(categories);
+    const tagsData = JSON.parse(tags);
+    const specsData = JSON.parse(specs);
+    const imagesUpdateData = JSON.parse(imagesUpdate);
+
     const {
       screen_size,
       processor,
@@ -225,22 +334,36 @@ export class ProductController {
       weight,
       warranty,
       option,
-    } = specs;
+    } = specsData;
+
+    const removeUploadImages = async () => {
+      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+        for (const file of req.files as Express.Multer.File[]) {
+          try {
+            await fs.unlink(file.path);
+          } catch (error) {
+            console.error(`ไม่สามารถลบไฟล์ ${file.path}:`, error);
+          }
+        }
+      }
+    }
 
     if(!isValidId(id)) {
-      sendError(res, 400, `Product id must not zero or negative number`);
+      removeUploadImages();
+      return next(new AppError('Product id must not zero or negative number', 400));
     }
 
     if(!isValidHaveValue([userId])) {
-      sendError(res, 400, `userId is required`);
+      removeUploadImages();
+      return next(new AppError('userId is required', 400));
     }
 
     const data : updateProductDto = {
       name: name,
       description: description,
-      brandId: brandId,
-      price: price,
-      categories: categories,
+      brandId: Number(brandId),
+      price: Number(price),
+      categories: categoriesData,
       specs: {
         screen_size: screen_size,
         processor: processor,
@@ -262,22 +385,25 @@ export class ProductController {
       }
     }
 
-    if(isValidHaveValue([tags])) {
-      data.tags = tags;
+    if(isValidHaveValue([tagsData])) {
+      data.tags = tagsData;
     }
-    if(isValidHaveValue([images])) {
-      data.images = images;
+    if(isValidHaveValue([imagesUpdateData])) {
+      data.imagesUpdate = imagesUpdateData;
     }
 
-    try {
-      const updateProduct = await productService.updateOne(id, data, userId);
-      sendResponse(res, 200, `Updating product ok`, updateProduct)
-    }
-    catch (error: any) {
-      console.error('Updating product error: ', error);
-      sendError(res, error.statusCode, error.message);
-    }
-  }
+    const updateProduct = await productService.update(
+      Number(id),
+      Number(userId), 
+      data, 
+      Array.isArray(req.files) ? req.files : []
+    );
+
+    res.status(200).json({
+      status: 'Updating product ok',
+      RESULT_DATA: { updateProduct }
+    });
+  });
 
   async moveProductToTrash(req: Request, res: Response) {
     const { productsId, userId } = req.body;

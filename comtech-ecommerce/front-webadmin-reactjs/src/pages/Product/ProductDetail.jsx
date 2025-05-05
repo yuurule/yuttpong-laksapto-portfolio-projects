@@ -15,6 +15,7 @@ Chart.register(...registerables);
 
 export default function ProductDetail() {
 
+  const serverPath = import.meta.env.VITE_API_URL;
   const params = useParams();
   const [loadData, setLoadData] = useState(false);
   const [productData, setProductData] = useState(null);
@@ -217,7 +218,13 @@ export default function ProductDetail() {
                 <div className='card-body d-flex justify-content-around align-items-center py-0'>
                   <div>
                     <figure>
-                      <img src="/images/dummy-product.jpg" style={{width: 200}} />
+                    {
+                      productData.images.length > 0
+                      ?
+                      <img src={`${serverPath}/${productData.images[0].path}`} style={{width: 200}} />
+                      :
+                      <img src="https://placehold.co/200x160" style={{width: 200}} />
+                    }
                     </figure>
                   </div>
                   <div className='d-flex align-items-start'>

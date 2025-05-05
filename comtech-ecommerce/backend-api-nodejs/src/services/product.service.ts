@@ -1,7 +1,11 @@
-import { PrismaClient, Prisma, StockAction, StockSellAction } from '@prisma/client';
+import { PrismaClient, Prisma, StockSellAction } from '@prisma/client';
 import * as exception from '../libs/errorException';
 import { createProductDto, updateProductDto } from '../types';
 import { generateUuidBasedSku } from '../libs/utility';
+import fs from 'fs';
+import * as fsPromises from 'fs/promises';
+import path from 'path';
+import { AppError } from '../utils/errorHandler';
 
 const prisma = new PrismaClient();
 
@@ -319,34 +323,35 @@ export class ProductService {
     }
   }
 
-  async create(dto: createProductDto, userId: number) {
+  async create(userId: number, productData: createProductDto, imageFiles: Express.Multer.File[] = []) {
     try {
       // ตรวจสอบ user มีอยู่จริง
       const findUser = await prisma.user.findUnique({ where: { id: userId } });
-      if(!findUser) throw new exception.NotFoundException(`Not found user with id ${userId}`);
+      if(!findUser) {
+        throw new AppError('Not found user with id ${userId}', 400);
+      }
 
-      // check sku later...
-
+      // สร้างสินค้าใหม่
       const newProduct = await prisma.product.create({
         data: {
           createdBy: {
             connect: { id: userId }
           },
           sku: generateUuidBasedSku('NBK'),
-          name: dto.name,
-          description: dto.description,
+          name: productData.name,
+          description: productData.description,
           brand: {
-            connect: { id: dto.brandId }
+            connect: { id: productData.brandId }
           },
-          price: dto.price,
-          publish: dto.publish,
+          price: productData.price,
+          publish: productData.publish,
           inStock: {
             create: {
               inStock: 0
             }
           },
           categories: {
-            create: dto.categories.map(category => ({
+            create: productData.categories.map(category => ({
               category: {
                 connect: { 
                   id: category.categoryId,
@@ -357,8 +362,8 @@ export class ProductService {
               }
             }))
           },
-          tags: dto.tags ? {
-            create: dto.tags.map(tag => ({
+          tags: productData.tags ? {
+            create: productData.tags.map(tag => ({
               tag: {
                 connect: {
                   id: tag.tagId
@@ -369,86 +374,58 @@ export class ProductService {
               }
             }))
           } : undefined,
-          images: dto.images ? {
-            create: dto.images.map((image, index) => ({
-              url_path: image.url_path,
-              sequence_order: index + 1,
-              assignedBy: {
-                connect: { id: userId }
-              }
-            }))
-          } : undefined,
           specs: {
             create: {
-              screen_size: dto.specs.screen_size,
-              processor: dto.specs.processor,
-              display: dto.specs.display,
-              memory: dto.specs.memory,
-              storage: dto.specs.storage,
-              graphic: dto.specs.graphic,
-              operating_system: dto.specs.operating_system,
-              camera: dto.specs.camera,
-              optical_drive: dto.specs.optical_drive,
-              connection_ports: dto.specs.connection_ports,
-              wireless: dto.specs.wireless,
-              battery: dto.specs.battery,
-              color: dto.specs.color,
-              dimension: dto.specs.dimension,
-              weight: dto.specs.weight,
-              warranty: dto.specs.warranty,
-              option: dto.specs.option,
-            }
-          }
-        },
-        include: {
-          brand: {
-            select: {
-              id: true,
-              name: true,
-            }
-          },
-          categories: {
-            include: {
-              category: {
-                select: {
-                  id: true,
-                  name: true,
-                }
-              }
-            }
-          },
-          tags: {
-            include: {
-              tag: {
-                select: {
-                  id: true,
-                  name: true,
-                }
-              }
-            }
-          },
-          specs: true,
-          images: {
-            select: {
-              id: true,
-              url_path: true,
-              sequence_order: true,
+              screen_size: productData.specs.screen_size,
+              processor: productData.specs.processor,
+              display: productData.specs.display,
+              memory: productData.specs.memory,
+              storage: productData.specs.storage,
+              graphic: productData.specs.graphic,
+              operating_system: productData.specs.operating_system,
+              camera: productData.specs.camera,
+              optical_drive: productData.specs.optical_drive,
+              connection_ports: productData.specs.connection_ports,
+              wireless: productData.specs.wireless,
+              battery: productData.specs.battery,
+              color: productData.specs.color,
+              dimension: productData.specs.dimension,
+              weight: productData.specs.weight,
+              warranty: productData.specs.warranty,
+              option: productData.specs.option,
             }
           }
         }
       });
-      return newProduct;
-    }
-    catch(error: any) {
-      if(error instanceof exception.NotFoundException) throw error;
-      if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error create new product due to: ${error.message}`);
+  
+      // อัปโหลดรูปภาพถ้ามี
+      if (imageFiles.length > 0) {
+        await this.addProductImages(userId, newProduct.id, imageFiles);
       }
-      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+  
+      // ดึงข้อมูลสินค้าพร้อมรูปภาพ
+      return await this.findOne(newProduct.id);
+
+    } catch (error) {
+      // ลบไฟล์รูปภาพที่อัปโหลดแล้ว ในกรณีที่เกิดข้อผิดพลาด
+      if (imageFiles.length > 0) {
+        for (const file of imageFiles) {
+          try {
+            await fsPromises.unlink(file.path);
+          } catch (unlinkError) {
+            console.error(`ไม่สามารถลบไฟล์ ${file.path}:`, unlinkError);
+          }
+        }
+      }
+      //console.log(`ไม่สามารถสร้างสินค้าได้: ${error instanceof Error ? error.message : 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ'}`)
+      throw new AppError(
+        `ไม่สามารถสร้างสินค้าได้: ${error instanceof Error ? error.message : 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ'}`,
+        500
+      );
     }
   }
 
-  async updateOne(productId: number, dto: updateProductDto, userId: number) {
+  async update(productId: number, userId: number, productData: updateProductDto, imageFiles: Express.Multer.File[] = []) {
     try {
       const updateData: any = {};
 
@@ -461,23 +438,23 @@ export class ProductService {
       if(!findProduct) throw new exception.NotFoundException(`Not found product with id ${productId}`);
 
       // ข้อมูลพื้นฐาน
-      if (dto.name !== undefined) updateData.name = dto.name;
-      if (dto.description !== undefined) updateData.description = dto.description;
-      if (dto.price !== undefined) updateData.price = dto.price;
+      if (productData.name !== undefined) updateData.name = productData.name;
+      if (productData.description !== undefined) updateData.description = productData.description;
+      if (productData.price !== undefined) updateData.price = productData.price;
 
       // Brand relationship (one-to-many)
-      if (dto.brandId !== undefined) {
+      if (productData.brandId !== undefined) {
         updateData.brand = {
-          connect: { id: dto.brandId }
+          connect: { id: productData.brandId }
         };
       }
 
       // Categories relationship (many-to-many)
-      if (dto.categories) {
+      if (productData.categories) {
         updateData.categories = {};
         
-        if (dto.categories.connect?.length) {
-          updateData.categories.create = dto.categories.connect.map(item => ({
+        if (productData.categories.connect?.length) {
+          updateData.categories.create = productData.categories.connect.map(item => ({
             category: {
               connect: { id: item.categoryId }
             },
@@ -487,20 +464,20 @@ export class ProductService {
           }));
         }
         
-        if (dto.categories.disconnect?.length) {
+        if (productData.categories.disconnect?.length) {
           // ต้อง deleteMany เพราะเป็นความสัมพันธ์ many-to-many ที่มี join table
-          updateData.categories.deleteMany = dto.categories.disconnect.map(item => ({
+          updateData.categories.deleteMany = productData.categories.disconnect.map(item => ({
             categoryId: item.categoryId
           }));
         }
       }
 
       // Tags relationship (many-to-many)
-      if (dto.tags) {
+      if (productData.tags) {
         updateData.tags = {};
         
-        if (dto.tags.connect?.length) {
-          updateData.tags.create = dto.tags.connect.map(item => ({
+        if (productData.tags.connect?.length) {
+          updateData.tags.create = productData.tags.connect.map(item => ({
             tag: {
               connect: { id: item.tagId }
             },
@@ -510,41 +487,18 @@ export class ProductService {
           }));
         }
         
-        if (dto.tags.disconnect?.length) {
-          updateData.tags.deleteMany = dto.tags.disconnect.map(item => ({
+        if (productData.tags.disconnect?.length) {
+          updateData.tags.deleteMany = productData.tags.disconnect.map(item => ({
             tagId: item.tagId
           }));
         }
       }
 
       // Specs relationship (one-to-one)
-      if (dto.specs) {
+      if (productData.specs) {
         updateData.specs = {
-          update: dto.specs
+          update: productData.specs
         };
-      }
-
-      // Images relationship (one-to-many)
-      if (dto.images) {
-        updateData.images = {};
-        
-        if (dto.images.create?.length) {
-          updateData.images.create = dto.images.create.map(item => ({
-            url_path: item.url_path,
-            sequence_order: item.sequence_order,
-            assignedBy: {
-              connect: { id: userId }
-            }
-          }));
-        }
-        
-        if (dto.images.delete?.length) {
-          updateData.images.deleteMany = dto.images.delete.map(item => ({
-            id: item.id
-          }));
-        }
-
-        // update images ...
       }
 
       updateData.updatedBy = {
@@ -586,23 +540,146 @@ export class ProductService {
           images: {
             select: {
               id: true,
-              url_path: true,
+              path: true,
               sequence_order: true,
             }
           }
         }
       });
-    
-      return updatedProduct;
-    }
-    catch(error: any) {
-      if(error instanceof exception.NotFoundException) throw error;
-      if(error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new exception.DatabaseException(`Error update one product due to: ${error.message}`);
+
+      // จัดการกับข้อมูลรูป
+      if (imageFiles.length > 0) {
+        await this.addProductImages(userId, productId, imageFiles);
       }
-      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+      if(productData.imagesUpdate && productData.imagesUpdate.delete && productData.imagesUpdate.delete.length > 0) {
+        await this.deleteProductImage(productData.imagesUpdate.delete);
+      }
+
+      return await this.findOne(productId);
+    } catch (error) {
+      // ลบไฟล์รูปภาพที่อัปโหลดแล้ว ในกรณีที่เกิดข้อผิดพลาด
+      if (imageFiles.length > 0) {
+        for (const file of imageFiles) {
+          try {
+            await fsPromises.unlink(file.path);
+          } catch (unlinkError) {
+            console.error(`ไม่สามารถลบไฟล์ ${file.path}:`, unlinkError);
+          }
+        }
+      }
+      throw new AppError(
+        `ไม่สามารถแก้ไขสินค้าได้: ${error instanceof Error ? error.message : 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ'}`,
+        500
+      );
     }
   }
+
+  // Add Images
+  async addProductImages(userId: number, productId: number, imageFiles: Express.Multer.File[] = []) {
+    try {
+      // สร้างโฟลเดอร์สำหรับสินค้าใหม่
+      const productDir = path.join('uploads/products', productId.toString());
+      if (!fs.existsSync(productDir)) {
+        fs.mkdirSync(productDir, { recursive: true });
+      }
+
+      // ย้ายไฟล์และอัปเดต path
+      const updatedImageFiles = await Promise.all(imageFiles.map(async (file) => {
+        // สร้าง path ใหม่
+        const filename = path.basename(file.path);
+        const newPath = path.join(productDir, filename);
+        
+        // ย้ายไฟล์
+        await fsPromises.rename(file.path, newPath);
+        
+        // อัปเดต path ในไฟล์
+        file.path = newPath;
+        return file;
+      }));
+
+      // หาลำดับสูงสุดปัจจุบัน
+      const maxOrderImage = await prisma.productImage.findFirst({
+        where: { productId: productId },
+        orderBy: { sequence_order: 'desc' },
+      });
+
+      let nextOrder = 1;
+      if (maxOrderImage) {
+        nextOrder = maxOrderImage.sequence_order + 1;
+      }
+
+      // สร้างข้อมูลรูปภาพ
+      const imagePromises = updatedImageFiles.map(async (file, index) => {
+        return prisma.productImage.create({
+          data: {
+            filename: file.originalname,
+            path: file.path,
+            mimetype: file.mimetype,
+            size: file.size,
+            sequence_order: nextOrder + index,
+            product: {
+              connect: {
+                id: productId
+              }
+            },
+            createdBy: {
+              connect: {
+                id: userId
+              }
+            }
+          }
+        });
+      });
+
+      // บันทึกข้อมูลรูปภาพทั้งหมดพร้อมกัน
+      const productImages = await Promise.all(imagePromises);
+      return productImages;
+    } catch (error) {
+      throw new AppError(
+        `ไม่สามารถเพิ่มรูปภาพสินค้าได้: ${error instanceof Error ? error.message : 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ'}`,
+        500
+      );
+    }
+  }
+
+  // Delete Images
+  async deleteProductImage(imagesId: number[]): Promise<void> {
+    try {
+      // ค้นหารูปภาพที่ต้องการลบ
+      const images = await prisma.productImage.findMany({
+        where: { 
+          id: { 
+            in: imagesId 
+          } 
+        }
+      });
+  
+      if (!images) {
+        throw new AppError('ไม่พบรูปภาพที่ต้องการลบ', 404);
+      }
+  
+      // ลบไฟล์จริงจากระบบ
+      for(let i = 0; i < images.length; i++) {
+        try {
+          await fsPromises.unlink(images[i].path);
+        } catch (unlinkError) {
+          console.error(`ไม่สามารถลบไฟล์ ${images[i].path}:`, unlinkError);
+          // ทำการลบข้อมูลในฐานข้อมูลต่อไปแม้จะลบไฟล์ไม่สำเร็จ
+        }
+      }
+  
+      // ลบข้อมูลจากฐานข้อมูล
+      await prisma.productImage.deleteMany({
+        where: { id: { in: imagesId } }
+      });
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw new AppError(
+        `เกิดข้อผิดพลาดในการลบรูปภาพ: ${error instanceof Error ? error.message : 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ'}`,
+        500
+      );
+    }
+  };
 
   /* soft delete รองรับทั้งแบบทำตัวเดียวและหลายตัว */
   async softDelete(productId: number[], userId: number) {

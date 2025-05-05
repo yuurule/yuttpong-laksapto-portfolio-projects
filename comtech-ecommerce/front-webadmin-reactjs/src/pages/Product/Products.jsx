@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogActions } from '@mui/material';
 
 export default function Products() {
 
+  const serverPath = import.meta.env.VITE_API_URL;
   const authUser = useSelector(state => state.auth.user);
   const navigate = useNavigate();
   const [loadData, setLoadData] = useState(false);
@@ -348,7 +349,13 @@ export default function Products() {
                             <td style={{width: '50%'}}>
                               <Link to={`/product/${product.id}`} className="d-flex align-items-center">
                                 <figure className='me-2 mb-0'>
-                                  <img src="/images/dummy-product.jpg" style={{width: 60}} />
+                                  {
+                                    product.images.length > 0
+                                    ?
+                                    <img src={`${serverPath}/${product.images[0].path}`} style={{width: 60}} />
+                                    :
+                                    <img src="https://placehold.co/60x40" style={{width: 60}} />
+                                  }
                                 </figure>
                                 <div>
                                   <p className='mb-0'>{product.name}</p>

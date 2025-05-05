@@ -59,8 +59,8 @@ export async function addNewProduct(data) {
 				resolve(res);
 			})
 			.catch((err) => {
-				console.log(`Error addNewProductAPI: ${err.message} ${err.response.data.MESSAGE}`);
-				reject(`${err.message} ${err.response.data.MESSAGE}`);
+				console.log(`Error addNewProductAPI: ${err}`);
+				reject(err);
 			});
 	};
 

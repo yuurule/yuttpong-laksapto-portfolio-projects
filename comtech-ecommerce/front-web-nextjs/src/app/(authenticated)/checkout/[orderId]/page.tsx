@@ -1,6 +1,7 @@
 import React from "react";
 import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumbs";
 import PageHeader from "@/components/PageHeader/PageHeader";
+import StripeProvider from '@/providers/StripeProvider';
 import CheckoutForm from "@/components/Checkout/CheckoutForm";
 
 export default async function CheckoutPage({
@@ -10,6 +11,7 @@ export default async function CheckoutPage({
 }) {
 
   const { orderId } = await params;
+  const amount = 100;
 
   return (
     <main className="">
@@ -20,7 +22,12 @@ export default async function CheckoutPage({
             <PageHeader pageTitle="Checkout" />
           </header>
         </div>
-        <CheckoutForm orderId={orderId} />
+        <StripeProvider>
+          <CheckoutForm 
+            orderId={orderId} 
+            amount={amount} 
+          />
+        </StripeProvider>
       </div>
     </main>
   )

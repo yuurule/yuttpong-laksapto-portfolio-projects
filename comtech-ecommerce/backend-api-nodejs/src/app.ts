@@ -1,19 +1,18 @@
 import * as dotenv from 'dotenv';
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cluster from 'cluster';
 import os from 'os';
 import cors from 'cors';
 import https from 'https';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-//import path from 'path';
+import path, { dirname } from 'path';
 import fs from 'fs';
 import authRoutes from './routes/auth.routes';
 import metricRoutes from './routes/metric.routes';
 import logger from './config/logger.config';
 import prometheusMiddleware from 'express-prometheus-middleware';
-const path = require('path');
 import { authenticateMetrics } from './middleware/auth.middleware';
+import { errorHandler } from './utils/errorHandler';
 import routes from './routes';
 
 // สร้าง __dirname สำหรับ ES Modules
@@ -36,25 +35,41 @@ const requestLogger = (req: express.Request, res: express.Response, next: expres
 };
 
 // Error handling middleware
-const errorHandler = (err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  logger.error('Error:', err);
-  res.status(500).json({ message: 'Internal server error' });
-};
+// const errorHandler = (err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+//   logger.error('Error:', err);
+//   res.status(500).json({ message: 'Internal server error' });
+// };
 
 const setupServer = () => {
   const app = express();
 
   // กำหนด cors origin
   app.use(cors({
+    origin: "*",
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
-    origin: "*"
   }));
+
+  // ตรวจสอบว่ามีโฟลเดอร์ uploads หรือไม่ ถ้าไม่มีให้สร้าง
+  if (!fs.existsSync('./uploads')) {
+    fs.mkdirSync('./uploads', { recursive: true });
+  }
 
   // กำหนดโฟลเดอร์สำหรับ static file
   app.use(express.static('./public'));
+  app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
   // Middleware
-  app.use(express.json());
+  // สำหรับ JSON parsing (ยกเว้น /api/payment/webhook)
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    if (req.originalUrl === '/api/payment/webhook') {
+      next(); // ข้าม JSON parsing สำหรับ webhook
+    } else {
+      express.json()(req, res, next);
+    }
+  });
+  //app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
   app.use(requestLogger);
 
   // set header
@@ -86,6 +101,12 @@ const setupServer = () => {
   //app.use('/metric', metricRoutes);
 
   // Error handler
+  app.all('*', (req, res, next) => {
+    const err = new Error(`ไม่พบเส้นทาง ${req.originalUrl} บนเซิร์ฟเวอร์นี้`);
+    (err as any).statusCode = 404;
+    next(err);
+  });
+
   app.use(errorHandler);
 
   // Health check endpoint
@@ -100,6 +121,7 @@ const setupServer = () => {
   return app;
 };
 
+// Run with cluster
 if (cluster.isPrimary) {
   const numCPUs = os.cpus().length;
   
@@ -129,16 +151,16 @@ if (cluster.isPrimary) {
     logger.info(`Worker ${cluster.worker?.id} running on port ${PORT} (PID: ${process.pid})`);
   });
 
-    /* 
-    For run on production 
-    */
-    // const sslOptions = {
-    //   key: fs.readFileSync('/etc/letsencrypt/live/devgamemaker.com/privkey.pem'),
-    //   cert: fs.readFileSync('/etc/letsencrypt/live/devgamemaker.com/fullchain.pem')
-    // };
-    // https.createServer(sslOptions, app).listen(PORT, () => {
-    //   console.log(`Server running on port ${PORT}`);
-    // });
+  /* 
+  For run on production 
+  */
+  // const sslOptions = {
+  //   key: fs.readFileSync('/etc/letsencrypt/live/devgamemaker.com/privkey.pem'),
+  //   cert: fs.readFileSync('/etc/letsencrypt/live/devgamemaker.com/fullchain.pem')
+  // };
+  // https.createServer(sslOptions, app).listen(PORT, () => {
+  //   console.log(`Server running on port ${PORT}`);
+  // });
 
   // Handle uncaught exceptions
   process.on('uncaughtException', (err) => {

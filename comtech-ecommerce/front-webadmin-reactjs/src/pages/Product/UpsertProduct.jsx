@@ -12,7 +12,7 @@ import { z } from 'zod';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
 
-const categorySchema = z.object({
+const formSchema = z.object({
   brandId: z.coerce.number().min(1, {message: 'Required'}),
   name: z.string().min(1, {message: 'Required'}),
   //price: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number({message: 'Required'}).positive()),
@@ -58,6 +58,12 @@ export default function UpsertProduct() {
   const [updateCategoies, setUpdateCategories] = useState([]);
   const [updateTags, setUpdateTags] = useState([]);
 
+  const [images, setImages] = useState([]);
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [deleteImages, setDeleteImages] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [activeImage, setActiveImage] = useState(0);
+
   useEffect(() => {
     const findProduct = async () => {
       setLoadData(true);
@@ -67,6 +73,8 @@ export default function UpsertProduct() {
         const tags = await TagService.getTags();
 
         const productData = findProduct.data.RESULT_DATA;
+        console.log(productData);
+
         setProduct(productData);
         const dimension = (productData.specs.dimension).split('x');
         const productDataForm = {
@@ -117,6 +125,11 @@ export default function UpsertProduct() {
             resultTagList.push(i);
           }
         });
+
+        setImages(productData.images);
+        if(productData.images.length > 0) {
+          setPreviewImage(import.meta.env.VITE_API_URL + '/' + productData.images[0].path);
+        }
         setCacheCategories(resultCacheCategories);
         setUpdateCategories(resultCacheCategories);
         setCategoryList(resultCategoryList);
@@ -148,7 +161,7 @@ export default function UpsertProduct() {
     reset,
     formState: { errors, isSubmitting }
   } = useForm({
-    resolver: zodResolver(categorySchema)
+    resolver: zodResolver(formSchema)
   });
 
   useEffect(() => {
@@ -208,9 +221,18 @@ export default function UpsertProduct() {
     setTagList(currentTagList);
   }
 
+  const addUploadImages = (e) => {
+    const temp = [...uploadedImages];
+    const filesArray = Array.from(e.target.files);
+    filesArray.map(i => temp.push(i))
+    if(images.length === 0 && uploadedImages.length === 0) {
+      setPreviewImage(URL.createObjectURL(temp[0]))
+    }
+    setUploadedImages(temp);
+  }
+
   const onSubmit = async (data) => {
     //console.log(data)
-
     let categoriesData;
     let tagsData;
     let imagesData;
@@ -239,7 +261,7 @@ export default function UpsertProduct() {
             // }
         ],
         delete: [
-            //{ "id": 5 }
+          // { "id": 5 }
         ],
         update: [
             // { 
@@ -307,11 +329,28 @@ export default function UpsertProduct() {
       images: imagesData
     }
 
+    const formData = new FormData();
+
+    formData.append('userId', authUser.id);
+    formData.append('name', data.name);
+    formData.append('description', data.description);
+    formData.append('brandId', data.brandId);
+    formData.append('price', data.price);
+    formData.append('categories', JSON.stringify(categoriesData));
+    formData.append('tags', JSON.stringify(tagsData));
+    formData.append('specs', JSON.stringify(requestData.specs));
+    uploadedImages.map(i => {
+      formData.append('images', i);
+    });
+
     //console.log(requestData)
 
     if(submitType === 'INSERT') {
+
+      formData.append('publish', true);
+
       try {
-        await ProductService.addNewProduct(requestData)
+        await ProductService.addNewProduct(formData)
         toast.success(`Add new product is successfully!`);
         navigate('/product', { replace: true });
       }
@@ -321,8 +360,11 @@ export default function UpsertProduct() {
       }
     }
     else if(submitType === 'UPDATE') {
+
+      formData.append('imagesUpdate', JSON.stringify({"delete": deleteImages}));
+
       try {
-        await ProductService.updateProduct(id, requestData)
+        await ProductService.updateProduct(id, formData)
         toast.success(`Update product is successfully!`);
         navigate('/product', { replace: true });
       }
@@ -369,35 +411,126 @@ export default function UpsertProduct() {
                   <header>
                     <h5>Product Images<span></span></h5>
                   </header>
-
-                  <figure className='text-center mt-4' style={{border: '1px solid rgba(0,0,0,0.1)', borderRadius: 6}}>
-                    <img src="/images/dummy-product.jpg" style={{width: 300}} />
-                  </figure>
-
+                
                   {
-                    [...Array(2)].map((i, index) => (
-                      <div 
-                        key={`product_image_input_${index + 1}`} 
-                        className='d-flex justify-content-between align-items-center mb-3 px-3 py-1'
-                        style={{border: '1px solid rgba(0,0,0,0.1)', borderRadius: 6}}
-                      >
-                        <div className='d-flex align-items-center'>
-                          {/* <FontAwesomeIcon icon={faBars} className='me-2' /> */}
-                          <figure className='mb-0 me-3'>
-                            <img src="/images/dummy-product.jpg" style={{width: 75}} className='' />
-                          </figure>
-                          { index === 0 && <span className='badge text-bg-primary'>Primary</span> }
-                        </div>
-                        <div>
-                          <button type="button" className='btn btn-link p-0 me-2'><FontAwesomeIcon icon={faEdit} /></button>
-                          <button type="button" className='btn btn-link p-0 text-danger'><FontAwesomeIcon icon={faTrash} /></button>
-                        </div>
-                      </div>
-                    ))
+                    images.length === 0 && uploadedImages.length === 0
+                    ?
+                    <p className='text-center my-5 opacity-50 h5'>Not have image</p>
+                    :
+                    <>
+                    <figure className='text-center mt-4 p-4 border-soft-light'>
+                      <img 
+                        src={previewImage} 
+                        className='img-fluid'
+                        style={{
+                          height: 200
+                        }}
+                      />
+                    </figure>
+                    <div className='row mb-4 px-2'>
+                    {
+                      images.map((image, index) => {
+                        return (
+                          <div 
+                            key={`old_image_${index + 1}`} 
+                            className='col-sm-4 mb-3 px-2'
+                          >
+                            <div className={`product-image-item border-soft-light ${activeImage === index ? 'active' : ''}`}>
+                              <img 
+                                src={`${import.meta.env.VITE_API_URL}/${image.path}`} 
+                                className='img-fluid' 
+                                style={{
+                                  maxHeight: 60
+                                }}
+                                onClick={() => {
+                                  setPreviewImage(`${import.meta.env.VITE_API_URL}/${image.path}`);
+                                  setActiveImage(index);
+                                }}
+                              />
+                              <div className='btn-delete'>
+                                <button 
+                                  type="button" 
+                                  className='btn btn-link p-0 text-light btn-sm'
+                                  onClick={() => {
+                                    if(previewImage === index) {
+                                      setPreviewImage(0);
+                                    }
+                                    const tempImages = [...images];
+                                    const tempDeleteImages = [...deleteImages];
+                                    const removeResult = tempImages.filter((_, thisIndex) => thisIndex !== index);
+                                    tempDeleteImages.push(image.id)
+
+                                    setDeleteImages(tempDeleteImages);
+                                    setImages(removeResult);
+                                  }}
+                                >
+                                  <FontAwesomeIcon icon={faTrash} />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })
+                    }
+                    {
+                      uploadedImages.map((image, index) => {
+                        return (
+                          <div 
+                            key={`upload_image_${index + 1}`} 
+                            className='col-sm-4 mb-3 px-2'
+                          >
+                            <div className={`product-image-item border-soft-light ${activeImage === (images.length + index) ? 'active' : ''}`}>
+                              <img 
+                                src={URL.createObjectURL(image)} 
+                                className='img-fluid' 
+                                style={{
+                                  maxHeight: 60
+                                }}
+                                onClick={() => {
+                                  setPreviewImage(URL.createObjectURL(image))
+                                  setActiveImage(images.length + index);
+                                }}
+                              />
+                              <div className='btn-delete'>
+                                <button 
+                                  type="button" 
+                                  className='btn btn-link p-0 text-light btn-sm'
+                                  onClick={() => {
+                                    if(previewImage === index) {
+                                      setPreviewImage(0);
+                                    }
+                                    const tempUploadImages = [...uploadedImages];
+                                    const removeResult = tempUploadImages.filter((_, thisIndex) => thisIndex !== index);
+                                    setUploadedImages(removeResult);
+                                  }}
+                                >
+                                  <FontAwesomeIcon icon={faTrash} />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })
+                    }
+                    </div>
+                    </>
                   }
 
                   <div className='text-center'>
-                    <button type="button" className='btn my-btn pruple-btn narrow-btn mt-2'>+ Add New Image</button>
+                    <label 
+                      htmlFor="image-upload" 
+                      className="btn my-btn pruple-btn narrow-btn mt-2"
+                    >+ Add Images</label>
+                    <input 
+                      id="image-upload" 
+                      type="file" 
+                      multiple={true}
+                      style={{display: 'none'}} 
+                      onChange={(e) => {
+                        addUploadImages(e)
+                        e.target.value = null;
+                      }}
+                    />
                   </div>
 
                 </div>
