@@ -24,6 +24,10 @@ export default function PaymentSuccessPage() {
       try {
         setIsLoading(true);
         const paymentData = await paymentService.verifyPayment(paymentId);
+
+        // Update order payment status (PAID) here
+        //...
+
         setPaymentDetails(paymentData);
       } catch (error: any) {
         setError(error.message || 'เกิดข้อผิดพลาดในการตรวจสอบการชำระเงิน');

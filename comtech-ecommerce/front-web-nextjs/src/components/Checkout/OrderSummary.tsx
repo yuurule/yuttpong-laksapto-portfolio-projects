@@ -65,7 +65,7 @@ export default function OrderSummary({
   return (
     <div className={`${styles.cartTotal}`}>
       <div className={`${styles.content}`}>
-        <h4 className={`${styles.title}`}>your order</h4>
+        <h4 className={`${styles.title}`}>summary order</h4>
         <table className='table'>
           <tbody>
             {

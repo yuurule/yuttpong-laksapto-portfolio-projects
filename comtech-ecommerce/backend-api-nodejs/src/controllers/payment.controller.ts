@@ -11,9 +11,6 @@ export class PaymentController {
     try {
       const { amount, currency = 'thb', paymentMethodType = 'card' } = req.body;
 
-      // Check in stock is have enough
-      // ...
-
       // ตรวจสอบข้อมูลที่ส่งมา
       if (!amount || amount < 1) {
         throw new AppError(`Invalid amount`, 400);
@@ -27,7 +24,7 @@ export class PaymentController {
         description: 'Payment for products/services',
       });
 
-      // Get payment intent id and create order here 
+      // Get payment intent id and update order payment intent id here 
       // ...
 
       const response: CreatePaymentResponse = {
@@ -43,8 +40,6 @@ export class PaymentController {
     } catch (error: any) {
       throw new AppError(`${error.message || 'Error creating payment intent'}`, 500);
     }
-
-    //sendResponse(res, 200, `Get product by id ok`, null)
   }
 
   async verifyPayment(req: Request, res: Response) {
@@ -66,6 +61,9 @@ export class PaymentController {
           created: paymentIntent.created,
         }
       };
+
+      // Update order payment status here
+      //...
 
       res.status(200).json(response);
     } catch (error: any) {

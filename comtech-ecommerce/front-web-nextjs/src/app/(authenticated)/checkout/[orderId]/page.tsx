@@ -24,8 +24,7 @@ export default async function CheckoutPage({
         </div>
         <StripeProvider>
           <CheckoutForm 
-            orderId={orderId} 
-            amount={amount} 
+            orderId={orderId}
           />
         </StripeProvider>
       </div>
