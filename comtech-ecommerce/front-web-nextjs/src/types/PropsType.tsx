@@ -54,4 +54,26 @@ export interface createOrderProps {
     campaignId?: number,
     discount?: number
   }[];
+  useSameAddress: boolean;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  address?: string;
+  subDistrict?: string;
+  district?: string;
+  province?: string;
+  postcode?: string;
+  country?: string;
+}
+
+export interface updateCustomerDetailProps {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  address?: string;
+  subDistrict?: string;
+  district?: string;
+  province?: string;
+  postcode?: string;
+  country?: string;
 }

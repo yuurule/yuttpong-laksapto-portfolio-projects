@@ -39,3 +39,21 @@
   }
 
 }
+
+@media only screen and (max-width: 767px) {
+  .heroSlide {
+    height: auto;
+    .firstRow {
+      height: auto;
+      display: block;
+      .box.left, .box.right {
+        width: 100%;
+        border: none;
+      }
+
+      .box.left {
+        margin-bottom: 8px;
+      }
+    }
+  }
+}

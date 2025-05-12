@@ -17,7 +17,17 @@ export const orderService = {
     const requestBody: createOrderProps = {
       customerId: data.customerId,
       total: data.total,
-      items: data.items
+      items: data.items,
+      useSameAddress: data.useSameAddress,
+      firstName: data.firstName ?? undefined,
+      lastName: data.lastName ?? undefined,
+      phone: data.phone ?? undefined,
+      address: data.address ?? undefined,
+      subDistrict: data.subDistrict ?? undefined,
+      district: data.district ?? undefined,
+      province: data.province ?? undefined,
+      postcode: data.postcode ?? undefined,
+      country: data.country ?? undefined,
     }
     const url = `/api/order/create`;
     return API.post<any>(url, requestBody, true);

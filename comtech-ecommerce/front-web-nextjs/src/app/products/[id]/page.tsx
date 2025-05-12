@@ -20,6 +20,12 @@ export default async function ProductDetailPage({
   params: Promise<{ id: string }>
 }) {
 
+  const breadcrumbsList = [
+    { text: 'Home', url: '/' },
+    { text: 'Products', url: '/products' },
+    { text: 'Detail', url: null },
+  ]
+
   try {
     const { id } = await params;
     const product = await productService.getOneProduct(id);
@@ -43,7 +49,7 @@ export default async function ProductDetailPage({
       let sellPrice = 0;
       let discount = 0;
 
-      if(resultData.campaignProducts.length > 0) {
+      if(resultData.campaignProducts.length > 0 && (resultData.campaignProducts[0].campaign.startAt !== null && resultData.campaignProducts[0].campaign.endAt !== null)) {
         discount = resultData.campaignProducts[0].campaign.discount;
         sellPrice = realPrice - ((realPrice * discount) / 100);
       }
@@ -56,16 +62,16 @@ export default async function ProductDetailPage({
 
     return (
       <main className={`${styles.productDetail}`}>
-        <Breadcrumbs />
+        <Breadcrumbs urlList={breadcrumbsList} />
         <div className='container mt-5'>
           <div className="row">
             {/* <header className="col-12">
               <PageHeader pageTitle="Product Detail" />
             </header> */}
-            <div className="col-sm-6">
-              <ProductImageThumbnail />
+            <div className="col-lg-6 mb-4">
+              <ProductImageThumbnail images={resultData.images} />
             </div>
-            <div className="col-sm-6">
+            <div className="col-lg-6 mb-5">
               <div className={`${styles.content}`}>
                 <header>
                   <h2 className={`${styles.productName}`}>{resultData?.name}</h2>
@@ -140,14 +146,14 @@ export default async function ProductDetailPage({
                 <ProductTags tags={resultData?.tags} />
               </div>
             </div>
-            <div className="col-sm-12">
+            <div className="col-lg-12">
               <DetailsAndReviews 
                 productId={parseInt(id)}
                 detail={resultData?.description}
                 reviews={resultData?.reviews}
               />
             </div>
-            <div className="col-sm-12">
+            <div className="col-lg-12 mb-5">
               <RelatedProduct 
                 productId={resultData.id}
                 brand={resultData.brandId}
@@ -171,7 +177,7 @@ export default async function ProductDetailPage({
     console.log('Failed to fetch product:', error);
     return (
       <main className={`${styles.productDetail}`}>
-        <Breadcrumbs />
+        <Breadcrumbs urlList={breadcrumbsList} />
         <div className='container mt-5'>
           <p>เกิดข้อผิดพลาด ไม่สามารถดึงข้อมูลได้</p>
         </div>

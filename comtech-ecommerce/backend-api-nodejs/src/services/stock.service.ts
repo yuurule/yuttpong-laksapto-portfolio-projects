@@ -195,6 +195,7 @@ export class StockService {
         let currentTotalSale = findProductInStock.totalSaleQuantity;
         
         if(dto.actionType === StockSellAction.SELL) {
+          currentInStock -= dto.quantity;
           currentTotalSale += dto.quantity;
         }
         else if(dto.actionType === StockSellAction.RESERVE) {

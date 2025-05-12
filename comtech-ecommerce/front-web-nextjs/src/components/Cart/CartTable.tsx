@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClose, faRefresh } from '@fortawesome/free-solid-svg-icons';
+import { faClose } from '@fortawesome/free-solid-svg-icons';
 import styles from './Cart.module.scss';
 import { cartService } from "@/services";
-import { orderService } from '@/services/orderService';
 import { useSession } from 'next-auth/react';
 import { moneyFormat } from '@/utils/rendering';
 import Link from "next/link";
@@ -13,13 +12,10 @@ import { MoneyValueCartTableProps } from '@/types/PropsType';
 import { calculateUsePrice, calculateSubtotal } from '@/utils/utils';
 import useStore from '@/store';
 import { toast } from 'react-toastify';
-import { createOrderProps } from '@/types/PropsType';
-import { useRouter } from 'next/navigation';
 
 export default function CartTable() {
 
   const { status, data: session } = useSession();
-  const router = useRouter();
   const incrementRefreshCart = useStore((state) => state.incrementRefreshCart);
   const [loadData, setLoadData] = useState(false);
   const [cartItemList, setCartItemList] = useState([]);
@@ -31,7 +27,6 @@ export default function CartTable() {
     vatTotal: 0,
     total: 0,
   });
-  const [onSubmit, setOnSubmit] = useState(false);
 
   useEffect(() => {
     const fecthCartItems = async () => {
@@ -39,6 +34,7 @@ export default function CartTable() {
       try {
         if(status !== 'loading' && session?.user.id) {
           const cartItems = await cartService.getCartByCustomer(session.user.id);
+          console.log(cartItems.RESULT_DATA)
           setCartItemList(cartItems.RESULT_DATA);
           calculateMoneyValue(cartItems.RESULT_DATA);
         }
@@ -88,7 +84,7 @@ export default function CartTable() {
     });
 
     if(cartData.length > 0) {
-      tempResult.shippingFee = tempResult.subTotal >= 5000 ? 0 : 500;
+      tempResult.shippingFee = tempResult.subTotal >= 5000 ? 0 : 100;
     }
     tempResult.total = tempResult.subTotal + tempResult.shippingFee;
     tempResult.vatTotal = (tempResult.subTotal * 7) / 100;
@@ -136,6 +132,7 @@ export default function CartTable() {
     try {
       await cartService.deleteCartItems([cartItemId])
         .then(result => {
+          incrementRefreshCart();
           setRefresh(prevState => prevState + 1);
         });
     }
@@ -146,132 +143,94 @@ export default function CartTable() {
     finally { setLoadData(false); }
   }
 
-  const handlePlaceOrder = async () => {
-    setOnSubmit(true);
-    try {
-      if(session?.user.id) {
-        const requestData: createOrderProps = {
-          customerId: parseInt(session.user.id),
-          total: moneyValue.total,
-          items: moneyValue.cartItems.map(i => {
-            if(i.campaignId) {
-              return {
-                productId: i.id,
-                quantity: i.quantity,
-                salePrice: i.usePrice,
-                campaignId: i.campaignId,
-                discount: i.discount
-              }
-            }
-            else {
-              return {
-                productId: i.id,
-                quantity: i.quantity,
-                salePrice: i.usePrice
-              }
-            }
-          })
-        }
-
-        await orderService.createOrder(requestData)
-          .then(res => {
-            console.log(`Create order is success and wait for payment.`);
-            console.log(res)
-            toast.success(`Create order is success and wait for payment.`);
-            router.push(`/checkout/${res.RESULT_DATA.id}`);
-          });
-      }
-      else {
-        throw new Error(`Unauthorize, user id is required.`)
-      }
-    }
-    catch(error) {
-      console.log(`Place order is failed due to reason: ${error}`);
-      toast.error(`Place order is failed due to reason: ${error}`);
-    }
-    finally { setOnSubmit(false); }
-  }
-
   return (
     <>
-    <div className={`col-sm-${cartItemList.length > 0 ? '9' : '12'} mb-5`}>
+    <div className={`col-lg-${cartItemList.length > 0 ? '9' : '12'} mb-5`}>
       {
         cartItemList.length > 0
         ?
         <>
-        <table className={`table table-design ${styles.cartTable}`}>
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Price</th>
-              <th>Quantity</th>
-              <th>Subtotal</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              cartItemList.map((item: any, index: number) => (
-                <tr key={`cart_item_${index + 1}`}>
-                  <td>
-                    <div className="d-flex align-items-center">
-                      <img src="/images/dummy-product.jpg" className="product-image" />
-                      <p className="mb-0">{item.product.name}</p>
-                    </div>
-                  </td>
-                  <td>
-                    <p className='mb-0'>฿{ moneyFormat( moneyValue.cartItems[index].usePrice, 2, 2) }</p>
-                    {
-                      item.product.campaignProducts.length > 0 && (item.product.campaignProducts[0].campaign.startAt !== null && item.product.campaignProducts[0].campaign.endAt !== null) &&
-                      <small className='opacity-50'><s>฿{ moneyFormat( moneyValue.cartItems[index].realPrice, 2, 2) }</s></small>
-                    }
-                  </td>
-                  <td>
-                    <div className={`${styles.addToCart}`}>
-                      <div className={`input-group ${styles.inputGroup}`}>
-                        <button 
-                          className="btn btn-outline-secondary" 
-                          type="button" 
-                          disabled={loadData || item.quantity === 1}
-                          onClick={(e) => {
-                            handleEditItem('remove', item.id, item.quantity);
-                          }}
-                        >-</button>
-                        <input 
-                          type="text" 
-                          className="form-control"
-                          value={item.quantity}
-                          disabled={true}
-                        />
-                        <button 
-                          className="btn btn-outline-secondary" 
-                          type="button"
-                          disabled={loadData || item.quantity === item.product.inStock.inStock}
-                          onClick={(e) => {
-                            handleEditItem('add', item.id, item.quantity, item.product.inStock.inStock);
-                          }}
-                        >+</button>
+        <div className='table-responsive'>
+          <table className={`table table-design ${styles.cartTable}`}>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                cartItemList.map((item: any, index: number) => (
+                  <tr key={`cart_item_${index + 1}`}>
+                    <td>
+                      <div className="d-flex align-items-center">
+                        {
+                          item.product.images.length > 0
+                          ?
+                          <img src={`${process.env.NEXT_PUBLIC_API_URL}/${item.product.images[0].path}`} className={`me-3 ${styles.productImage}`} />
+                          :
+                          <img src="https://placehold.co/80x50" className='me-3' />
+                        }
+                        <p className="mb-0">{item.product.name}</p>
                       </div>
-                    </div>
-                  </td>
-                  <td>฿{ moneyFormat( moneyValue.cartItems[index].itemSubTotal, 2, 2) }</td>
-                  <td style={{width: 80, textAlign: 'center'}}>
-                    <button 
-                      type="button"
-                      className="btn btn-link p-0 text-red"
-                      disabled={loadData}
-                      onClick={(e) => {
-                        handleDeleteItem(item.id);
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faClose} />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            }
-          </tbody>
-        </table>
+                    </td>
+                    <td>
+                      <p className='mb-0'>฿{ moneyFormat( moneyValue.cartItems[index].usePrice, 2, 2) }</p>
+                      {
+                        item.product.campaignProducts.length > 0 && (item.product.campaignProducts[0].campaign.startAt !== null && item.product.campaignProducts[0].campaign.endAt !== null) &&
+                        <small className='opacity-50'><s>฿{ moneyFormat( moneyValue.cartItems[index].realPrice, 2, 2) }</s></small>
+                      }
+                    </td>
+                    <td>
+                      <div className={`${styles.addToCart}`}>
+                        <div className={`input-group ${styles.inputGroup}`}>
+                          <button 
+                            className="btn btn-outline-secondary" 
+                            type="button" 
+                            disabled={loadData || item.quantity === 1}
+                            onClick={(e) => {
+                              handleEditItem('remove', item.id, item.quantity);
+                            }}
+                          >-</button>
+                          <input 
+                            type="text" 
+                            className="form-control"
+                            value={item.quantity}
+                            disabled={true}
+                          />
+                          <button 
+                            className="btn btn-outline-secondary" 
+                            type="button"
+                            disabled={loadData || item.quantity === item.product.inStock.inStock}
+                            onClick={(e) => {
+                              handleEditItem('add', item.id, item.quantity, item.product.inStock.inStock);
+                            }}
+                          >+</button>
+                        </div>
+                      </div>
+                    </td>
+                    <td>฿{ moneyFormat( moneyValue.cartItems[index].itemSubTotal, 2, 2) }</td>
+                    <td style={{width: 80, textAlign: 'center'}}>
+                      <button 
+                        type="button"
+                        className="btn btn-link p-0 text-red"
+                        disabled={loadData}
+                        onClick={(e) => {
+                          handleDeleteItem(item.id);
+                        }}
+                      >
+                        <FontAwesomeIcon icon={faClose} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
         <div className="d-flex justify-content-end">
           <Link href="/products?brands=all&categories=all" className="btn design-btn px-4">
             Continue Shopping
@@ -292,7 +251,7 @@ export default function CartTable() {
 
     {
       cartItemList.length > 0 &&
-      <div className="col-sm-3">
+      <div className="col-lg-3">
         <div className={`${styles.cartTotal}`}>
           <div className={`${styles.content}`}>
             <h4 className={`${styles.title}`}>cart totals</h4>
@@ -322,14 +281,7 @@ export default function CartTable() {
               </tbody>
             </table>
           </div>
-          <button
-            type="button"
-            disabled={onSubmit}
-            className="w-100 btn design-btn gradient-btn py-3"
-            onClick={handlePlaceOrder}
-          >
-            {onSubmit ? <FontAwesomeIcon icon={faRefresh} className='text-light' /> : 'Place Order'}
-          </button>
+          <Link href="/cart/checkout" className="w-100 btn design-btn gradient-btn py-3">Go to Checkout</Link>
         </div>
       </div>
     }

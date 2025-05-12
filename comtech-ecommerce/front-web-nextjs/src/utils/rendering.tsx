@@ -14,3 +14,16 @@ export const moneyFormat = (value: number, minFraction: number, maxFraction: num
     maximumFractionDigits: maxFraction,
   })
 }
+
+export function formatTimestamp(timestamp: string) {
+  const date = new Date(timestamp);
+  
+  // ใช้ Intl.DateTimeFormat เพื่อจัดรูปแบบวันที่
+  const formatter = new Intl.DateTimeFormat('th', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+  
+  return formatter.format(date);
+}

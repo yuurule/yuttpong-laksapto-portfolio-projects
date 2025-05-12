@@ -4,18 +4,17 @@ import PageHeader from "@/components/PageHeader/PageHeader";
 import StripeProvider from '@/providers/StripeProvider';
 import CheckoutForm from "@/components/Checkout/CheckoutForm";
 
-export default async function CheckoutPage({
-  params,
-}: {
-  params: Promise<{ orderId: string }>
-}) {
+export default async function CheckoutPage() {
 
-  const { orderId } = await params;
-  const amount = 100;
+  const breadcrumbsList = [
+    { text: 'Home', url: '/' },
+    { text: 'Cart', url: '/cart' },
+    { text: 'Checkout', url: null },
+  ]
 
   return (
     <main className="">
-      <Breadcrumbs />
+      <Breadcrumbs urlList={breadcrumbsList} />
       <div className='container'>
         <div className="row">
           <header className="col-12">
@@ -23,9 +22,7 @@ export default async function CheckoutPage({
           </header>
         </div>
         <StripeProvider>
-          <CheckoutForm 
-            orderId={orderId}
-          />
+          <CheckoutForm />
         </StripeProvider>
       </div>
     </main>

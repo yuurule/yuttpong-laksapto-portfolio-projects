@@ -1,17 +1,19 @@
 import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumbs";
 import PageHeader from "@/components/PageHeader/PageHeader";
 import MyAccountMenu from "@/components/MyAccount/MyAccountMenu";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import ReviewsTable from "@/components/MyAccount/ReviewsTable";
 
 export default function ReviewsPage() {
 
-
+  const breadcrumbsList = [
+    { text: 'Home', url: '/' },
+    { text: 'My account', url: '/my-account' },
+    { text: 'Reviews', url: null },
+  ]
 
   return (
     <main>
-      <Breadcrumbs />
+      <Breadcrumbs urlList={breadcrumbsList} />
       <div className='container'>
         <div className="row">
           <header className="col-12">
@@ -21,30 +23,7 @@ export default function ReviewsPage() {
             <MyAccountMenu />
           </div>
           <div className="col-sm-9">
-            <table className={`table table-design`}>
-              <thead>
-                <tr>
-                  <th>Review</th>
-                  <th>Rating</th>
-                  <th>On Product</th>
-                  <th>Review At</th>
-                  <th>Edit</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>"Lorem ipslum dolor sitamet"</td>
-                  <td>4</td>
-                  <td>Asus Rog cv7260RF</td>
-                  <td>20 Mar 2025</td>
-                  <td>
-                    <Link href="/" className="btn btn-primary btn-sm">
-                      <FontAwesomeIcon icon={faEdit} />
-                    </Link>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <ReviewsTable />
           </div>
         </div>
       </div>

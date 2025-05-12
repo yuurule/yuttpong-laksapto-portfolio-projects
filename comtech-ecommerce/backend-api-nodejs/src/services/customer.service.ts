@@ -182,7 +182,19 @@ export class CustomerService {
         where: { id: customerId },
         include: {
           customerDetail: true,
-          orders: true,
+          orders: {
+            include: {
+              orderItems: {
+                include: {
+                  product: {
+                    include: {
+                      campaignProducts: true
+                    }
+                  }
+                }
+              }
+            }
+          },
           cartItems: true,
           createdReviews: {
             include: {
@@ -192,10 +204,40 @@ export class CustomerService {
           stockSellEvents: true,
           wishlists: {
             include: {
-              product: { select: { name: true } }
+              product: { 
+                include: {
+                  images: {
+                    select: {
+                      path: true
+                    }
+                  }
+                } 
+              }
             }
           }
+        },
+        omit: {
+          password: true
         }
+      });
+
+      if(!customer) throw new exception.NotFoundException(`Not found campaign with id ${customerId}`);
+      return customer;
+    }
+    catch(error: any) {
+      if(error instanceof exception.NotFoundException) throw error;
+      if(error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw new exception.DatabaseException(`Error find all customer due to: ${error.message}`);
+      }
+      throw new exception.InternalServerException(`Something went wrong due to: ${error.message}`);
+    }
+  }
+
+  async updateDetailOne(customerId: number, data: any) {
+    try {
+      const customer = await prisma.customerDetail.update({
+        where: { id: customerId },
+        data: data
       });
 
       if(!customer) throw new exception.NotFoundException(`Not found campaign with id ${customerId}`);

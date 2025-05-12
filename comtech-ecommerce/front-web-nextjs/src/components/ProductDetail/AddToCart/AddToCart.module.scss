@@ -19,3 +19,29 @@
     }
   }
 }
+
+@media only screen and (max-width: 1024px) {
+  .addToCart {
+    display: block;
+
+    .btnGroup {
+      margin-top: 20px;
+    }
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .addToCart {
+
+    .inputGroup {
+      width: 90%;
+      margin: 0 auto 15px;
+    }
+
+    .btnGroup {
+      display: flex;
+      justify-content: center;
+      margin-top: 0;
+    }
+  }
+}

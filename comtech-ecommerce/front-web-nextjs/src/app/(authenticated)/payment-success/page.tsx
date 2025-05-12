@@ -3,8 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { paymentService } from '@/services';
+import { paymentService, orderService } from '@/services';
 import { VerifyPaymentResponse } from '@/types/stripe';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import useStore from '@/store';
 
 export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
@@ -12,6 +15,7 @@ export default function PaymentSuccessPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [paymentDetails, setPaymentDetails] = useState<VerifyPaymentResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const store = useStore((state) => state);
 
   useEffect(() => {
     const checkPaymentStatus = async () => {
@@ -24,9 +28,23 @@ export default function PaymentSuccessPage() {
       try {
         setIsLoading(true);
         const paymentData = await paymentService.verifyPayment(paymentId);
+        const orders = await orderService.getOrders()
+        const orderId = orders.RESULT_DATA.find((i: any) => i.paymentIntent === paymentId)
 
-        // Update order payment status (PAID) here
-        //...
+        if(paymentData.payment) {
+          if(paymentData.payment.status === 'succeeded') {
+            if(orderId.paymentStatus === 'PENDING') {
+              await orderService.updateOrder(orderId.id, 'PAID')
+              store.incrementRefreshCart()
+            }
+          }
+          else {
+            await orderService.updateOrder(orderId.id, 'FAILED')
+          }
+        }
+        else {
+          await orderService.updateOrder(orderId.id, 'FAILED')
+        }
 
         setPaymentDetails(paymentData);
       } catch (error: any) {
@@ -78,42 +96,24 @@ export default function PaymentSuccessPage() {
   const amountInBaht = (payment.amount / 100).toFixed(2);
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="max-w-md mx-auto p-6 border rounded shadow bg-white">
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+    <div className="container payment-success">
+      <div className="row">
+        <div className="col-12">
+          <div className="w-100 d-flex justify-content-center align-items-center py-5">
+            <div className="text-center w-50">
+              <FontAwesomeIcon icon={faCheck} className='success-icon' />
+              <h1 className='mb-4'>Payment Success</h1>
+              <p className='mb-0'>รหัสการชำระเงิน: {payment.id}</p>
+              <p className='mb-0'>สถานะ: {amountInBaht} บาท</p>
+              <p className='mb-0'>รหัสการชำระเงิน: {payment.status === 'succeeded' ? 'สำเร็จ' : payment.status}</p>
+              <p className='mb-0'>วันที่: {formattedDate}</p>
+              <div className="btn-group d-flex justify-content-center mt-4">
+                <Link href="/" className="btn design-btn gradient-btn px-4 me-3">Back to homepage</Link>
+                <Link href="/products?brands=all&categories=all&topSale=desc" className="btn design-btn gradient-btn px-4 me-3">More shopping</Link>
+                <Link href="/my-account/orders" className="btn design-btn gradient-btn px-4">View order recipe</Link>
+              </div>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-green-600">ชำระเงินสำเร็จ!</h1>
-        </div>
-
-        <div className="border-t border-b py-4 my-4">
-          <div className="flex justify-between mb-2">
-            <span className="text-gray-600">รหัสการชำระเงิน:</span>
-            <span className="font-medium">{payment.id}</span>
-          </div>
-          <div className="flex justify-between mb-2">
-            <span className="text-gray-600">จำนวนเงิน:</span>
-            <span className="font-medium">{amountInBaht} บาท</span>
-          </div>
-          <div className="flex justify-between mb-2">
-            <span className="text-gray-600">สถานะ:</span>
-            <span className="font-medium text-green-600">
-              {payment.status === 'succeeded' ? 'สำเร็จ' : payment.status}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">วันที่:</span>
-            <span className="font-medium">{formattedDate}</span>
-          </div>
-        </div>
-
-        <div className="text-center mt-6">
-          <Link href="/" className="text-blue-600 hover:underline">
-            กลับไปยังหน้าหลัก
-          </Link>
         </div>
       </div>
     </div>

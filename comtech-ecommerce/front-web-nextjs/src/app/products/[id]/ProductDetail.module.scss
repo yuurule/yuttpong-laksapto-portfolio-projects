@@ -75,3 +75,11 @@
   }
 
 }
+
+@media only screen and (max-width: 767px) {
+  .productDetail {
+    .content {
+      padding-left: 0;
+    }
+  }
+}

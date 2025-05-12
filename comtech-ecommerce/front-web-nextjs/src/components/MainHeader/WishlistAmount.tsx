@@ -44,9 +44,9 @@ export default function WishlistAmount() {
     }
     else {
       return (
-        <Link href={`/my-account/wishlists`} className={`${styles.wishListBtn} btn btn-link p-0 text-dark`}>
+        <Link href={`/my-account/wishlists`} className={`wishListBtn btn btn-link p-0 text-dark`}>
           <FontAwesomeIcon icon={faHeartRegular} />
-          <span className={`${styles.digitSign}`}>{wishlistAmount}</span>
+          <span className={`digitSign ${styles.digitSign}`}>{wishlistAmount}</span>
         </Link>
       )
     }

@@ -30,7 +30,7 @@ export default function ProductBox({
       let price = parseFloat(data.price);
       realPriceResult = '฿' + price.toLocaleString('th-TH');
 
-      if(data.campaignProducts.length > 0) {
+      if(data.campaignProducts.length > 0 && (data.campaignProducts[0].campaign.startAt !== null && data.campaignProducts[0].campaign.endAt !== null)) {
         let discount = parseFloat(data.campaignProducts[0].campaign.discount)
         discountPriceResult = '฿' + Math.floor((price - ((price * discount) / 100))).toLocaleString('th-TH');
       }
@@ -45,7 +45,13 @@ export default function ProductBox({
   return (
     <div className={`${styles.productBox} ${previewStyle === "horizontal" ? styles.horizontal : ''}`}>
       <Link href={`/products/${data?.id}`} style={{width: `${previewStyle === "horizontal" ? 200 : 'auto'}`}}>
-        <img src="/images/dummy-product.jpg" className='img-fluid' />
+        {
+          data.images.length > 0
+          ?
+          <img src={`${process.env.NEXT_PUBLIC_API_URL}/${data.images[0].path}`} className={`w-100 img-fluid ${previewStyle === "horizontal" ? styles.imgHorizontal : ''}`} />
+          :
+          <img src="https://placehold.co/240x190" className='w-100 img-fluid' />
+        }
       </Link>
       <div className={`${styles.content}`}>
         <ProductCategory categories={data?.categories} />
@@ -56,7 +62,7 @@ export default function ProductBox({
           {/* <StarRating rating={calculateRating()} /> */}
           <footer className={`${styles.price}`}>
             {
-              data?.campaignProducts.length > 0
+              data?.campaignProducts.length > 0 && (data.campaignProducts[0].campaign.startAt !== null && data.campaignProducts[0].campaign.endAt !== null)
               ?
               <>
               <p>{calculatePriceDiscount().discountPriceResult}</p>

@@ -70,17 +70,18 @@ export default function MainHeader() {
         </div>
       </div>
 
-      <div className={`${styles.mainHeaderContent}`}>
-        <div className={`container ${styles.container}`}>
+      <div className={`mainHeaderContent`}>
+        <div className={`container mainHeaderContainer`}>
           <div>
-            <Link href="/" className={`${styles.logo}`}>COMTECH</Link>
+            <Link href="/" className={`logo`}>COMTECH</Link>
+            <SearchProduct css={'show-phone'} />
           </div>
-          <SearchProduct />
-          <div className={`${styles.otherMenu}`}>
-            <div className={`${styles.infoWithIcon}`}>
+          <SearchProduct css={'hidden-phone'} />
+          <div className={`otherMenu`}>
+            <div className={`infoWithIcon`}>
               <FontAwesomeIcon icon={faHeadphones} />
               <div>
-                <strong className={`${styles.title}`}>Need Help?</strong>
+                <strong className={`title`}>Need Help?</strong>
                 <span>+06 95 798 3628</span>
               </div>
             </div>
@@ -90,11 +91,15 @@ export default function MainHeader() {
         </div>
       </div>
 
-      <div className={`${styles.mainMenuRow}`}>
-        <div className={`container ${styles.container}`}>
+      <div className={`mainMenuRow`}>
+        <div className={`container mainMenuContainer`}>
           <div className='d-flex'>
             <BrandsDropdown />
-            <nav className={`${styles.mainMenu}`}>
+            <div className={`wishList phone`}>
+              <WishlistAmount />
+              <Link href="/products?brands=all&todayDeal=true" className={`todayDeals`}><strong>Today's Deal!</strong></Link>
+            </div>
+            <nav className={`mainMenu`}>
               <ul className="list-inline mb-0">
                 <li className="list-inline-item">
                   <Link href="/">home</Link>
@@ -114,10 +119,29 @@ export default function MainHeader() {
               </ul>
             </nav>
           </div>
-          <div className={`${styles.wishList}`}>
+          <div className={`wishList`}>
             <WishlistAmount />
-            <Link href="/products?brands=all&todayDeal=true" className={`${styles.todayDeals}`}><strong>Today's Deal!</strong></Link>
+            <Link href="/products?brands=all&todayDeal=true" className={`todayDeals`}><strong>Today's Deal!</strong></Link>
           </div>
+          <nav className={`mainMenu phone`}>
+            <ul className="list-inline mb-0">
+              <li className="list-inline-item">
+                <Link href="/">home</Link>
+              </li>
+              {
+                !loadData && categoryList.map((i: any) => {
+                  return (
+                    <li key={`category_${i.id}`} className="list-inline-item">
+                      <Link href={`/products?brands=all&categories=${i.id}`}>{i.name}</Link>
+                    </li>
+                  )
+                })
+              }
+              <li className="list-inline-item">
+                <Link href="/products?brands=all&categories=all&onSale=true">sales off</Link>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </div>

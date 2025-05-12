@@ -7,9 +7,11 @@ import { moneyFormat } from '@/utils/rendering';
 import { calculateUsePrice, calculateSubtotal } from '@/utils/utils';
 
 export default function OrderSummary({
-  orderItems
+  orderItems,
+  handleSetTotalPrice
 }: {
-  orderItems: any[]
+  orderItems: any[],
+  handleSetTotalPrice: (value: number) => void
 }) {
 
   const [moneyValue, setMoneyValue] = useState<MoneyValueCartTableProps>({
@@ -53,13 +55,14 @@ export default function OrderSummary({
     });
 
     if(orderItemsData.length > 0) {
-      tempResult.shippingFee = tempResult.subTotal >= 5000 ? 0 : 500;
+      tempResult.shippingFee = tempResult.subTotal >= 5000 ? 0 : 100;
     }
     tempResult.total = tempResult.subTotal + tempResult.shippingFee;
     tempResult.vatTotal = (tempResult.subTotal * 7) / 100;
     tempResult.subTotal = tempResult.subTotal - ((tempResult.subTotal * 7) / 100);
 
     setMoneyValue(tempResult);
+    handleSetTotalPrice(tempResult.total)
   }
 
   return (

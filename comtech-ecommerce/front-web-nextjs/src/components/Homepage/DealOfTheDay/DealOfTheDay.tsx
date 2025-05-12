@@ -53,7 +53,13 @@ export default async function DealOfTheDay() {
       <div className={`${styles.dealOfTheDay}`}>
         <Link href={`/products/${result.id}`}>
           <figure className='text-center'>
-            <img src="/images/dummy-product.jpg" className='img-fluid' />
+            {
+              result.images.length > 0
+              ?
+              <img src={`${process.env.NEXT_PUBLIC_API_URL}/${result.images[0].path}`} className='img-fluid' />
+              :
+              <img src="https://placehold.co/160x120" className='img-fluid' />
+            }
           </figure>
         </Link>
         <div className={`${styles.content}`}>

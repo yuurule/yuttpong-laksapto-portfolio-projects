@@ -24,3 +24,16 @@
   }
 
 }
+
+@media only screen and (max-width: 767px) {
+  .topSelling {
+    .rowHeader {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 8px;
+    }
+    .productList {
+      width: 100%;
+    }
+  }
+}

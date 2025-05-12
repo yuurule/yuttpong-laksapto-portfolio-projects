@@ -1,17 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styles from './AddToCart.module.scss';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
-import { faHeart as heartRegular } from '@fortawesome/free-regular-svg-icons';
+import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import SignInDialog from '@/components/SignIn/SignInDialog';
 import { Form } from 'react-bootstrap';
 import { cartService } from '@/services';
 import { useSession } from 'next-auth/react';
 import useStore from '@/store';
-import { addWishlistAction, removeWishlistsAction } from '@/lib/actions';
-import { toast } from 'react-toastify';
 import WishlistButton from '../WishlistButton';
 
 export default function AddToCart({
@@ -120,7 +117,7 @@ export default function AddToCart({
           >+</button>
         </div>
       </div>
-      <div>
+      <div className={`${styles.btnGroup}`}>
         <button 
           type="button"
           className="btn design-btn gradient-btn px-4" 

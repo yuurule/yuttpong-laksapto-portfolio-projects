@@ -4,6 +4,7 @@ import { faTruck, faShoppingBag, faHeadphones, faWallet } from '@fortawesome/fre
 import TopSelling from '@/components/Homepage/TopSelling/TopSelling';
 import DealOfTheDay from '@/components/Homepage/DealOfTheDay/DealOfTheDay';
 import NewArrival from '@/components/Homepage/NewArrival/NewArrival';
+import HeroSlide from '@/components/Homepage/HeroSlide/HeroSlide';
 
 export default function HomePage() {
 
@@ -35,7 +36,7 @@ export default function HomePage() {
       <div className='container'>
         
         <section id="recommendCampaign">
-          <img src="/images/dummy-hero-slide.jpg" className='img-fluid' />
+          {/* <img src="/images/dummy-hero-slide.jpg" className='img-fluid' /> */}
           {
             /*
             - Best deal of the week (ไปที่สินค้า 1 ตัวที่น่าสนใจที่สุดที่กำลังลดราคา)
@@ -43,6 +44,7 @@ export default function HomePage() {
             - Discount 50% on working dell (ไปที่ campaign dell, working ลด 50%)
             */
           }
+          <HeroSlide />
         </section>
 
         <section id="services" className={`${styles.ourServices}`}>
@@ -64,7 +66,7 @@ export default function HomePage() {
         <TopSelling />
 
         <div className='row mb-5'>
-          <div className='col-sm-4'>
+          <div className='col-sm-4 mb-3'>
             <div className={`demo-box ${styles.campaignBox}`}>
               <div>
                 <span className='badge text-bg-danger mb-2'>Gamaing Notebook</span>
@@ -73,7 +75,7 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div className='col-sm-4'>
+          <div className='col-sm-4 mb-3'>
             <div className={`demo-box ${styles.campaignBox}`}>
               <div>
                 <span className='badge text-bg-danger mb-2'>Gamaing Notebook</span>
@@ -82,7 +84,7 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div className='col-sm-4'>
+          <div className='col-sm-4 mb-3'>
             <div className={`demo-box ${styles.campaignBox}`}>
               <div>
                 <span className='badge text-bg-danger mb-2'>Gamaing Notebook</span>

@@ -4,11 +4,16 @@ import CartTable from "@/components/Cart/CartTable";
 
 export default function CartPage() {
 
-
+  const breadcrumbsList = [
+    { text: 'Home', url: '/' },
+    { text: 'Cart', url: null },
+  ]
 
   return (
     <main>
-      <Breadcrumbs />
+      <Breadcrumbs 
+        urlList={breadcrumbsList}
+      />
       <div className='container'>
         <div className="row">
           <header className="col-12">

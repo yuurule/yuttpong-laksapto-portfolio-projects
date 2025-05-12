@@ -44,3 +44,20 @@
   text-transform: capitalize;
   font-weight: 500;
 }
+
+@media only screen and (max-width: 767px) {
+  .ourServices {
+    .container {
+      display: block;
+
+      .serviceItem {
+        width: 100%;
+        margin-bottom: 20px;
+
+        svg {
+          width: 50px;
+        }
+      }
+    }
+  }
+}

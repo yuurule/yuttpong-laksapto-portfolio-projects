@@ -76,6 +76,37 @@ export class CustomerController {
     }
   }
 
+  async updateOneCustomer(req: Request, res: Response) {
+    const customerId = parseInt(req.params.id);
+    const body = req.body;
+
+    const request = {
+      firstName: body.firstName,
+      lastName: body.lastName,
+      phone: body.phone,
+      lineId: body.lineId,
+      address: body.address,
+      subDistrict: body.subDistrict,
+      district: body.district,
+      province: body.province,
+      postcode: body.postcode,
+      country: body.country,
+    }
+
+    try {
+      if(!isValidId(customerId)) {
+        throw new exception.BadRequestException(`Customer id must not zero or negative number`); 
+      }
+      
+      const customer = await customerService.updateDetailOne(customerId, request);
+      sendResponse(res, 200, `Update detail one customer ok`, customer)
+    }
+    catch (error: any) {
+      console.error('Update detail one customer error: ', error);
+      sendError(res, error.statusCode, error.message);
+    }
+  }
+
   async getStatisticCustomers(req: Request, res: Response) {
     const page = parseInt(req.query.page as string || '1');
     const pageSize = parseInt(req.query.pageSize as string || '8');

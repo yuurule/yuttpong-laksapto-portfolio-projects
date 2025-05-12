@@ -1,4 +1,5 @@
 import API from '@/lib/api';
+import { updateCustomerDetailProps } from '@/types/PropsType';
 
 export const customerService = {
 
@@ -22,6 +23,22 @@ export const customerService = {
   getOneCustomer: async (customerId: number | string) => {
     const url = `/api/customer/${customerId}`;
     return API.get<any>(url, true);
+  },
+
+  updateCustomerDetail: async(customerId: string, data: updateCustomerDetailProps) => {
+    const url = `/api/customer/${customerId}/update-detail`;
+    const requestBody = {
+      firstName: data.firstName ?? undefined,
+      lastName: data.lastName ?? undefined,
+      phone: data.phone ?? undefined,
+      address: data.address ?? undefined,
+      subDistrict: data.subDistrict ?? undefined,
+      district: data.district ?? undefined,
+      province: data.province ?? undefined,
+      postcode: data.postcode ?? undefined,
+      country: data.country ?? undefined,
+    }
+    return API.put<any>(url, requestBody, true);
   },
 
   addReview: async (

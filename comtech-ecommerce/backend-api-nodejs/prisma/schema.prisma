@@ -473,9 +473,10 @@ model CartItem {
 // Order
 model Order {
   id                Int @id @default(autoincrement())
+  orderNumber       String? @unique
   status            OrderStatus @default(PENDING)
   paymentStatus     PaymentStatus @default(PENDING)
-  paymentIntent     String? // Stripe payment intent ID
+  paymentIntent     String? @unique // Stripe payment intent ID
   customerId        Int
   total             Decimal @db.Decimal(18, 2)
   note              String?

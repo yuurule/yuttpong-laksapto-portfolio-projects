@@ -14,12 +14,14 @@ export default function MyAccountOrSignin() {
 
   const { status, data: session } = useSession();
   const [showSignIn, setShowSignIn] = useState(false);
+  const [show, setShow] = useState(false);
   
-  const handleToggleSignIn = () => setShowSignIn(prevState => !prevState);
+  const handleToggleSignIn = () => setShowSignIn(prevState => !prevState)
+  const handleClose = () => setShow(false)
 
   return (
     <>
-    <div className={`${styles.infoWithIcon}`}>
+    <div className={`infoWithIcon`}>
       {
         status !== 'loading' 
         ?
@@ -32,7 +34,10 @@ export default function MyAccountOrSignin() {
           >Sign in</button>
           :
           <>
-          <Dropdown>
+          <Dropdown
+            show={show} 
+            onToggle={(isOpen) => setShow(isOpen)}
+          >
             <Dropdown.Toggle 
               id="dropdown-my-account"
               className={`px-0 position-relative d-flex align-items-center`}
@@ -46,10 +51,10 @@ export default function MyAccountOrSignin() {
             </Dropdown.Toggle>
 
             <Dropdown.Menu className='my-dropdown px-2 pt-2' style={{width: '180px'}}>
-              <Link href="/my-account" className='dropdown-item mb-1'>My account</Link>
-              <Link href="/my-account/wishlists" className='dropdown-item mb-1'>Wishlist</Link>
-              <Link href="/my-account/orders" className='dropdown-item mb-1'>Orders</Link>
-              <Link href="/my-account/reviews" className='dropdown-item'>Reviews</Link>
+              <Link onClick={handleClose} href="/my-account" className='dropdown-item mb-1'>My account</Link>
+              <Link onClick={handleClose} href="/my-account/wishlists" className='dropdown-item mb-1'>Wishlist</Link>
+              <Link onClick={handleClose} href="/my-account/orders" className='dropdown-item mb-1'>Orders</Link>
+              <Link onClick={handleClose} href="/my-account/reviews" className='dropdown-item'>Reviews</Link>
               <hr />
               <button 
                 type="button"

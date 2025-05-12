@@ -1,5 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { getSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 
 // สร้าง baseAPI สำหรับเรียก public apis (ไม่ต้องการ authentication)
 export const baseAPI: AxiosInstance = axios.create({
@@ -51,7 +52,25 @@ const errorInterceptor = (error: any) => {
 }
 
 baseAPI.interceptors.response.use(responseInterceptor, errorInterceptor);
-authAPI.interceptors.response.use(responseInterceptor, errorInterceptor);
+authAPI.interceptors.response.use(responseInterceptor, async (error) => {
+  const originalRequest = error.config
+  if(error.response) {
+    if((error.response.status === 401 || error.response.status === 403) && !originalRequest._retry) {
+      // just sign out
+      // add refresh token later...
+      signOut({ callbackUrl: '/' })
+    }
+    else {
+      console.error('API Error:', error.response.data)
+    }
+  } else if(error.request) {
+    console.error('No response:', error.request);
+  } else {
+    console.error('Error:', error.message);
+  }
+
+  return Promise.reject(error);
+});
 
 // Helper function สำหรับเลือกใช้ instance ที่เหมาะสม
 export const getAPI = (requiresAuth: boolean = false): AxiosInstance => {

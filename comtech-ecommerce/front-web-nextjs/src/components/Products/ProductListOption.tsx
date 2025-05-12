@@ -152,54 +152,20 @@ export default function ProductListOption() {
   }
 
   return (
-    <>
-    <div>
-      <div className={`${styles.productListOption}`}>
-        <h5 className={`${styles.title}`}>Brands</h5>
-        {
-          !loadData && brandList.map((brand:any, index:number) => (
-            <div key={`product_list_option_brands_${brand.id}`} className={`form-check ${styles.formCheck}`}>
-              <input 
-                className="form-check-input" 
-                type="checkbox" 
-                value={brand.id}
-                checked={checkSelectBrand(brand.id)}
-                onChange={(e: any) => {
-                  const tempSelectValues = [...selectBrands];
-                  let result: number[];
-                  if(e.target.checked) {
-                    tempSelectValues.push(e.target.value);
-                    result = tempSelectValues;
-                  }
-                  else {
-                    result = tempSelectValues.filter(i => i !== parseInt(e.target.value));
-                  }
-                  setSelectBrands(result);
-                  handleSelectCheckbox(result, 'brands');
-                }}
-              />
-              <label className="form-check-label" htmlFor="flexCheckDefault">
-                {brand.name}
-                <span className={styles.inStockAmount}>({brand.productAmount})</span>
-              </label>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-    <div>
-      <div className={`${styles.productListOption}`}>
-        <h5 className={`${styles.title}`}>Category</h5>
+    <div className='row'>
+      <div className='col-6 col-sm-12'>
+        <div className={`${styles.productListOption}`}>
+          <h5 className={`${styles.title}`}>Brands</h5>
           {
-            !loadData && categoryList.map((category:any, index:number) => (
-              <div key={`product_list_option_categories_${category.id}`} className={`form-check ${styles.formCheck}`}>
+            !loadData && brandList.map((brand:any, index:number) => (
+              <div key={`product_list_option_brands_${brand.id}`} className={`form-check ${styles.formCheck}`}>
                 <input 
                   className="form-check-input" 
-                  type="checkbox"  
-                  value={category.id}
-                  checked={checkSelectCategory(category.id)}
+                  type="checkbox" 
+                  value={brand.id}
+                  checked={checkSelectBrand(brand.id)}
                   onChange={(e: any) => {
-                    const tempSelectValues = [...selectCategories];
+                    const tempSelectValues = [...selectBrands];
                     let result: number[];
                     if(e.target.checked) {
                       tempSelectValues.push(e.target.value);
@@ -208,45 +174,79 @@ export default function ProductListOption() {
                     else {
                       result = tempSelectValues.filter(i => i !== parseInt(e.target.value));
                     }
-                    setSelectCategories(result);
-                    handleSelectCheckbox(result, 'categories');
+                    setSelectBrands(result);
+                    handleSelectCheckbox(result, 'brands');
                   }}
                 />
                 <label className="form-check-label" htmlFor="flexCheckDefault">
-                  {category.name}
-                  <span className={styles.inStockAmount}>({category.productAmount})</span>
+                  {brand.name}
+                  <span className={styles.inStockAmount}>({brand.productAmount})</span>
                 </label>
               </div>
             ))
           }
+        </div>
       </div>
-    </div>
-    <div>
-      <div className={`${styles.productListOption}`}>
-        <h5 className={`${styles.title}`}>Price</h5>
-        {
-          !loadData && prices.map((price: any, index: number) => (
-            <div key={`product_list_option_prices_${index + 1}`} className={`form-check ${styles.formCheck}`}>
-              <input 
-                className="form-check-input" 
-                type="radio" 
-                name="priceFilter"
-                value={price.value} 
-                checked={selectPrice === price.value}
-                onChange={(e: any) => {
-                  setSelectPrice(e.target.value);
-                  handleSelectCheckbox([parseInt(e.target.value)], 'price');
-                }}
-              />
-              <label className="form-check-label" htmlFor="flexCheckDefault">
-                {price.label}
-              </label>
-            </div>
-          ))
-        }
+      <div className='col-6 col-sm-12'>
+        <div className={`${styles.productListOption}`}>
+          <h5 className={`${styles.title}`}>Category</h5>
+            {
+              !loadData && categoryList.map((category:any, index:number) => (
+                <div key={`product_list_option_categories_${category.id}`} className={`form-check ${styles.formCheck}`}>
+                  <input 
+                    className="form-check-input" 
+                    type="checkbox"  
+                    value={category.id}
+                    checked={checkSelectCategory(category.id)}
+                    onChange={(e: any) => {
+                      const tempSelectValues = [...selectCategories];
+                      let result: number[];
+                      if(e.target.checked) {
+                        tempSelectValues.push(e.target.value);
+                        result = tempSelectValues;
+                      }
+                      else {
+                        result = tempSelectValues.filter(i => i !== parseInt(e.target.value));
+                      }
+                      setSelectCategories(result);
+                      handleSelectCheckbox(result, 'categories');
+                    }}
+                  />
+                  <label className="form-check-label" htmlFor="flexCheckDefault">
+                    {category.name}
+                    <span className={styles.inStockAmount}>({category.productAmount})</span>
+                  </label>
+                </div>
+              ))
+            }
+        </div>
       </div>
+      {/* <div>
+        <div className={`${styles.productListOption}`}>
+          <h5 className={`${styles.title}`}>Price</h5>
+          {
+            !loadData && prices.map((price: any, index: number) => (
+              <div key={`product_list_option_prices_${index + 1}`} className={`form-check ${styles.formCheck}`}>
+                <input 
+                  className="form-check-input" 
+                  type="radio" 
+                  name="priceFilter"
+                  value={price.value} 
+                  checked={selectPrice === price.value}
+                  onChange={(e: any) => {
+                    setSelectPrice(e.target.value);
+                    handleSelectCheckbox([parseInt(e.target.value)], 'price');
+                  }}
+                />
+                <label className="form-check-label" htmlFor="flexCheckDefault">
+                  {price.label}
+                </label>
+              </div>
+            ))
+          }
+        </div>
+      </div> */}
     </div>
-    </>
     
   )
 }

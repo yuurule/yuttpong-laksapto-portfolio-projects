@@ -37,6 +37,11 @@ export class CartService {
                 }
               }
             }
+          },
+          customer: {
+            include: {
+              customerDetail: true
+            }
           }
         }
       });

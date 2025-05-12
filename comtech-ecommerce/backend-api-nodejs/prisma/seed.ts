@@ -438,8 +438,11 @@ async function main() {
       //   });
       // }
 
+      let orderNumberBegin = new Date().toISOString().split('T')[0]
+      orderNumberBegin = orderNumberBegin.replaceAll('-', '')
       const orders = [
         { 
+          orderNumber: orderNumberBegin + '-00001',
           customerId: 1, 
           total: 79990,
           paymentStatus: 'PAID',
@@ -452,6 +455,7 @@ async function main() {
           }] 
         },
         { 
+          orderNumber: orderNumberBegin + '-00002',
           customerId: 2, 
           total: 57990,
           paymentStatus: 'PAID',
@@ -464,6 +468,7 @@ async function main() {
           }] 
         },
         { 
+          orderNumber: orderNumberBegin + '-00003',
           customerId: 3, 
           total: 55990,
           paymentStatus: 'PAID',
@@ -476,6 +481,7 @@ async function main() {
           }] 
         },
         { 
+          orderNumber: orderNumberBegin + '-00004',
           customerId: 3, 
           total: 79990,
           paymentStatus: 'PAID',
@@ -488,6 +494,7 @@ async function main() {
           }] 
         },
         { 
+          orderNumber: orderNumberBegin + '-00005',
           customerId: 4, 
           total: 57990,
           paymentStatus: 'PAID',
@@ -500,6 +507,7 @@ async function main() {
           }] 
         },
         { 
+          orderNumber: orderNumberBegin + '-00006',
           customerId: 2, 
           total: 245990,
           paymentStatus: 'PAID',
@@ -512,6 +520,7 @@ async function main() {
           }] 
         },
         { 
+          orderNumber: orderNumberBegin + '-00007',
           customerId: 1, 
           total: 245990,
           paymentStatus: 'PAID',
@@ -527,6 +536,7 @@ async function main() {
       for (const order of orders) {
         await tx.order.create({
           data: {
+            orderNumber: order.orderNumber,
             customer: { connect: { id: order.customerId } },
             total: order.total,
             paymentStatus: order.paymentStatus as PaymentStatus,

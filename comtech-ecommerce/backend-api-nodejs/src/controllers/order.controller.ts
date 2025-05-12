@@ -52,7 +52,17 @@ export class OrderController {
     const { 
       customerId,
       total, 
-      items 
+      items,
+      useSameAddress,
+      firstName,
+      lastName,
+      phone,
+      address,
+      subDistrict,
+      district,
+      province,
+      postcode,
+      country,
     } = req.body;
 
     if(!isValidHaveValue([customerId, total, items])) {
@@ -81,7 +91,17 @@ export class OrderController {
     const data : createOrderDto = {
       customerId: customerId,
       total: total,
-      items: items
+      items: items,
+      useSameAddress: useSameAddress,
+      firstName: firstName,
+      lastName: lastName,
+      phone: phone,
+      address: address,
+      subDistrict: subDistrict,
+      district: district,
+      province: province,
+      postcode: postcode,
+      country: country,
     }
 
     try {

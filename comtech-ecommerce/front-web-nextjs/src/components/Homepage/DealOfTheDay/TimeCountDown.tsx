@@ -38,26 +38,31 @@ export default function TimeCountDown({
   });
 
   return (
-    <div className={`${styles.timeCountDown}`}>
-      <div className={`${styles.timeBox}`}>
-        <strong className={`${styles.timeDigit}`}>
-          {timeLeft.days || '0'}
-        </strong><span>Days</span></div>
-      <div className={`${styles.timeBox}`}>
-        <strong className={`${styles.timeDigit}`}>
-          {timeLeft.hours || '0'}
-        </strong><span>Hours</span></div>
-      <div className={`${styles.timeBox}`}>
-        <strong className={`${styles.timeDigit}`}>
-          {timeLeft.minutes || '0'}
-        </strong><span>Mins</span></div>
-      <div className={`${styles.timeBox}`}>
-        <strong className={`${styles.timeDigit}`}>
-          {timeLeft.seconds || '0'}
-        </strong><span>Secs</span></div>
-      {
-        Object.keys(timeLeft).length === 0 && <div className={styles.timerComplete}>หมดเวลาแล้ว!</div>
+    <>
+    {
+      Object.keys(timeLeft).length === 0 
+      ? <div className={styles.timerComplete}>หมดเวลาแล้ว!</div>
+      :
+      <div className={`${styles.timeCountDown}`}>
+        <div className={`${styles.timeBox}`}>
+          <strong className={`${styles.timeDigit}`}>
+            {timeLeft.days || '0'}
+          </strong><span>Days</span></div>
+        <div className={`${styles.timeBox}`}>
+          <strong className={`${styles.timeDigit}`}>
+            {timeLeft.hours || '0'}
+          </strong><span>Hours</span></div>
+        <div className={`${styles.timeBox}`}>
+          <strong className={`${styles.timeDigit}`}>
+            {timeLeft.minutes || '0'}
+          </strong><span>Mins</span></div>
+        <div className={`${styles.timeBox}`}>
+          <strong className={`${styles.timeDigit}`}>
+            {timeLeft.seconds || '0'}
+          </strong><span>Secs</span></div>
+      </div>
       }
-    </div>
+    </>
+    
   )
 }

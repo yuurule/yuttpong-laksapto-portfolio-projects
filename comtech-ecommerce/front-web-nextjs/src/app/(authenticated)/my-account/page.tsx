@@ -6,9 +6,14 @@ import PageHeader from "@/components/PageHeader/PageHeader";
 
 export default function MyAccountPage() {
 
+  const breadcrumbsList = [
+    { text: 'Home', url: '/' },
+    { text: 'My account', url: null },
+  ]
+
   return (
     <main>
-      <Breadcrumbs />
+      <Breadcrumbs urlList={breadcrumbsList} />
       <div className='container'>
         <div className="row">
           <header className="col-12">

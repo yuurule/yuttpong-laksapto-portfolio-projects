@@ -53,7 +53,7 @@ export default function MyCart() {
       <span className={`${styles.digitSign}`}>{countItemQuantity(cartItems)}</span>
       <FontAwesomeIcon icon={faShoppingCart} />
       <div>
-        <strong className={`${styles.title}`}>My Cart</strong>
+        <strong className={`title`}>My Cart</strong>
         <strong style={{fontSize: '0.9rem'}}>฿{ moneyFormat(calculateTotalCart(cartItems), 2, 2) }</strong>
       </div>
       </>
@@ -74,7 +74,7 @@ export default function MyCart() {
     items.map((i: any) => {
       let realPrice = parseFloat(i.product.price);
       let sellPrice = 0;
-      if(i.product.campaignProducts.length > 0) {
+      if(i.product.campaignProducts.length > 0 && (i.product.campaignProducts[0].campaign.startAt !== null && i.product.campaignProducts[0].campaign.endAt !== null)) {
         const discount = i.product.campaignProducts[0].campaign.discount;
         sellPrice = realPrice - ((realPrice * discount) / 100);
       }
@@ -91,7 +91,7 @@ export default function MyCart() {
   const calculateItemPrice = (itemData: any) => {
     let realPrice = parseFloat(itemData.product.price);
     let sellPrice = 0;
-    if(itemData.product.campaignProducts.length > 0) {
+    if(itemData.product.campaignProducts.length > 0 && (itemData.product.campaignProducts[0].campaign.startAt !== null && itemData.product.campaignProducts[0].campaign.endAt !== null)) {
       const discount = itemData.product.campaignProducts[0].campaign.discount;
       sellPrice = realPrice - ((realPrice * discount) / 100);
       return <>฿{moneyFormat(sellPrice, 2, 2)} <small className='opacity-50'><s>{moneyFormat(realPrice, 2, 2)}</s></small></>;
@@ -103,7 +103,7 @@ export default function MyCart() {
 
   return (
     <>
-    <div className={`${styles.infoWithIcon} dropdown-no-icon`}>
+    <div className={`infoWithIcon dropdown-no-icon`}>
       {
         status !== 'loading'
         ?
@@ -139,7 +139,13 @@ export default function MyCart() {
                       cartItems.map((i: any) => (
                         <div key={`cart_item_${i.id}`} className={stylesCart.cartItem}>
                           <figure>
-                            <img className={stylesCart.image} src="/images/dummy-product.jpg" />
+                            {
+                              i.product.images.length > 0
+                              ?
+                              <img className={stylesCart.image} src={`${process.env.NEXT_PUBLIC_API_URL}/${i.product.images[0].path}`} />
+                              :
+                              <img className={stylesCart.image} src="https://placehold.co/100x80" />
+                            }
                           </figure>
                           <div>
                             <p className={stylesCart.name}>{i.product.name} <strong>x{i.quantity}</strong></p>

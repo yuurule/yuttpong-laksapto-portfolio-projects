@@ -1,12 +1,12 @@
+"use client"
+
 import styles from './HeroSlide.module.scss';
 
 export default function HeroSlide() {
-
-
   
   return (
     <header id="hero-homepage">
-      {/* <div className={`${styles.heroSlide}`}>
+      <div className={`${styles.heroSlide}`}>
         <div className={`${styles.firstRow}`}>
           <div className={`${styles.box} ${styles.left}`}>
             <div>
@@ -37,8 +37,8 @@ export default function HeroSlide() {
             </div>
           </div>
         </div>
-      </div> */}
-      <img src="/images/dummy-hero-slide.jpg" className='img-fluid' />
+      </div>
+      {/* <img src="/images/dummy-hero-slide.jpg" className='img-fluid' /> */}
     </header>
   )
 }

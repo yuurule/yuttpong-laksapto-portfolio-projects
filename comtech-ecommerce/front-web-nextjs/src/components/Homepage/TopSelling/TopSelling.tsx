@@ -15,7 +15,7 @@ export default async function TopSelling() {
     });
 
     return (
-      <section id="top-selling" className={`${styles.topSelling}`}>
+      <section id="top-selling" className={`topSelling ${styles.topSelling}`}>
       
         <div className='d-flex justify-content-end'>
           <Link href="/products?brands=all&categories=all&topSale=desc" className='btn design-btn px-4 mb-3'>
@@ -23,16 +23,17 @@ export default async function TopSelling() {
           </Link>
         </div>
 
-        <div className='d-flex mb-5'>
+        <div className='d-flex flex-container mb-5'>
           <div className={`gradient-box ${styles.rowHeader}`}>
-            <p>Top<br />Selling</p>
+            <p className='hidden-phone'>Top<br />Selling</p>
+            <p className='show-phone mb-0'>Top Selling</p>
           </div>
           <div className={`${styles.productList}`}>
             <div className='row'>
               {
                 topSellProducts.RESULT_DATA.map((product: any, index: number) => {
                   return (
-                    <div key={`top_sell_product_${product.id}`} className='col-sm-3'>
+                    <div key={`top_sell_product_${product.id}`} className='col-sm-3 product-box-col'>
                       <ProductBox
                         data={product}
                       />

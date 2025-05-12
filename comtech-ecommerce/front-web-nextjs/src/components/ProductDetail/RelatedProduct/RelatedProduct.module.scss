@@ -16,3 +16,17 @@
     width: 87%;
   }
 }
+
+@media only screen and (max-width: 767px) {
+  .relatedProduct {
+
+    .rowHeader {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 8px;
+    }
+    .productList {
+      width: 100%;
+    }
+  }
+}

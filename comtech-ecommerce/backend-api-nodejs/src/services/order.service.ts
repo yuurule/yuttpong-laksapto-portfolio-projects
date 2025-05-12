@@ -67,12 +67,7 @@ export class OrderService {
         include: {
           customer: {
             include: {
-              customerDetail: {
-                select: {
-                  firstName: true,
-                  lastName: true,
-                }
-              }
+              customerDetail: true
             }
           },
           orderItems: {
@@ -144,9 +139,6 @@ export class OrderService {
 
   async create(dto: createOrderDto) {
     try {
-      /**
-       * Check value logic
-       */
       // Check customerId, productId, campaignId is exsist
       const findCustomer = await prisma.customer.findUnique({ where: { id: dto.customerId } });
       if(!findCustomer) throw new exception.NotFoundException(`Not found customer with id ${dto.customerId}`);
@@ -163,40 +155,56 @@ export class OrderService {
       });
 
       // Check product in stock is have enough
-      // const inStockErr : number[] = [];
-      // dto.items.map(async i => {
-      //   const inStock = await prisma.inStock.findUnique({ where: { productId: i.productId } });
-      //   if(inStock) {
-      //     if(inStock.inStock - i.quantity < 0) {
-      //       inStockErr.push(i.productId);
-      //     }
-      //   }
-      //   else {
-      //     throw new exception.NotFoundException(`Not found in stock with product id ${i.productId}`);
-      //   }
-      // });
+      const inStockErr : number[] = [];
+      dto.items.map(async i => {
+        const inStock = await prisma.inStock.findUnique({ where: { productId: i.productId } });
+        if(inStock) {
+          if(inStock.inStock - i.quantity < 0) {
+            inStockErr.push(i.productId);
+          }
+        }
+        else {
+          throw new exception.NotFoundException(`Not found in stock with product id ${i.productId}`);
+        }
+      });
 
-      // if(inStockErr.length > 0) {
-      //   throw new exception.BadRequestException(`Product with id ${inStockErr.map((i, index) => i + `${index < inStockErr.length ? ', ' : ''}`)} is not have enough for this order, please check in stock again`);
-      // }
-      /** End check value */
+      if(inStockErr.length > 0) {
+        throw new exception.BadRequestException(`Product with id ${inStockErr.map((i, index) => i + `${index < inStockErr.length ? ', ' : ''}`)} is not have enough for this order, please check in stock again`);
+      }
+
+      // Get latest order id
+      let orderNumber: string;
+      let orderNumberString = new Date().toISOString().split('T')[0]
+      orderNumberString = orderNumberString.replaceAll('-', '')
+      const lastOrder = await prisma.order.findFirst({
+        orderBy: {
+          id: 'desc'
+        }
+      })
+      if(lastOrder) {
+        let lastNumber = lastOrder.id + 1
+        if(lastNumber < 10) {
+          orderNumber = '0000' + lastNumber;
+        }
+        else if(lastNumber >= 10 && lastNumber < 100) {
+          orderNumber = '000' + lastNumber;
+        }
+        else if(lastNumber >= 100 && lastNumber < 1000) {
+          orderNumber = '00' + lastNumber;
+        }
+        else if(lastNumber >= 1000 && lastNumber < 10000) {
+          orderNumber = '0' + lastNumber;
+        }
+        else {
+          orderNumber = '' + lastNumber
+        }
+      }
 
       const transaction = await prisma.$transaction(async tx => {
-
-        // reserve product in stock
-        // dto.items.map(async (i, index) => {
-        //   const dataDto = {
-        //     productId: i.productId,
-        //     customerId: dto.customerId,
-        //     actionType: 'RESERVE',
-        //     quantity: i.quantity
-        //   }
-        //   await stockService.createSell(dataDto);
-        // })
-      
         // create order
         const newOrder = await tx.order.create({
           data: {
+            orderNumber: orderNumberString + '-' + orderNumber,
             customer: { connect: { id: dto.customerId } },
             total: dto.total,
             orderItems: {
@@ -214,7 +222,17 @@ export class OrderService {
 
                 return itemData;
               })
-            }
+            },
+            useSameAddress: dto.useSameAddress,
+            firstName: dto.firstName,
+            lastName: dto.lastName,
+            phone: dto.phone,
+            address: dto.address,
+            subDistrict: dto.subDistrict,
+            district: dto.district,
+            province: dto.province,
+            postcode: dto.postcode,
+            country: dto.country,
           }
         });
 

@@ -22,30 +22,38 @@ export default async function RelatedProduct({
     const resultData = products.RESULT_DATA.filter((i:any) => i.id !== productId);
 
     return (
-      <section id="related-products" className={`${styles.relatedProduct}`}>
-        
-        <div className='mb-5 d-flex'>
-          <div className={`gradient-box ${styles.rowHeader}`}>
-            <p>Related<br />Products</p>
-          </div>
-          <div className={`${styles.productList}`}>
-            <div className='row'>
-              {
-                resultData.map((product: any, index: number) => {
-                  return (
-                    <div key={`related_product_box_${product.id}`} className='col-sm-3'>
-                      <ProductBox 
-                        data={product}
-                      />
-                    </div>
-                  )
-                })
-              }
+      <>
+      {
+        resultData.length > 0
+        ?
+        <section id="related-products" className={`relatedProduct ${styles.relatedProduct}`}>
+          <div className='d-flex flex-container mb-5'>
+            <div className={`gradient-box ${styles.rowHeader}`}>
+              <p className='hidden-phone'>Related<br />Products</p>
+              <p className='show-phone mb-0'>Related Products</p>
+            </div>
+            <div className={`${styles.productList}`}>
+              <div className='row'>
+                {
+                  resultData.map((product: any, index: number) => {
+                    return (
+                      <div key={`related_product_box_${product.id}`} className='col-sm-3'>
+                        <ProductBox 
+                          data={product}
+                        />
+                      </div>
+                    )
+                  })
+                }
+              </div>
             </div>
           </div>
-        </div>
-  
-      </section>
+    
+        </section>
+        :
+        null
+      }
+      </>
     )
 
   } catch(error) {

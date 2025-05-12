@@ -166,7 +166,17 @@ export interface createOrderDto {
     campaignId?: number;
     discount?: number;
     salePrice: number
-  }[]
+  }[],
+  useSameAddress: boolean;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  address?: string;
+  subDistrict?: string;
+  district?: string;
+  province?: string;
+  postcode?: string;
+  country?: string;
 }
 
 export interface PaymentIntent {

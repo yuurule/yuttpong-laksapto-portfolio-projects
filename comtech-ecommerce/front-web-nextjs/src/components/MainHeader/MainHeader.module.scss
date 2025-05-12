@@ -50,180 +50,179 @@
      
   }
 
-  .mainHeaderContent {
+  // .mainHeaderContent {
+  //   border-bottom: 1px solid var(--very-soft-gray);
 
-    border-bottom: 1px solid var(--very-soft-gray);
-    
-    .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 25px;
-      padding-bottom: 25px;
+  //   .container {
+  //     display: flex;
+  //     justify-content: space-between;
+  //     align-items: center;
+  //     padding-top: 25px;
+  //     padding-bottom: 25px;
 
-      .logo {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: var(--main-blue);
-      }
+  //     .logo {
+  //       font-size: 1.2rem;
+  //       font-weight: 700;
+  //       color: var(--main-blue);
+  //     }
 
-      .searchBox {
-        display: flex;
-        border: 1px solid var(--main-blue);
-        width: 470px;
-        margin-left: 30px;
+  //     .searchBox {
+  //       display: flex;
+  //       border: 1px solid var(--main-blue);
+  //       width: 470px;
+  //       margin-left: 30px;
 
-        select, input, button {
-          border: none;
-          border-radius: 0;
+  //       select, input, button {
+  //         border: none;
+  //         border-radius: 0;
 
-          &:focus {
-            box-shadow: none;
-          }
-        }
-        .inputSelect {
-          width: 35%;
-          padding-top: 7px;
-          padding-bottom: 7px;
+  //         &:focus {
+  //           box-shadow: none;
+  //         }
+  //       }
+  //       .inputSelect {
+  //         width: 35%;
+  //         padding-top: 7px;
+  //         padding-bottom: 7px;
 
-          .formSelect {
-            font-size: 0.8rem;
-            border-right: 1px solid var(--soft-gray);
-            height: 25px;
-            padding-top: 2px;
-            padding-bottom: 0;
-          }
-        }
+  //         .formSelect {
+  //           font-size: 0.8rem;
+  //           border-right: 1px solid var(--soft-gray);
+  //           height: 25px;
+  //           padding-top: 2px;
+  //           padding-bottom: 0;
+  //         }
+  //       }
         
-        .inputGroup {
-          width: 65%;
-          input {
-            font-size: 0.9rem;
-          }
-          button {
-            background-color: var(--main-blue);
-            color: #FFF;
-            &:hover {
-              background-color: var(--hover-blue);
-            }
-          }
-        }
-      }
+  //       .inputGroup {
+  //         width: 65%;
+  //         input {
+  //           font-size: 0.9rem;
+  //         }
+  //         button {
+  //           background-color: var(--main-blue);
+  //           color: #FFF;
+  //           &:hover {
+  //             background-color: var(--hover-blue);
+  //           }
+  //         }
+  //       }
+  //     }
 
-      .otherMenu {
-        display: flex;
+  //     .otherMenu {
+  //       display: flex;
 
-        .infoWithIcon,
-        .infoWithIcon a {
-          display: flex;
-          align-items: center;
-          color: var(--foreground);
-        }
+  //       .infoWithIcon,
+  //       .infoWithIcon a {
+  //         display: flex;
+  //         align-items: center;
+  //         color: var(--foreground);
+  //       }
 
-        .infoWithIcon {
+  //       .infoWithIcon {
 
-          font-size: 0.9rem;
-          line-height: 1.2rem;
-          position: relative;
+  //         font-size: 0.9rem;
+  //         line-height: 1.2rem;
+  //         position: relative;
 
-          &:not(:first-of-type) {
-            padding-left: 30px;
-            margin-left: 30px;
-            border-left: 1px solid var(--soft-gray);
-          }
+  //         &:not(:first-of-type) {
+  //           padding-left: 30px;
+  //           margin-left: 30px;
+  //           border-left: 1px solid var(--soft-gray);
+  //         }
 
-          .title {
-            display: block;
-            font-size: 0.7rem;
-            color: var(--main-gray);
-          }
+  //         .title {
+  //           display: block;
+  //           font-size: 0.7rem;
+  //           color: var(--main-gray);
+  //         }
 
-          i, svg {
-            font-size: 1.4rem;
-            color: var(--main-gray);
-            margin-right: 12px;
-          }
-        } 
-      }
+  //         i, svg {
+  //           font-size: 1.4rem;
+  //           color: var(--main-gray);
+  //           margin-right: 12px;
+  //         }
+  //       } 
+  //     }
 
-    }
+  //   }
 
-  }
+  // }
 
-  .mainMenuRow {
+  // .mainMenuRow {
 
-    padding-top: 12px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--very-soft-gray);
-    font-size: 0.8rem;
+  //   padding-top: 12px;
+  //   padding-bottom: 12px;
+  //   border-bottom: 1px solid var(--very-soft-gray);
+  //   font-size: 0.8rem;
 
-    .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+  //   .mainMenuContainer {
+  //     display: flex;
+  //     justify-content: space-between;
+  //     align-items: center;
 
-      a {
-        color: Var(--foreground);
-      }
+  //     a {
+  //       color: Var(--foreground);
+  //     }
 
-      .dropdownBrands {
-        margin-right: 30px;
+  //     .dropdownBrands {
+  //       margin-right: 30px;
 
-        .btn {
-          text-decoration: none;
-          color: Var(--foreground);
-          font-size: 0.85rem;
-          &:hover,
-          &:visited {
-            background-color: transparent;
-          }
-          &::after {
-            content: none;
-          }
-        }
-      }
+  //       .btn {
+  //         text-decoration: none;
+  //         color: Var(--foreground);
+  //         font-size: 0.85rem;
+  //         &:hover,
+  //         &:visited {
+  //           background-color: transparent;
+  //         }
+  //         &::after {
+  //           content: none;
+  //         }
+  //       }
+  //     }
 
-      .mainMenu {
-        border-left: 1px solid var(--soft-gray);
-        padding-left: 30px;
+  //     .mainMenu {
+  //       border-left: 1px solid var(--soft-gray);
+  //       padding-left: 30px;
 
-        li {
-          margin-right: 30px;
+  //       li {
+  //         margin-right: 30px;
 
-          a {
-            text-transform: capitalize;
-            font-weight: 500;
-            transition: 0.2s all;
+  //         a {
+  //           text-transform: capitalize;
+  //           font-weight: 500;
+  //           transition: 0.2s all;
 
-            &:hover {
-              color: var(--main-blue);
-            }
-          }
-        }
-      }
+  //           &:hover {
+  //             color: var(--main-blue);
+  //           }
+  //         }
+  //       }
+  //     }
 
-      .wishList {
-        .wishListBtn {
-          position: relative;
-          margin-right: 30px;
-          font-size: 1.2rem;
+  //     .wishList {
+  //       .wishListBtn {
+  //         position: relative;
+  //         margin-right: 30px;
+  //         font-size: 1.2rem;
 
-          .digitSign {
-            right: -15px;
-            left: inherit;
-          }
-        }
-        .todayDeals {
-          border-right: 1px solid var(--main-gray);
-          border-left: 1px solid var(--main-gray);
-          padding: 0 15px;
-          border-radius: 0;
-          color: var(--main-red);
-        }
-      }
-    }
+  //         .digitSign {
+  //           right: -15px;
+  //           left: inherit;
+  //         }
+  //       }
+  //       .todayDeals {
+  //         border-right: 1px solid var(--main-gray);
+  //         border-left: 1px solid var(--main-gray);
+  //         padding: 0 15px;
+  //         border-radius: 0;
+  //         color: var(--main-red);
+  //       }
+  //     }
+  //   }
 
-  }
+  // }
 
   .digitSign {
     background-color: #9b12db;
@@ -240,4 +239,30 @@
     font-size: 0.7rem;
   }
 
+}
+
+@media only screen and (max-width: 767px) {
+  .mainHeader {
+    .utilsMenu {
+      height: auto;
+      font-size: 0.7rem;
+      .container {
+        display: block;
+
+        div:nth-of-type(1) {
+          justify-content: space-between;
+        }
+
+        .mainUtilMenu {
+          display: flex;
+          justify-content: center;
+          padding: 5px 0;
+          li {
+            margin: 0 15px;
+          }
+        }
+      }
+    }
+
+  }
 }

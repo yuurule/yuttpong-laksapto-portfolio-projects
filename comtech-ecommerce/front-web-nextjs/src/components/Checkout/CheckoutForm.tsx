@@ -10,8 +10,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose, faRefresh } from '@fortawesome/free-solid-svg-icons';
 import { faCircleCheck } from '@fortawesome/free-regular-svg-icons';
 import { toast } from 'react-toastify';
-import { orderService, customerService, paymentService } from '@/services';
+import { orderService, customerService, paymentService, cartService } from '@/services';
 import { loadStripe } from '@stripe/stripe-js';
+import { createOrderProps, MoneyValueCartTableProps, updateCustomerDetailProps } from '@/types/PropsType';
 import { 
   useStripe, 
   useElements, 
@@ -21,10 +22,8 @@ import {
   CardCvcElement
 } from '@stripe/react-stripe-js';
 import { useRouter } from 'next/navigation';
+import { calculateUsePrice, calculateSubtotal } from '@/utils/utils';
 
-interface CheckoutFormProps {
-  orderId: string;
-}
 
 const formSchema = z.object({
   firstName: z.string().min(1, { message: 'required' }),
@@ -36,9 +35,7 @@ const formSchema = z.object({
   postcode: z.string().min(1, { message: 'required' }),
   country: z.string().min(1, { message: 'required' }),
   phone: z.string().min(1, { message: 'required' }),
-
   useSameAddr: z.boolean().optional().default(false),
-  
   ship_firstName: z.string().optional(),
   ship_lastName: z.string().optional(),
   ship_address: z.string().optional(),
@@ -117,24 +114,26 @@ const formSchema = z.object({
   }
 })
 
-export default function CheckoutForm({ orderId } : CheckoutFormProps) {
+export default function CheckoutForm() {
 
-  const { status, data: session } = useSession();
+  const { status, data: session } = useSession()
 
-  const stripe = useStripe();
-  const elements = useElements();
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [cardHolderName, setCardHolderName] = useState('');
-
-  const [customerData, setCustomerData] = useState(null);
-  const [orderData, setOrderData] = useState(null);
-  const [orderItemsData, setOrderItemsData] = useState([]);
-  const [loadData, setLoadData] = useState(false);
-  const [isPaid, setIsPaid] = useState(false);
-  const [isOwnCustomer, setIsOwnCustomer] = useState(false);
-  const [notFoundOrder, setNotFoundOrder] = useState(true);
+  const stripe = useStripe()
+  const elements = useElements()
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [cardHolderName, setCardHolderName] = useState('')
+  const [orderItemsData, setOrderItemsData] = useState([])
+  const [loadData, setLoadData] = useState(false)
+  const [totalPrice, setTotalPrice] = useState(0)
+  const [moneyValue, setMoneyValue] = useState<MoneyValueCartTableProps>({
+    cartItems: [],
+    subTotal: 0,
+    shippingFee: 0,
+    vatTotal: 0,
+    total: 0,
+  });
 
   const {
     register, 
@@ -148,49 +147,33 @@ export default function CheckoutForm({ orderId } : CheckoutFormProps) {
     resolver: zodResolver(formSchema)
   });
 
-  const formValues = watch();
+  const formValues = watch()
 
   useEffect(() => {
     const fetchOrder = async () => {
-      setLoadData(true);
+      setLoadData(true)
       try {
-        const orders = await orderService.getOrders();
-        const checkOrderId = orders.RESULT_DATA.find((i: any) => i.id === parseInt(orderId))
-        if(checkOrderId) {
-          setNotFoundOrder(false);
-          if(session?.user.id) {
-            const customer = await customerService.getOneCustomer(session.user.id)
-            const order = await orderService.getOneOrder(orderId);
-            const customerDetail = customer.RESULT_DATA.customerDetail;
-  
-            if(order.RESULT_DATA.customerId === parseInt(session.user.id)) {
-              setIsOwnCustomer(true);
-              setOrderData(order.RESULT_DATA);
-              setOrderItemsData(order.RESULT_DATA.orderItems);
-              setCustomerData(customer.RESULT_DATA);
-  
-              if(customerDetail) {
-                reset({
-                  firstName: customerDetail.firstName,
-                  lastName: customerDetail.lastName,
-                  address: customerDetail.address,
-                  subDistrict: customerDetail.subDistrict,
-                  district: customerDetail.district,
-                  province: customerDetail.province,
-                  postcode: customerDetail.postcode,
-                  country: customerDetail.country,
-                  phone: customerDetail.phone,
-                })
-              }
-  
-              if(order.RESULT_DATA.paymentStatus === 'PAID') {
-                setIsPaid(true);
-              }
-            }
+        if(status !== 'loading' && session?.user.id) {
+          const cartItems = await cartService.getCartByCustomer(session.user.id);
+          //console.log(cartItems.RESULT_DATA)
+          const cartData = cartItems.RESULT_DATA;
+
+          if(cartData.length > 0) {
+            reset({
+              firstName: cartData[0].customer.customerDetail.firstName,
+              lastName: cartData[0].customer.customerDetail.lastName,
+              address: cartData[0].customer.customerDetail.address,
+              subDistrict: cartData[0].customer.customerDetail.subDistrict,
+              district: cartData[0].customer.customerDetail.district,
+              province: cartData[0].customer.customerDetail.province,
+              postcode: cartData[0].customer.customerDetail.postcode,
+              country: cartData[0].customer.customerDetail.country,
+              phone: cartData[0].customer.customerDetail.phone,
+            })
           }
-          else {
-            throw new Error('Unauthorize, user id is required.')
-          }
+
+          setOrderItemsData(cartData)
+          calculateMoneyValue(cartData)
         }
       }
       catch(error) {
@@ -203,22 +186,7 @@ export default function CheckoutForm({ orderId } : CheckoutFormProps) {
     if(status !== 'loading') {
       fetchOrder();
     }
-  }, [status, orderId]);
-
-  // const onSubmit = async (data: any) => {
-  //   try {
-  //     await orderService.updateOrder(orderId, 'PAID')
-  //       .then(res => {
-  //         console.log(res);
-  //         toast.success(`Your order is payment successfully!`);
-  //         router.push(`/thankyou`);
-  //       });
-  //   }
-  //   catch(error) {
-  //     console.log(`Checkout is failed due to reason: ${error}`);
-  //     toast.error(`Checkout is failed due to reason: ${error}`);
-  //   }
-  // }
+  }, [status]);
 
   // ฟังก์ชันตรวจสอบการกดปุ่ม Enter ให้ focus ไปช่องถัดไป
   const handleKeyDown = (event: React.KeyboardEvent, nextElementType: string) => {
@@ -231,443 +199,506 @@ export default function CheckoutForm({ orderId } : CheckoutFormProps) {
     }
   };
 
-  //const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const calculateMoneyValue = (cartData: any[]) => {
+    const tempResult : MoneyValueCartTableProps = {
+      cartItems: [],
+      subTotal: 0,
+      shippingFee: 0,
+      vatTotal: 0,
+      total: 0,
+    };
+
+    cartData.map((cart: any) => {
+      const productPrice = parseFloat(cart.product.price);
+      const itemCampaign = cart.product.campaignProducts;
+      const usePrice = calculateUsePrice(productPrice, itemCampaign);
+      const itemSubTotal = calculateSubtotal(productPrice, itemCampaign, cart.quantity);
+
+      const tempItem: any = {
+        id: cart.product.id,
+        name: cart.product.name,
+        usePrice: usePrice,
+        realPrice: productPrice,
+        quantity: cart.quantity,
+        itemSubTotal: itemSubTotal
+      }
+
+      if(itemCampaign.length > 0 && (itemCampaign[0].campaign.startAt !== null && itemCampaign[0].campaign.endAt !== null)) {
+        tempItem.campaignId = itemCampaign[0].campaign.id;
+        tempItem.discount = parseInt(itemCampaign[0].campaign.discount);
+      }
+
+      tempResult.cartItems.push(tempItem);
+
+      tempResult.subTotal += itemSubTotal;
+    });
+
+    if(cartData.length > 0) {
+      tempResult.shippingFee = tempResult.subTotal >= 5000 ? 0 : 100;
+    }
+    tempResult.total = tempResult.subTotal + tempResult.shippingFee;
+    tempResult.vatTotal = (tempResult.subTotal * 7) / 100;
+    tempResult.subTotal = tempResult.subTotal - ((tempResult.subTotal * 7) / 100);
+
+    setMoneyValue(tempResult);
+  }
+
   const onSubmit = async (data: any) => {
-
-    console.log(data)
-
+    //console.log(data)
     if (!stripe || !elements) {
       // Stripe.js ยังไม่ถูกโหลด
-      return;
+      return
+    }
+
+    if(totalPrice <= 0) {
+      return
     }
 
     setIsLoading(true);
     setErrorMessage(null);
 
     try {
-      // Check product in stock is have enough here
-      //...
-
-      // 1. สร้าง Payment Intent ผ่าน API
-      const { paymentIntent } = await paymentService.createPaymentIntent(100);
-
-      if (!paymentIntent.client_secret) {
-        throw new Error('No client_secret received');
-      }
-
-      // 2. ยืนยันการชำระเงินด้วย CardElement
-      //const cardElement = elements.getElement(CardElement);
-      const cardElement = elements.getElement(CardNumberElement);
-
-      if (!cardElement) {
-        throw new Error('Card element not found');
-      }
-
-      const { error, paymentIntent: confirmedIntent } = await stripe.confirmCardPayment(
-        paymentIntent.client_secret,
-        {
-          payment_method: {
-            card: cardElement,
-            billing_details: {
-              name: cardHolderName, // สามารถรับข้อมูลจากฟอร์มได้
-            },
-          },
+      // Create order
+      if(session?.user.id) {
+        const updateCustomerDetailRequest: updateCustomerDetailProps = {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+          address: data.address,
+          subDistrict: data.subDistrict,
+          district: data.district,
+          province: data.province,
+          postcode: data.postcode,
+          country: data.country,
         }
-      );
 
-      if (error) {
-        throw new Error(error.message || 'Payment failed');
+        const updateCsDetail = await customerService.updateCustomerDetail(session.user.id, updateCustomerDetailRequest)
+
+        const requestData: createOrderProps = {
+          customerId: parseInt(session.user.id),
+          total: moneyValue.total,
+          items: moneyValue.cartItems.map(i => {
+            if(i.campaignId) {
+              return {
+                productId: i.id,
+                quantity: i.quantity,
+                salePrice: i.usePrice,
+                campaignId: i.campaignId,
+                discount: i.discount
+              }
+            }
+            else {
+              return {
+                productId: i.id,
+                quantity: i.quantity,
+                salePrice: i.usePrice
+              }
+            }
+          }),
+          useSameAddress: data.useSameAddr,
+          firstName: data.useSameAddr ? data.firstName : data.ship_firstName,
+          lastName: data.useSameAddr ? data.lastName : data.ship_lastName,
+          phone: data.useSameAddr ? data.phone : data.ship_phone,
+          address: data.useSameAddr ? data.address : data.ship_address,
+          subDistrict: data.useSameAddr ? data.subDistrict : data.ship_subDistrict,
+          district: data.useSameAddr ? data.district : data.ship_district,
+          province: data.useSameAddr ? data.province : data.ship_province,
+          postcode: data.useSameAddr ? data.postcode : data.ship_postcode,
+          country: data.useSameAddr ? data.country : data.ship_country,
+        }
+
+        const createOrder = await orderService.createOrder(requestData)
+        if(createOrder) {
+          // 1. สร้าง Payment Intent ผ่าน API
+          const { paymentIntent } = await paymentService.createPaymentIntent(totalPrice, 'thb', createOrder.RESULT_DATA.id);
+
+          if (!paymentIntent.client_secret) {
+            throw new Error('No client_secret received');
+          }
+
+          // 2. ยืนยันการชำระเงินด้วย CardElement
+          //const cardElement = elements.getElement(CardElement);
+          const cardElement = elements.getElement(CardNumberElement);
+
+          if (!cardElement) {
+            throw new Error('Card element not found');
+          }
+
+          const { error, paymentIntent: confirmedIntent } = await stripe.confirmCardPayment(
+            paymentIntent.client_secret,
+            {
+              payment_method: {
+                card: cardElement,
+                billing_details: {
+                  name: cardHolderName, // สามารถรับข้อมูลจากฟอร์มได้
+                },
+              },
+            }
+          );
+
+          if (error) {
+            throw new Error(error.message || 'Payment failed');
+          }
+
+          if (confirmedIntent.status === 'succeeded') {
+            setIsLoading(false);
+            // นำทางไปยังหน้าสำเร็จ
+            router.push(`/payment-success?payment_id=${confirmedIntent.id}`);
+          } else {
+            throw new Error(`Payment status: ${confirmedIntent.status}`);
+          }
+        }
+        else {
+          throw new Error(`Checkout failed, cannot create order.`)
+        }
       }
-
-      if (confirmedIntent.status === 'succeeded') {
-        // นำทางไปยังหน้าสำเร็จ
-        router.push(`/payment-success?payment_id=${confirmedIntent.id}`);
-      } else {
-        throw new Error(`Payment status: ${confirmedIntent.status}`);
+      else {
+        throw new Error(`Unauthorize, user id is required.`)
       }
     } catch (error: any) {
       setErrorMessage(error.message || 'An error occurred');
       console.error('Payment error:', error);
-    } finally {
       setIsLoading(false);
     }
-  };
+  }
 
   return (
     <>
     {
       !loadData
       ?
-        !notFoundOrder
-        ?
-          isOwnCustomer
-          ?
-            !isPaid
-            ?
-            <>
-            <form onSubmit={handleSubmit(onSubmit)} className="row">
-              <div className="col-sm-8 pe-5">
-                
-                <section className="mb-5">
-                  <h6>Billing Details</h6>
-                  <hr />
-                  <div className="row form-design form-float-label">
-                    <div className="col-sm-6">
-                      <div className="form-group position-relative">
-                        <label className="form-label">First Name</label>
-                        <input
-                          type="text"
-                          {...register('firstName')}
-                          className={`form-control ${errors.firstName ? 'is-invalid' : ''}`}
-                        />
-                        {errors.firstName && <small className="invalid-feedback">{errors.firstName.message}</small>}
-                      </div>
-                    </div>
-                    <div className="col-sm-6">
-                      <div className="form-group position-relative">
-                        <label className="form-label">Last Name</label>
-                        <input
-                          type="text"
-                          {...register('lastName')}
-                          className={`form-control ${errors.lastName ? 'is-invalid' : ''}`}
-                        />
-                        {errors.lastName && <small className="invalid-feedback">{errors.lastName.message}</small>}
-                      </div>
-                    </div>
-                    <div className="col-sm-6">
-                      <div className="form-group position-relative">
-                        <label className="form-label">Address</label>
-                        <input
-                          type="text"
-                          {...register('address')}
-                          className={`form-control ${errors.address ? 'is-invalid' : ''}`}
-                        />
-                        {errors.address && <small className="invalid-feedback">{errors.address.message}</small>}
-                      </div>
-                    </div>
-                    <div className="col-sm-6">
-                      <div className="form-group position-relative">
-                        <label className="form-label">Sub district</label>
-                        <input
-                          type="text"
-                          {...register('subDistrict')}
-                          className={`form-control ${errors.subDistrict ? 'is-invalid' : ''}`}
-                        />
-                        {errors.subDistrict && <small className="invalid-feedback">{errors.subDistrict.message}</small>}
-                      </div>
-                    </div>
-                    <div className="col-sm-6">
-                      <div className="form-group position-relative">
-                        <label className="form-label">District</label>
-                        <input
-                          type="text"
-                          {...register('district')}
-                          className={`form-control ${errors.district ? 'is-invalid' : ''}`}
-                        />
-                        {errors.district && <small className="invalid-feedback">{errors.district.message}</small>}
-                      </div>
-                    </div>
-                    <div className="col-sm-6">
-                      <div className="form-group position-relative">
-                        <label className="form-label">Province</label>
-                        <input
-                          type="text"
-                          {...register('province')}
-                          className={`form-control ${errors.province ? 'is-invalid' : ''}`}
-                        />
-                        {errors.province && <small className="invalid-feedback">{errors.province.message}</small>}
-                      </div>
-                    </div>
-                    <div className="col-sm-6">
-                      <div className="form-group position-relative">
-                        <label className="form-label">Postcode</label>
-                        <input
-                          type="text"
-                          {...register('postcode')}
-                          className={`form-control ${errors.postcode ? 'is-invalid' : ''}`}
-                        />
-                        {errors.postcode && <small className="invalid-feedback">{errors.postcode.message}</small>}
-                      </div>
-                    </div>
-                    <div className="col-sm-6">
-                      <div className="form-group position-relative">
-                        <label className="form-label">Country</label>
-                        <input
-                          type="text"
-                          {...register('country')}
-                          className={`form-control ${errors.country ? 'is-invalid' : ''}`}
-                        />
-                        {errors.country && <small className="invalid-feedback">{errors.country.message}</small>}
-                      </div>
-                    </div>
-                    <div className="col-sm-6">
-                      <div className="form-group position-relative">
-                        <label className="form-label">Phone</label>
-                        <input
-                          type="text"
-                          {...register('phone')}
-                          className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
-                        />
-                        {errors.phone && <small className="invalid-feedback">{errors.phone.message}</small>}
-                      </div>
-                    </div>
-                  </div>
-                </section>
+      <form onSubmit={handleSubmit(onSubmit)} className="row checkout-form">
+        <div className="col-lg-8 left-col">
+          
+          <section className="mb-5">
+            <h6>Billing Details</h6>
+            <hr />
+            <div className="row form-design form-float-label">
+              <div className="col-sm-6">
+                <div className="form-group position-relative">
+                  <label className="form-label">First Name</label>
+                  <input
+                    type="text"
+                    {...register('firstName')}
+                    className={`form-control ${errors.firstName ? 'is-invalid' : ''}`}
+                  />
+                  {errors.firstName && <small className="invalid-feedback">{errors.firstName.message}</small>}
+                </div>
+              </div>
+              <div className="col-sm-6">
+                <div className="form-group position-relative">
+                  <label className="form-label">Last Name</label>
+                  <input
+                    type="text"
+                    {...register('lastName')}
+                    className={`form-control ${errors.lastName ? 'is-invalid' : ''}`}
+                  />
+                  {errors.lastName && <small className="invalid-feedback">{errors.lastName.message}</small>}
+                </div>
+              </div>
+              <div className="col-sm-6">
+                <div className="form-group position-relative">
+                  <label className="form-label">Address</label>
+                  <input
+                    type="text"
+                    {...register('address')}
+                    className={`form-control ${errors.address ? 'is-invalid' : ''}`}
+                  />
+                  {errors.address && <small className="invalid-feedback">{errors.address.message}</small>}
+                </div>
+              </div>
+              <div className="col-sm-6">
+                <div className="form-group position-relative">
+                  <label className="form-label">Sub district</label>
+                  <input
+                    type="text"
+                    {...register('subDistrict')}
+                    className={`form-control ${errors.subDistrict ? 'is-invalid' : ''}`}
+                  />
+                  {errors.subDistrict && <small className="invalid-feedback">{errors.subDistrict.message}</small>}
+                </div>
+              </div>
+              <div className="col-sm-6">
+                <div className="form-group position-relative">
+                  <label className="form-label">District</label>
+                  <input
+                    type="text"
+                    {...register('district')}
+                    className={`form-control ${errors.district ? 'is-invalid' : ''}`}
+                  />
+                  {errors.district && <small className="invalid-feedback">{errors.district.message}</small>}
+                </div>
+              </div>
+              <div className="col-sm-6">
+                <div className="form-group position-relative">
+                  <label className="form-label">Province</label>
+                  <input
+                    type="text"
+                    {...register('province')}
+                    className={`form-control ${errors.province ? 'is-invalid' : ''}`}
+                  />
+                  {errors.province && <small className="invalid-feedback">{errors.province.message}</small>}
+                </div>
+              </div>
+              <div className="col-sm-6">
+                <div className="form-group position-relative">
+                  <label className="form-label">Postcode</label>
+                  <input
+                    type="text"
+                    {...register('postcode')}
+                    className={`form-control ${errors.postcode ? 'is-invalid' : ''}`}
+                  />
+                  {errors.postcode && <small className="invalid-feedback">{errors.postcode.message}</small>}
+                </div>
+              </div>
+              <div className="col-sm-6">
+                <div className="form-group position-relative">
+                  <label className="form-label">Country</label>
+                  <input
+                    type="text"
+                    {...register('country')}
+                    className={`form-control ${errors.country ? 'is-invalid' : ''}`}
+                  />
+                  {errors.country && <small className="invalid-feedback">{errors.country.message}</small>}
+                </div>
+              </div>
+              <div className="col-sm-6">
+                <div className="form-group position-relative">
+                  <label className="form-label">Phone</label>
+                  <input
+                    type="text"
+                    {...register('phone')}
+                    className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
+                  />
+                  {errors.phone && <small className="invalid-feedback">{errors.phone.message}</small>}
+                </div>
+              </div>
+            </div>
+          </section>
 
-                <section className="mb-5">
-                  <h6>Shipping Address</h6>
-                  <hr />
-                  <div className='form-check form-check-inline mb-3'>
+          <section className="mb-5">
+            <h6>Shipping Address</h6>
+            <hr />
+            <div className='form-check form-check-inline mb-3'>
+              <input
+                type="checkbox"
+                className="form-check-input"
+                {...register('useSameAddr')}
+              />
+              <label className="form-check-label">Use same address</label>
+            </div>
+            
+            {
+              !formValues.useSameAddr &&
+              <div className="row form-design form-float-label">
+                <div className="col-sm-6">
+                  <div className="form-group position-relative">
+                    <label className="form-label">First Name</label>
                     <input
-                      type="checkbox"
-                      className="form-check-input"
-                      {...register('useSameAddr')}
+                      type="text"
+                      {...register('ship_firstName')}
+                      className={`form-control ${errors.ship_firstName ? 'is-invalid' : ''}`}
                     />
-                    <label className="form-check-label">Use same address</label>
+                    {errors.ship_firstName && <small className="invalid-feedback">{errors.ship_firstName.message}</small>}
                   </div>
-                  
-                  {
-                    formValues.useSameAddr === false &&
-                    <div className="row form-design form-float-label">
-                      <div className="col-sm-6">
-                        <div className="form-group position-relative">
-                          <label className="form-label">First Name</label>
-                          <input
-                            type="text"
-                            {...register('ship_firstName')}
-                            className={`form-control ${errors.ship_firstName ? 'is-invalid' : ''}`}
-                          />
-                          {errors.ship_firstName && <small className="invalid-feedback">{errors.ship_firstName.message}</small>}
-                        </div>
-                      </div>
-                      <div className="col-sm-6">
-                        <div className="form-group position-relative">
-                          <label className="form-label">Last Name</label>
-                          <input
-                            type="text"
-                            {...register('ship_lastName')}
-                            className={`form-control ${errors.ship_lastName ? 'is-invalid' : ''}`}
-                          />
-                          {errors.ship_lastName && <small className="invalid-feedback">{errors.ship_lastName.message}</small>}
-                        </div>
-                      </div>
-                      <div className="col-sm-6">
-                        <div className="form-group position-relative">
-                          <label className="form-label">Address</label>
-                          <input
-                            type="text"
-                            {...register('ship_address')}
-                            className={`form-control ${errors.ship_address ? 'is-invalid' : ''}`}
-                          />
-                          {errors.ship_address && <small className="invalid-feedback">{errors.ship_address.message}</small>}
-                        </div>
-                      </div>
-                      <div className="col-sm-6">
-                        <div className="form-group position-relative">
-                          <label className="form-label">Sub district</label>
-                          <input
-                            type="text"
-                            {...register('ship_subDistrict')}
-                            className={`form-control ${errors.ship_subDistrict ? 'is-invalid' : ''}`}
-                          />
-                          {errors.ship_subDistrict && <small className="invalid-feedback">{errors.ship_subDistrict.message}</small>}
-                        </div>
-                      </div>
-                      <div className="col-sm-6">
-                        <div className="form-group position-relative">
-                          <label className="form-label">District</label>
-                          <input
-                            type="text"
-                            {...register('ship_district')}
-                            className={`form-control ${errors.ship_district ? 'is-invalid' : ''}`}
-                          />
-                          {errors.ship_district && <small className="invalid-feedback">{errors.ship_district.message}</small>}
-                        </div>
-                      </div>
-                      <div className="col-sm-6">
-                        <div className="form-group position-relative">
-                          <label className="form-label">Province</label>
-                          <input
-                            type="text"
-                            {...register('ship_province')}
-                            className={`form-control ${errors.ship_province ? 'is-invalid' : ''}`}
-                          />
-                          {errors.ship_province && <small className="invalid-feedback">{errors.ship_province.message}</small>}
-                        </div>
-                      </div>
-                      <div className="col-sm-6">
-                        <div className="form-group position-relative">
-                          <label className="form-label">Postcode</label>
-                          <input
-                            type="text"
-                            {...register('ship_postcode')}
-                            className={`form-control ${errors.ship_postcode ? 'is-invalid' : ''}`}
-                          />
-                          {errors.ship_postcode && <small className="invalid-feedback">{errors.ship_postcode.message}</small>}
-                        </div>
-                      </div>
-                      <div className="col-sm-6">
-                        <div className="form-group position-relative">
-                          <label className="form-label">Country</label>
-                          <input
-                            type="text"
-                            {...register('ship_country')}
-                            className={`form-control ${errors.ship_country ? 'is-invalid' : ''}`}
-                          />
-                          {errors.ship_country && <small className="invalid-feedback">{errors.ship_country.message}</small>}
-                        </div>
-                      </div>
-                      <div className="col-sm-6">
-                        <div className="form-group position-relative">
-                          <label className="form-label">Phone</label>
-                          <input
-                            type="text"
-                            {...register('ship_phone')}
-                            className={`form-control ${errors.ship_phone ? 'is-invalid' : ''}`}
-                          />
-                          {errors.ship_phone && <small className="invalid-feedback">{errors.ship_phone.message}</small>}
-                        </div>
-                      </div>
-                    </div>
-                  }
-                  
-
-                </section>
-
-                <section className="mb-4">
-                  <h6>Payment Method</h6>
-                  <hr />
-                  <div className='row form-design form-float-label'>
-                    <div className='col-sm-6 pt-4 mb-3'>
-                      <div className="form-group position-relative">
-                        <label htmlFor="cardholder-name" className="form-label">
-                          Name on Card
-                        </label>
-                        <input
-                          id="cardholder-name"
-                          type="text"
-                          className="border p-3 bg-white w-100"
-                          style={{height: 50}}
-                          value={cardHolderName}
-                          onChange={(e) => setCardHolderName(e.target.value)}
-                          placeholder="John Smith"
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className='col-sm-6 pt-4 mb-3'>
-                      <div className="form-group position-relative">
-                        <label htmlFor="card-number" className="form-label">
-                          หมายเลขบัตร
-                        </label>
-                        <div id="card-number" className="border p-3 bg-white" style={{height: 50}}>
-                          <CardNumberElement 
-                            //options={{ style: ELEMENT_STYLE }} 
-                            //onKeyDown={(e) => handleKeyDown(e, 'cardExpiry')}
-                            onChange={(e) => {
-                              // เมื่อกรอกเลขบัตรครบแล้ว จะเลื่อนไปที่ช่องวันหมดอายุอัตโนมัติ
-                              if (e.complete) {
-                                const expiryElement = elements?.getElement(CardExpiryElement);
-                                if (expiryElement) {
-                                  expiryElement.focus();
-                                }
-                              }
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className='col-sm-6 pt-4 mb-3'>
-                      <div className="form-group position-relative">
-                        <label htmlFor="card-expiry" className="form-label">
-                          วันหมดอายุ
-                        </label>
-                        <div id="card-expiry" className="border p-3 bg-white" style={{height: 50}}>
-                          <CardExpiryElement 
-                            //options={{ style: ELEMENT_STYLE }}
-                            //onKeyDown={(e) => handleKeyDown(e, 'cardCvc')}
-                            onChange={(e) => {
-                              // เมื่อกรอกวันหมดอายุครบแล้ว จะเลื่อนไปที่ช่อง CVC อัตโนมัติ
-                              if (e.complete) {
-                                const cvcElement = elements?.getElement(CardCvcElement);
-                                if (cvcElement) {
-                                  cvcElement.focus();
-                                }
-                              }
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className='col-sm-6 pt-4 mb-3'>
-                      <div className="form-group position-relative">
-                        <label htmlFor="card-cvc" className="form-label">
-                          CVC
-                        </label>
-                        <div id="card-cvc" className="border p-3 bg-white" style={{height: 50}}>
-                          <CardCvcElement 
-                            //options={{ style: ELEMENT_STYLE }} 
-                          />
-                        </div>
-                      </div>
-                    </div>
+                </div>
+                <div className="col-sm-6">
+                  <div className="form-group position-relative">
+                    <label className="form-label">Last Name</label>
+                    <input
+                      type="text"
+                      {...register('ship_lastName')}
+                      className={`form-control ${errors.ship_lastName ? 'is-invalid' : ''}`}
+                    />
+                    {errors.ship_lastName && <small className="invalid-feedback">{errors.ship_lastName.message}</small>}
                   </div>
-                </section>
-              </div>
-              <div className="col-sm-4">
-                <OrderSummary 
-                  orderItems={orderItemsData}
-                />
-                <button 
-                  type="submit"
-                  className="w-100 btn design-btn gradient-btn py-3"
-                  disabled={!stripe || isLoading}
-                >
-                  {
-                    isLoading 
-                    ? 'กำลังดำเนินการ...'  
-                    : <><FontAwesomeIcon icon={faCircleCheck} className='text-light me-2' />CONFIRM CHECKOUT</>
-                  }
-                </button>
-                {errorMessage && (
-                  <div className="my-4 p-2 alert alert-danger">
-                    {errorMessage}
+                </div>
+                <div className="col-sm-6">
+                  <div className="form-group position-relative">
+                    <label className="form-label">Address</label>
+                    <input
+                      type="text"
+                      {...register('ship_address')}
+                      className={`form-control ${errors.ship_address ? 'is-invalid' : ''}`}
+                    />
+                    {errors.ship_address && <small className="invalid-feedback">{errors.ship_address.message}</small>}
                   </div>
-                )}
-              </div>
-            </form>
-
-            {/* <form onSubmit={handleSubmit} className="max-w-md mx-auto p-4 border rounded shadow">
-              <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">
-                  ยอดชำระ: {amount} บาท
-                </label>
-                <div className="border rounded p-3 bg-white">
-                  <CardElement options={cardElementOptions} />
+                </div>
+                <div className="col-sm-6">
+                  <div className="form-group position-relative">
+                    <label className="form-label">Sub district</label>
+                    <input
+                      type="text"
+                      {...register('ship_subDistrict')}
+                      className={`form-control ${errors.ship_subDistrict ? 'is-invalid' : ''}`}
+                    />
+                    {errors.ship_subDistrict && <small className="invalid-feedback">{errors.ship_subDistrict.message}</small>}
+                  </div>
+                </div>
+                <div className="col-sm-6">
+                  <div className="form-group position-relative">
+                    <label className="form-label">District</label>
+                    <input
+                      type="text"
+                      {...register('ship_district')}
+                      className={`form-control ${errors.ship_district ? 'is-invalid' : ''}`}
+                    />
+                    {errors.ship_district && <small className="invalid-feedback">{errors.ship_district.message}</small>}
+                  </div>
+                </div>
+                <div className="col-sm-6">
+                  <div className="form-group position-relative">
+                    <label className="form-label">Province</label>
+                    <input
+                      type="text"
+                      {...register('ship_province')}
+                      className={`form-control ${errors.ship_province ? 'is-invalid' : ''}`}
+                    />
+                    {errors.ship_province && <small className="invalid-feedback">{errors.ship_province.message}</small>}
+                  </div>
+                </div>
+                <div className="col-sm-6">
+                  <div className="form-group position-relative">
+                    <label className="form-label">Postcode</label>
+                    <input
+                      type="text"
+                      {...register('ship_postcode')}
+                      className={`form-control ${errors.ship_postcode ? 'is-invalid' : ''}`}
+                    />
+                    {errors.ship_postcode && <small className="invalid-feedback">{errors.ship_postcode.message}</small>}
+                  </div>
+                </div>
+                <div className="col-sm-6">
+                  <div className="form-group position-relative">
+                    <label className="form-label">Country</label>
+                    <input
+                      type="text"
+                      {...register('ship_country')}
+                      className={`form-control ${errors.ship_country ? 'is-invalid' : ''}`}
+                    />
+                    {errors.ship_country && <small className="invalid-feedback">{errors.ship_country.message}</small>}
+                  </div>
+                </div>
+                <div className="col-sm-6">
+                  <div className="form-group position-relative">
+                    <label className="form-label">Phone</label>
+                    <input
+                      type="text"
+                      {...register('ship_phone')}
+                      className={`form-control ${errors.ship_phone ? 'is-invalid' : ''}`}
+                    />
+                    {errors.ship_phone && <small className="invalid-feedback">{errors.ship_phone.message}</small>}
+                  </div>
                 </div>
               </div>
+            }
+            
 
-              {errorMessage && (
-                <div className="mb-4 p-2 text-red-700 bg-red-100 rounded">
-                  {errorMessage}
+          </section>
+
+          <section className="mb-4">
+            <h6>Payment Method</h6>
+            <hr />
+            <div className='row form-design form-float-label'>
+              <div className='col-sm-6 pt-4 mb-3'>
+                <div className="form-group position-relative">
+                  <label htmlFor="cardholder-name" className="form-label">
+                    Name on Card
+                  </label>
+                  <input
+                    id="cardholder-name"
+                    type="text"
+                    className="border p-3 bg-white w-100"
+                    style={{height: 50}}
+                    value={cardHolderName}
+                    onChange={(e) => setCardHolderName(e.target.value)}
+                    placeholder="John Smith"
+                    required
+                  />
                 </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={!stripe || isLoading}
-                className="w-100 btn design-btn gradient-btn py-3"
-              >
-                {isLoading ? 'กำลังดำเนินการ...' : 'ชำระเงิน'}
-              </button>
-            </form> */}
-            </>
-            :
-            <p className='h5 opacity-50 mb-5'>This order is already payment</p>
-          :
-          <p className='h5 opacity-50 mb-5'>You not permission to view this order</p>   
-        :
-        <p className='h5 opacity-50 mb-5'>Not found order</p>
+              </div>
+              <div className='col-sm-6 pt-4 mb-3'>
+                <div className="form-group position-relative">
+                  <label htmlFor="card-number" className="form-label">
+                    หมายเลขบัตร
+                  </label>
+                  <div id="card-number" className="border p-3 bg-white" style={{height: 50}}>
+                    <CardNumberElement 
+                      //options={{ style: ELEMENT_STYLE }} 
+                      //onKeyDown={(e) => handleKeyDown(e, 'cardExpiry')}
+                      onChange={(e) => {
+                        // เมื่อกรอกเลขบัตรครบแล้ว จะเลื่อนไปที่ช่องวันหมดอายุอัตโนมัติ
+                        if (e.complete) {
+                          const expiryElement = elements?.getElement(CardExpiryElement);
+                          if (expiryElement) {
+                            expiryElement.focus();
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className='col-sm-6 pt-4 mb-3'>
+                <div className="form-group position-relative">
+                  <label htmlFor="card-expiry" className="form-label">
+                    วันหมดอายุ
+                  </label>
+                  <div id="card-expiry" className="border p-3 bg-white" style={{height: 50}}>
+                    <CardExpiryElement 
+                      //options={{ style: ELEMENT_STYLE }}
+                      //onKeyDown={(e) => handleKeyDown(e, 'cardCvc')}
+                      onChange={(e) => {
+                        // เมื่อกรอกวันหมดอายุครบแล้ว จะเลื่อนไปที่ช่อง CVC อัตโนมัติ
+                        if (e.complete) {
+                          const cvcElement = elements?.getElement(CardCvcElement);
+                          if (cvcElement) {
+                            cvcElement.focus();
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className='col-sm-6 pt-4 mb-3'>
+                <div className="form-group position-relative">
+                  <label htmlFor="card-cvc" className="form-label">
+                    CVC
+                  </label>
+                  <div id="card-cvc" className="border p-3 bg-white" style={{height: 50}}>
+                    <CardCvcElement 
+                      //options={{ style: ELEMENT_STYLE }} 
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div className="col-lg-4">
+          <OrderSummary 
+            orderItems={orderItemsData}
+            handleSetTotalPrice={(value) => setTotalPrice(value)}
+          />
+          <button 
+            type="submit"
+            className="w-100 btn design-btn gradient-btn py-3"
+            disabled={!stripe || isLoading}
+          >
+            {
+              isLoading 
+              ? 'กำลังดำเนินการ...'  
+              : <><FontAwesomeIcon icon={faCircleCheck} className='text-light me-2' />CONFIRM CHECKOUT</>
+            }
+          </button>
+          {errorMessage && (
+            <div className="my-4 p-2 alert alert-danger">
+              {errorMessage}
+            </div>
+          )}
+        </div>
+      </form>
       :
       <p className='h5 text-center opacity-50'>Loading...</p>
     }

@@ -39,17 +39,17 @@ export default function BrandsDropdown() {
       <Dropdown 
         show={show} 
         onToggle={(isOpen) => setShow(isOpen)} 
-        className={`${styles.dropdownBrands}`}
+        className={`dropdownBrands`}
       >
         <Dropdown.Toggle 
-          className={`btn-link p-0 ${styles.btn}`} 
+          className={`btn-link p-0 btn`} 
           style={{backgroundColor: '#FFF'}}
           id="dropdown-brands"
         >
           <FontAwesomeIcon icon={faBars} className='me-3' />Shop Brands
         </Dropdown.Toggle>
 
-        <Dropdown.Menu className={`${styles.menu}`}>
+        <Dropdown.Menu className={`menu`}>
           {
             brandList.map((brand: any) => (
               <div onClick={handleClose} key={`brand_item_${brand.id}`}>

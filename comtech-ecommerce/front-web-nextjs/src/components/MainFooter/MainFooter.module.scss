@@ -45,3 +45,24 @@
   }
 
 }
+
+@media only screen and (max-width: 767px) {
+  .mainFooter {
+    .socialLink {
+      margin-bottom: 20px;
+    }
+    .footer {
+      .flexPhone {
+        display: block !important;
+        text-align: center;
+
+        .copyright {
+          margin-bottom: 0;
+        }
+        .policyMenu {
+          margin: 10px 0 !important;
+        }
+      }
+    }
+  }
+}

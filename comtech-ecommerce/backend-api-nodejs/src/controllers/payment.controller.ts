@@ -1,15 +1,25 @@
+import { PrismaClient } from '@prisma/client';
 import { Request, Response, NextFunction } from 'express';
 import Stripe from 'stripe';
 import stripe from '../config/stripe.config';
 import { CreatePaymentResponse, PaymentVerificationResponse } from '../types';
 import { AppError } from '../utils/errorHandler';
 import { sendResponse, sendError } from '../libs/response';
+import { OrderService } from '../services/order.service';
+
+const prisma = new PrismaClient()
+const orderService = new OrderService()
 
 export class PaymentController {
 
   async createPaymentIntent(req: Request, res: Response) {
     try {
-      const { amount, currency = 'thb', paymentMethodType = 'card' } = req.body;
+      const { 
+        amount, 
+        currency = 'thb', 
+        orderId,
+        paymentMethodType = 'card',
+      } = req.body;
 
       // ตรวจสอบข้อมูลที่ส่งมา
       if (!amount || amount < 1) {
@@ -25,7 +35,12 @@ export class PaymentController {
       });
 
       // Get payment intent id and update order payment intent id here 
-      // ...
+      await prisma.order.update({
+        where: { id: orderId },
+        data: {
+          paymentIntent: paymentIntent.id
+        }
+      })
 
       const response: CreatePaymentResponse = {
         paymentIntent: {
@@ -61,10 +76,7 @@ export class PaymentController {
           created: paymentIntent.created,
         }
       };
-
-      // Update order payment status here
-      //...
-
+      
       res.status(200).json(response);
     } catch (error: any) {
       console.error('Error verifying payment:', error);
@@ -96,12 +108,24 @@ export class PaymentController {
           const paymentIntent = event.data.object as Stripe.PaymentIntent;
           console.log(`Payment succeeded: ${paymentIntent.id}`);
           // อัพเดทสถานะการชำระเงินในฐานข้อมูลของคุณ
+          // const orderId = await prisma.order.findFirst({
+          //   where: { paymentIntent: paymentIntent.id }
+          // })
+          // if(orderId) {
+          //   await orderService.updatePayment(orderId.id, 'PAID')
+          // }
           break;
           
         case 'payment_intent.payment_failed':
           const failedPaymentIntent = event.data.object as Stripe.PaymentIntent;
           console.log(`Payment failed: ${failedPaymentIntent.id}`);
           // จัดการกับการชำระเงินที่ล้มเหลว
+          // await prisma.order.updateMany({
+          //   where: { paymentIntent: failedPaymentIntent.id },
+          //   data: {
+          //     paymentStatus: 'FAILED'
+          //   }
+          // })
           break;
           
         default:

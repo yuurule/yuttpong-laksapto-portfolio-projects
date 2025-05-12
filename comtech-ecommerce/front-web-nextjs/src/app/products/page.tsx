@@ -6,9 +6,14 @@ import ProductListSorting from "@/components/Products/ProductListSorting";
 
 export default function ProductsPage() {
 
+  const breadcrumbsList = [
+    { text: 'Home', url: '/' },
+    { text: 'Products', url: null },
+  ]
+
   return (
     <main className="">
-      <Breadcrumbs />
+      <Breadcrumbs urlList={breadcrumbsList} />
       <div className='container'>
         <div className="row">
           <header className="col-12">
