@@ -42,34 +42,36 @@ export default function LatestOrdersCard() {
           {
             orderList.length > 0
             ?
-            <table className='table mt-4'>
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Customer</th>
-                  <th>Total Price</th>
-                  <th>Created At</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {
-                  orderList.map((i, index) => {
-                    if(index < 4) {
-                      return (
-                        <tr key={`latest_order_item_${i.id}`}>
-                          <td>#{i.id}</td>
-                          <td>{i.customer.customerDetail.firstName} {i.customer.customerDetail.lastName}</td>
-                          <td>฿{formatMoney(i.total)}</td>
-                          <td>{formatTimestamp(i.createdAt)}</td>
-                          <td>"{i.paymentStatus}"</td>
-                        </tr>
-                      )
-                    }
-                  })
-                }
-              </tbody>
-            </table>
+            <div className='table-responsive'>
+              <table className='table mt-4'>
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Total Price</th>
+                    <th>Created At</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    orderList.map((i, index) => {
+                      if(index < 5) {
+                        return (
+                          <tr key={`latest_order_item_${i.id}`}>
+                            <td>#{i.id}</td>
+                            <td>{i.customer.customerDetail.firstName} {i.customer.customerDetail.lastName}</td>
+                            <td>฿{formatMoney(i.total)}</td>
+                            <td>{formatTimestamp(i.createdAt)}</td>
+                            <td>"{i.paymentStatus}"</td>
+                          </tr>
+                        )
+                      }
+                    })
+                  }
+                </tbody>
+              </table>
+            </div>
             :
             <p className='h4 opacity-50 my-5'>Not have orders right now</p>
           }

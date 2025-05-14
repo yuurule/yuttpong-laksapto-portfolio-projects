@@ -244,7 +244,7 @@ export default function Tag() {
   if(loading) return <div>กำลังโหลด...</div>
 
   return (
-    <div className={`page`}>
+    <div className={`page tags-page page-padding-btn`}>
       <header className="page-title">
         <h1>Category</h1>
         <p>All product category</p>
@@ -252,7 +252,7 @@ export default function Tag() {
 
       <div className="row">
         <div className="col-12 mb-3">
-          <div className="d-flex justify-content-end align-items-center">
+          <div className="utils-head-table">
             <button 
               className='btn my-btn purple-btn big-btn' 
               type="button"
@@ -262,11 +262,11 @@ export default function Tag() {
         </div>
         <div className="col-12">
           <div className="row">
-            <div className="col-sm-8">
-              <div className='card mb-3'>
+            <div className="col-lg-8 mb-3">
+              <div className='card'>
                 <div className='card-body'>
-                  <div className='d-flex justify-content-between align-items-center mb-3'>
-                    <div>
+                  <div className='utils-head-table'>
+                    <div className='utils-btn-group'>
                       <button 
                         className='btn my-btn narrow-btn red-btn'
                         onClick={() => {
@@ -304,88 +304,90 @@ export default function Tag() {
                       </InputGroup>
                     </div>
                   </div>
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th className='selectRow'></th>
-                        <th>
-                          Tag Name
-                          <OrderByBtn 
-                            currentStatus={orderBy[0].value}
-                            handleOnClick={() => handleChangeOrderBy('name')}
-                          />
-                        </th>
-                        <th>Customer Click</th>
-                        <th>
-                          Have Products On
-                          <OrderByBtn 
-                            currentStatus={orderBy[1].value}
-                            handleOnClick={() => handleChangeOrderBy('productAmount')}
-                          />
-                        </th>
-                        <th>
-                          Created At
-                          <OrderByBtn 
-                            currentStatus={orderBy[2].value}
-                            handleOnClick={() => handleChangeOrderBy('createdAt')}
-                          />
-                        </th>
-                        <th>Last Updated</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {
-                        tags.map((i, index) => (
-                          <tr key={`tag_row_${index + 1}`}>
-                            <td className='selectRow'>
-                              <div className='flexCenterXY'>
-                                <Form.Check
-                                  type={"checkbox"}
-                                  id={`select-tag-${index + 1}`}
-                                  label={``}
-                                  name={`deleteTagId`}
-                                  value={i.id}
-                                  checked={checkIsSelectDelete(i.id)}
-                                  onChange={(e) => handleSelectTag(e)}
-                                />
-                              </div>
-                            </td>
-                            <td>
-                              {i.name}<br />
-                              <small className='opacity-50'>{i.description}</small>
-                            </td>
-                            <td>coming soon...</td>
-                            <td>{i.products.length}</td>
-                            <td>
-                              {formatTimestamp(i.createdAt)}<br />
-                              <small className='opacity-50'>{i.createdBy?.displayName}</small>
-                            </td>
-                            <td>
-                              {formatTimestamp(i.updatedAt)}<br />
-                              <small className='opacity-50'>{i.updatedBy?.displayName}</small>
-                            </td>
-                            <td>
-                              <button 
-                                type="button"
-                                className='btn my-btn narrow-btn blue-btn px-3'
-                                onClick={() => handlerClickUpdate(i.id, i.name, i.description)}
-                              ><FontAwesomeIcon icon={faEdit} /></button>
-                              {/* <button 
-                                type="button"
-                                className='btn btn-danger'
-                                onClick={() => {
-                                  setSelectDeleteTag(i.id);
-                                  setDeleteType('single');
-                                  openConfirmDeleteDailog('single');
-                                }}
-                              ><FontAwesomeIcon icon={faTrash} /></button> */}
-                            </td>
-                          </tr>
-                        ))
-                      }
-                    </tbody>
-                  </table>
+                  <div className='table-responsive'>
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th className='selectRow'></th>
+                          <th>
+                            Tag Name
+                            <OrderByBtn 
+                              currentStatus={orderBy[0].value}
+                              handleOnClick={() => handleChangeOrderBy('name')}
+                            />
+                          </th>
+                          <th>Customer Click</th>
+                          <th>
+                            Have Products On
+                            <OrderByBtn 
+                              currentStatus={orderBy[1].value}
+                              handleOnClick={() => handleChangeOrderBy('productAmount')}
+                            />
+                          </th>
+                          <th>
+                            Created At
+                            <OrderByBtn 
+                              currentStatus={orderBy[2].value}
+                              handleOnClick={() => handleChangeOrderBy('createdAt')}
+                            />
+                          </th>
+                          <th>Last Updated</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          tags.map((i, index) => (
+                            <tr key={`tag_row_${index + 1}`}>
+                              <td className='selectRow'>
+                                <div className='flexCenterXY'>
+                                  <Form.Check
+                                    type={"checkbox"}
+                                    id={`select-tag-${index + 1}`}
+                                    label={``}
+                                    name={`deleteTagId`}
+                                    value={i.id}
+                                    checked={checkIsSelectDelete(i.id)}
+                                    onChange={(e) => handleSelectTag(e)}
+                                  />
+                                </div>
+                              </td>
+                              <td>
+                                {i.name}<br />
+                                <small className='opacity-50'>{i.description}</small>
+                              </td>
+                              <td>coming soon...</td>
+                              <td>{i.products.length}</td>
+                              <td>
+                                {formatTimestamp(i.createdAt)}<br />
+                                <small className='opacity-50'>{i.createdBy?.displayName}</small>
+                              </td>
+                              <td>
+                                {formatTimestamp(i.updatedAt)}<br />
+                                <small className='opacity-50'>{i.updatedBy?.displayName}</small>
+                              </td>
+                              <td>
+                                <button 
+                                  type="button"
+                                  className='btn my-btn narrow-btn blue-btn px-3'
+                                  onClick={() => handlerClickUpdate(i.id, i.name, i.description)}
+                                ><FontAwesomeIcon icon={faEdit} /></button>
+                                {/* <button 
+                                  type="button"
+                                  className='btn btn-danger'
+                                  onClick={() => {
+                                    setSelectDeleteTag(i.id);
+                                    setDeleteType('single');
+                                    openConfirmDeleteDailog('single');
+                                  }}
+                                ><FontAwesomeIcon icon={faTrash} /></button> */}
+                              </td>
+                            </tr>
+                          ))
+                        }
+                      </tbody>
+                    </table>
+                  </div>
                   <div className='d-flex justify-content-center'>
                     <MyPagination
                       currentPage={currentPage}
@@ -396,7 +398,7 @@ export default function Tag() {
                 </div>
               </div>
             </div>
-            <div className="col-sm-4">
+            <div className="col-lg-4 mb-3">
               <div className='card'>
                 <div className='card-body'>
                   <UpsertTag

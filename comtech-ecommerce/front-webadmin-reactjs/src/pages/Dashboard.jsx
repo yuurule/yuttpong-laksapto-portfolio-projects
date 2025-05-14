@@ -56,20 +56,20 @@ export default function Dashboard() {
 
       <div className="row mt-4">
         
-        <div className="col-sm-9">
+        <div className="col-sm-9 expand-820">
           <div className="row">
             <div className='col-12'>
               <div className='row'>
                 <div className="col-sm-3 mb-3">
                   <StatDataCard
-                    title={<>Total< br />Income</>}
+                    title={<>Total Income</>}
                     icon={<FontAwesomeIcon icon={faMoneyBillWave} />}
                     dataValue={<>฿{formatMoney(totalIncome)}</>}
                   />
                 </div>
                 <div className="col-sm-3 mb-3">
                   <StatDataCard
-                    title={<>Total< br />Customer</>}
+                    title={<>Total Customer</>}
                     icon={<FontAwesomeIcon icon={faUsers} />}
                     dataValue={totalCustomer.toLocaleString('th-TH')}
                     valueColor={'var(--main-purple)'}
@@ -85,7 +85,7 @@ export default function Dashboard() {
                 </div>
                 <div className="col-sm-3 mb-3">
                   <StatDataCard
-                    title={<>Bandwith< br />Usage</>}
+                    title={<>Bandwith Usage</>}
                     icon={<FontAwesomeIcon icon={faOilWell} />}
                     dataValue={`840mb`}
                     valueColor={'var(--main-green)'}
@@ -102,7 +102,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className='col-sm-3 mb-3'>
+        <div className='col-sm-3 mb-3 hidden-820'>
           <div className='row'>
             <div className='col-12'>
               <BestSellerPieChart />
@@ -116,6 +116,9 @@ export default function Dashboard() {
           <LatestOrdersCard />
         </div>
         <div className='col-sm-5 mb-3'>
+          <div className='show-phone show-820 mb-3'>
+            <BestSellerPieChart />
+          </div>
           <ActiveCampaignCard />
         </div>
       </div>

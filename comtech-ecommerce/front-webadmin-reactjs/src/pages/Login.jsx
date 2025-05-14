@@ -55,7 +55,7 @@ export default function Login() {
           src={'/images/gradient-fog-heading.png'} 
           className={`${styles.bgFog}`}
         />
-        <div className='card-body p-5'>
+        <div className={`card-body ${styles.loginBody}`}>
           <header className='text-center mb-5'>
             <h1>COMTECH <strong className={`${styles.titleColour}`}>E-COMMERCE</strong><br />WEBADMIN</h1>
             <p>Enter your credential to log in</p>

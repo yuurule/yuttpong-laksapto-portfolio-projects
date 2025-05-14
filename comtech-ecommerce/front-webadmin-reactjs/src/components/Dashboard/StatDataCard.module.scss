@@ -3,6 +3,7 @@
   .body {
 
     height: 140px;
+    padding: 0 20px;
 
     i, svg, .fa {
       font-size: 1.8rem;
@@ -11,17 +12,57 @@
     }
 
     .title {
-      display: block;
+      display: inline-block;
       opacity: 0.3;
       font-weight: 700;
       font-size: 0.95rem;
       line-height: 1rem;
+      margin-left: 15px;
     }
 
     .dataValue {
       font-size: 2rem;
+      margin-bottom: 8px;
+      display: block;
     }
 
   }
 
+}
+
+@media only screen and (max-width: 1440px) {
+  .statDataCard {
+    .body {
+      height: 120px;
+      padding-left: 20px;
+      padding-right: 10px;
+
+      i, svg, .fa {
+        font-size: 1.6rem;
+      }
+
+      .title {
+        font-size: 0.7rem;
+        line-height: 0.8rem;
+      }
+
+      .dataValue {
+        font-size: 1.8rem;
+      }
+
+    }
+
+  }
+}
+
+@media only screen and (max-width: 1280px) {
+  .statDataCard {
+    .body {
+      height: 110px;
+
+      .dataValue {
+        margin-bottom: 0;
+      }
+    }
+  }
 }

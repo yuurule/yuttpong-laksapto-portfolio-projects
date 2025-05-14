@@ -51,7 +51,7 @@ export default function TopTotalSellProduct() {
   }
 
   return (
-    <div className='card'>
+    <div className='card topSellProductCard'>
       <div className='card-body'>
         <header>
           <h5>Top Seller Products<span></span></h5>
@@ -64,31 +64,20 @@ export default function TopTotalSellProduct() {
                   {
                     i.images.length > 0
                     ?
-                    <img src={`${serverPath}/${i.images[0].path}`} style={{width: 200}} />
+                    <img src={`${serverPath}/${i.images[0].path}`} className='mb-3 img-fluid' />
                     :
-                    <img src="https://placehold.co/200x160" style={{width: 200}} />
+                    <img src="https://placehold.co/200x160" className='mb-3 img-fluid' />
                   }
                 </figure>
                 <p>{i.name}</p>
                 <div className='d-flex justify-content-around align-items-end'>
                   <div>
-                    <strong 
-                      className='h3'
-                      style={{
-                        fontWeight: 600,
-                        color: 'var(--main-orange)'
-                      }}
-                    >{sumTotalSale(i.orderItems).totalSale}</strong>
+                    <strong className='totalSale'>{sumTotalSale(i.orderItems).totalSale}</strong>
                     <p>Total Sale</p>
                   </div>
                   <div>
                     <strong 
-                      className='h3'
-                      style={{
-                        fontWeight: 600,
-                        color: 'var(--main-purple)'
-                      }}
-                    >{sumTotalSale(i.orderItems).saleAmount}</strong>
+                      className='totalSaleQuantity'>{sumTotalSale(i.orderItems).saleAmount}</strong>
                     <p>Sale Amount</p>
                   </div>
                 </div>

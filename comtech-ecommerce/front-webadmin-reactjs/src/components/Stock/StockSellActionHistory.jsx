@@ -56,32 +56,34 @@ export default function StockSellActionHistory({ refresh }) {
       stockActions.length > 0
       ?
       <>
-      <table className='table mt-2'>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Action</th>
-            <th>Amount</th>
-            <th>Date/Time</th>
-            <th>By</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            stockActions.map((action, index) => (
-              <tr key={`stock_action_history_row_${index + 1}`}>
-                <td>{i?.product?.name}<br /><small className='opacity-50'>SKU:{i?.product?.sku}</small></td>
-                <td>
-                  <small className={`badge ${i?.action === 'ADD' ? 'text-bg-success' : ''} ${i?.action === 'REMOVE' ? 'text-bg-danger' : ''}`}>{i?.action}</small>
-                </td>
-                <td>{i?.quantity}</td>
-                <td>{formatTimestamp(i?.actionedAt)}</td>
-                <td>{i?.actionedBy?.displayName}</td>
-              </tr>
-            ))
-          }
-        </tbody>
-      </table>
+      <div className='table-responsive'>
+        <table className='table mt-2 stock-sell-action-history-table'>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Action</th>
+              <th>Amount</th>
+              <th>Date/Time</th>
+              <th>By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              stockActions.map((action, index) => (
+                <tr key={`stock_action_history_row_${index + 1}`}>
+                  <td>{i?.product?.name}<br /><small className='opacity-50'>SKU:{i?.product?.sku}</small></td>
+                  <td>
+                    <small className={`badge ${i?.action === 'ADD' ? 'text-bg-success' : ''} ${i?.action === 'REMOVE' ? 'text-bg-danger' : ''}`}>{i?.action}</small>
+                  </td>
+                  <td>{i?.quantity}</td>
+                  <td>{formatTimestamp(i?.actionedAt)}</td>
+                  <td>{i?.actionedBy?.displayName}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
       <div className='d-flex justify-content-center'>
         <MyPagination
           currentPage={currentPage}

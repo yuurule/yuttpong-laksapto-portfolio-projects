@@ -5,11 +5,12 @@ import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons
 export default function MyPagination({
   currentPage=1,
   totalPage=1,
-  handleSelectPage=() => {}
+  handleSelectPage=() => {},
+  css=''
 }) {
 
   return (
-    <div className={`${styles.myPagination}`}>
+    <div className={`${styles.myPagination} ${css}`}>
       <button 
         className='btn btn-link p-0'
         type="button"
@@ -20,7 +21,7 @@ export default function MyPagination({
       >
         <FontAwesomeIcon icon={faChevronLeft} />
       </button>
-      <div className="dropdown mx-5">
+      <div className="dropdown">
         <button 
           className={`btn btn-link p-0`} 
           type="button" 

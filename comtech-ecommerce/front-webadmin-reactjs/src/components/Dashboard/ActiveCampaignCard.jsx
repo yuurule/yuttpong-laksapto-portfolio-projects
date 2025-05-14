@@ -29,7 +29,7 @@ export default function ActiveCampaignCard() {
 
   return (
     <div className="card">
-      <div className="card-body" style={{minHeight: 320}}>
+      <div className="card-body active-campaign-card">
         <header className='d-flex justify-content-between align-items-center'>
           <h5 className='mb-0'>Active Campaign<span></span></h5>
         </header>
@@ -42,32 +42,34 @@ export default function ActiveCampaignCard() {
           {
             campaignList.length > 0
             ?
-            <table className='table mt-4'>
-              <thead>
-                <tr>
-                  <th>Campaign Name</th>
-                  <th>Discount</th>
-                  <th>Have Products</th>
-                  <th>Start at</th>
-                  <th>End at</th>
-                </tr>
-              </thead>
-              <tbody>
-                {
-                  campaignList.map((i, index) => {
-                    return (
-                      <tr key={`active_campaign_item_${i.id}`}>
-                        <td>{i.name}</td>
-                        <td>{i.discount}%</td>
-                        <td>{i.campaignProducts.length}</td>
-                        <td>{formatTimestamp(i.startAt)}</td>
-                        <td>{formatTimestamp(i.endAt)}</td>
-                      </tr>
-                    )
-                  })
-                }
-              </tbody>
-            </table>
+            <div className='table-responsive'>
+              <table className='table mt-4'>
+                <thead>
+                  <tr>
+                    <th>Campaign Name</th>
+                    <th>Discount</th>
+                    <th>Have Products</th>
+                    <th>Start at</th>
+                    <th>End at</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    campaignList.map((i, index) => {
+                      return (
+                        <tr key={`active_campaign_item_${i.id}`}>
+                          <td>{i.name}</td>
+                          <td>{i.discount}%</td>
+                          <td>{i.campaignProducts.length}</td>
+                          <td>{formatTimestamp(i.startAt)}</td>
+                          <td>{formatTimestamp(i.endAt)}</td>
+                        </tr>
+                      )
+                    })
+                  }
+                </tbody>
+              </table>
+            </div>
             :
             <p className='h5 opacity-50 my-5 text-center'>Not have active campaigns right now</p>
           }

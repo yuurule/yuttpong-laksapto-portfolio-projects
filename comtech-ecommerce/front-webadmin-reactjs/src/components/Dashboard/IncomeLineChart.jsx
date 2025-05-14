@@ -111,11 +111,11 @@ export default function IncomeLineChart() {
 
   return (
     <div className="card">
-      <div className="card-body" style={{height: 400}}>
-        <header className='d-flex justify-content-between align-items-center'>
+      <div className="card-body income-line-chart">
+        <header className='d-flex justify-content-between align-items-center mb-3'>
           <h5 className='mb-0'>Recent Week Income<span></span></h5>
         </header>
-        <div className='ps-4' style={{height: 330}}>
+        <div className='income-line-chart-container'>
           <Line data={chartData} options={options} />
         </div>
       </div>

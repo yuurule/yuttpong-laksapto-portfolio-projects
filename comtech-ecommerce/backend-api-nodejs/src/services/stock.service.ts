@@ -12,7 +12,7 @@ export class StockService {
     pagination: boolean = false,
     orderBy: string = 'actionedAt',
     orderDir: string = 'desc',
-    productId: number,
+    productId?: number,
   ) {
     try {
       let where: Prisma.StockEventWhereInput = {}; 

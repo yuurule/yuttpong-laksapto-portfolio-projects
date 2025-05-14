@@ -208,7 +208,7 @@ export default function Campaign() {
   if(loadData) return <div>กำลังโหลด...</div>
 
   return (
-    <div className={`page`}>
+    <div className={`page campaigns-page page-padding-btn`}>
 
       <header className="page-title">
         <h1>Campaigns</h1>
@@ -229,14 +229,14 @@ export default function Campaign() {
               >+ Create New Campaign</button>
           </div>
         </div>
-        <div className='col-sm-8'>
+        <div className='col-lg-8 mb-3'>
           <div className="card">
             <div className="card-body">
 
-              <div className='d-flex justify-content-between align-items-center mb-3'>
+              <div className='utils-head-table'>
                 {
                   !showInTrash ?
-                  <div className='d-flex align-items-center'>
+                  <div className='utils-btn-group'>
                     <div>
                       <button 
                         type="button"
@@ -301,107 +301,109 @@ export default function Campaign() {
                 {
                   campaignList.length > 0 ?
                   <>
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th className='selectRow'></th>
-                        <th style={{width: '340px'}}>
-                          Campaign Name
-                          <OrderByBtn 
-                            currentStatus={orderBy[0].value}
-                            handleOnClick={() => handleChangeOrderBy('name')}
-                          />
-                        </th>
-                        <th>
-                          Discount
-                          <OrderByBtn 
-                            currentStatus={orderBy[1].value}
-                            handleOnClick={() => handleChangeOrderBy('discount')}
-                          />
-                        </th>
-                        <th>Status</th>
-                        <th>Start</th>
-                        <th>End</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {
-                        campaignList.map((campaign, index) => (
-                          <tr key={`category_row_${campaign.id}`}>
-                            <td className='selectRow'>
-                              <div className='flexCenterXY'>
-                                <Form.Check
-                                  type={"checkbox"}
-                                  id={`select-campaign`}
-                                  label={``}
-                                  checked={(selectedDeleteCampaigns.filter(i => i === campaign.id).length > 0)}
-                                  onChange={(e) => {
-                                    const tempSelectedDeletedCampaigns = [...selectedDeleteCampaigns];
-                                    if(e.target.checked === true) {
-                                      tempSelectedDeletedCampaigns.push(campaign.id);
-                                      setSelectedDeleteCampaigns(tempSelectedDeletedCampaigns);
-                                    }
-                                    else {
-                                      const removeResult = tempSelectedDeletedCampaigns.filter(i => i !== campaign.id);
-                                      setSelectedDeleteCampaigns(removeResult);
-                                    }
-                                  }}
-                                />
-                              </div>
-                            </td>
-                            <td>
-                              <Link 
-                                to={null} 
-                                onClick={() => handleSelectedCampaign(campaign.id, campaign.name, campaignList)}>{campaign?.name}</Link>
-                              <br />
-                              <small style={{opacity: '0.5'}}>{campaign?.description}</small>
-                            </td>
-                            <td>-{campaign?.discount}%</td>
-                            <td>
-                              <button
-                                type="button"
-                                className='btn btn-link p-0'
-                                onClick={() => {
-                                  setSelectActivateCampaign({
-                                    id: campaign.id,
-                                    isActive: campaign.isActive,
-                                    startAt: campaign.startAt ? dayjs(campaign.startAt) : null,
-                                    endAt: campaign.endAt ? dayjs(campaign.endAt) : null
-                                  });
-                                  setOpenActivateCampaignDialog(true);
-                                }}
-                              >
-                              <small className={`badge ${campaign?.isActive === true ? 'text-bg-success' : 'text-bg-secondary'}`}>
-                                {campaign?.isActive === true ? 'active' : 'inactive'}
-                              </small>
-                              </button>
-                            </td>
-                            <td>{campaign?.isActive ? formatTimestamp(campaign?.startAt) : '-'}</td>
-                            <td>{campaign?.isActive ? formatTimestamp(campaign?.endAt) : '-'}</td>
-                            <td>
-                              <div className='d-flex'>
-                                <button 
+                  <div className='table-responsive'>
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th className='selectRow'></th>
+                          <th style={{width: '340px'}}>
+                            Campaign Name
+                            <OrderByBtn 
+                              currentStatus={orderBy[0].value}
+                              handleOnClick={() => handleChangeOrderBy('name')}
+                            />
+                          </th>
+                          <th>
+                            Discount
+                            <OrderByBtn 
+                              currentStatus={orderBy[1].value}
+                              handleOnClick={() => handleChangeOrderBy('discount')}
+                            />
+                          </th>
+                          <th>Status</th>
+                          <th>Start</th>
+                          <th>End</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          campaignList.map((campaign, index) => (
+                            <tr key={`category_row_${campaign.id}`}>
+                              <td className='selectRow'>
+                                <div className='flexCenterXY'>
+                                  <Form.Check
+                                    type={"checkbox"}
+                                    id={`select-campaign`}
+                                    label={``}
+                                    checked={(selectedDeleteCampaigns.filter(i => i === campaign.id).length > 0)}
+                                    onChange={(e) => {
+                                      const tempSelectedDeletedCampaigns = [...selectedDeleteCampaigns];
+                                      if(e.target.checked === true) {
+                                        tempSelectedDeletedCampaigns.push(campaign.id);
+                                        setSelectedDeleteCampaigns(tempSelectedDeletedCampaigns);
+                                      }
+                                      else {
+                                        const removeResult = tempSelectedDeletedCampaigns.filter(i => i !== campaign.id);
+                                        setSelectedDeleteCampaigns(removeResult);
+                                      }
+                                    }}
+                                  />
+                                </div>
+                              </td>
+                              <td>
+                                <Link 
+                                  to={null} 
+                                  onClick={() => handleSelectedCampaign(campaign.id, campaign.name, campaignList)}>{campaign?.name}</Link>
+                                <br />
+                                <small style={{opacity: '0.5'}}>{campaign?.description}</small>
+                              </td>
+                              <td>-{campaign?.discount}%</td>
+                              <td>
+                                <button
                                   type="button"
-                                  className='btn my-btn narrow-btn blue-btn px-3'
+                                  className='btn btn-link p-0'
                                   onClick={() => {
-                                    setUpsertAction('EDIT');
-                                    setSelectEditCampaign({
+                                    setSelectActivateCampaign({
                                       id: campaign.id,
-                                      name: campaign.name,
-                                      description: campaign.description,
-                                      discount: campaign.discount
+                                      isActive: campaign.isActive,
+                                      startAt: campaign.startAt ? dayjs(campaign.startAt) : null,
+                                      endAt: campaign.endAt ? dayjs(campaign.endAt) : null
                                     });
-                                    setOpenUpsertCampaignDialog(true);
+                                    setOpenActivateCampaignDialog(true);
                                   }}
-                                ><FontAwesomeIcon icon={faEdit} /></button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      }
-                    </tbody>
-                  </table>
+                                >
+                                <small className={`badge ${campaign?.isActive === true ? 'text-bg-success' : 'text-bg-secondary'}`}>
+                                  {campaign?.isActive === true ? 'active' : 'inactive'}
+                                </small>
+                                </button>
+                              </td>
+                              <td>{campaign?.isActive ? formatTimestamp(campaign?.startAt) : '-'}</td>
+                              <td>{campaign?.isActive ? formatTimestamp(campaign?.endAt) : '-'}</td>
+                              <td>
+                                <div className='d-flex'>
+                                  <button 
+                                    type="button"
+                                    className='btn my-btn narrow-btn blue-btn px-3'
+                                    onClick={() => {
+                                      setUpsertAction('EDIT');
+                                      setSelectEditCampaign({
+                                        id: campaign.id,
+                                        name: campaign.name,
+                                        description: campaign.description,
+                                        discount: campaign.discount
+                                      });
+                                      setOpenUpsertCampaignDialog(true);
+                                    }}
+                                  ><FontAwesomeIcon icon={faEdit} /></button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        }
+                      </tbody>
+                    </table>
+                  </div>
                   <div className='d-flex justify-content-center'>
                     <MyPagination
                       currentPage={currentPage}
@@ -481,7 +483,7 @@ export default function Campaign() {
           </div>
         </div>
 
-        <div className='col-sm-4'>
+        <div className='col-lg-4 mb-3'>
           <div className='card'>
             <div className='card-body'>
               <ProductInCampaign 

@@ -5,6 +5,13 @@
   align-items: center;
   background: transparent url(/images/bg-webadmin-login.jpg) no-repeat 100%/cover;
 
+  .bgFog {
+    position: absolute;
+    top: -70%;
+    left: -20%;
+    z-index: 0;
+    max-width: 100%;
+  }
 
   .loginCard {
     background-color: transparent;
@@ -12,58 +19,79 @@
     position: relative;
     box-shadow: none;
 
-    header {
-      position: relative;
-      z-index: 100;
+    .loginBody {
 
-      .titleColour {
+
+      header {
+        position: relative;
+        z-index: 100;
+
+        .titleColour {
+          background: var(--primary-gradient);
+          background-clip: text;
+          color: transparent;
+        }
+      }
+
+      .formIcon {
+        position: absolute;
+        top: 14px;
+        left: 15px;
+        color: var(--main-text);
+      }
+
+      input {
+        //background-color: transparent !important;
+        border: none;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        border-radius: 36px;
+        padding-left: 45px;
+        padding-bottom: 12px;
+        color: var(--main-text);
+
+        &:focus, &:-internal-autofill-selected {
+          //background-color: transparent !important;
+          box-shadow: none;
+          outline: none;
+        }
+
+        &::placeholder {
+          color: #FFF;
+          opacity: 0.5;
+        }
+      }
+
+      .loginBtn {
+        width: 100%;
+        color: #FFF;
+        border-radius: 36px;
+        padding: 12px;
         background: var(--primary-gradient);
-        background-clip: text;
-        color: transparent;
       }
     }
+
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .loginPage {
+
+    overflow: hidden;
 
     .bgFog {
-      position: absolute;
-      top: -70%;
+      top: -60%;
       left: -20%;
-      z-index: 0;
+      max-width: 140%;
     }
 
-    .formIcon {
-      position: absolute;
-      top: 14px;
-      left: 15px;
-      color: var(--main-text);
-    }
+    .loginCard {
+      .loginBody {
+        padding: 0;
 
-    input {
-      //background-color: transparent !important;
-      border: none;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-      border-radius: 36px;
-      padding-left: 45px;
-      padding-bottom: 12px;
-      color: var(--main-text);
-
-      &:focus, &:-internal-autofill-selected {
-        //background-color: transparent !important;
-        box-shadow: none;
-        outline: none;
+        form {
+          padding: 0 15px !important;
+        }
       }
-
-      &::placeholder {
-        color: #FFF;
-        opacity: 0.5;
-      }
-    }
-
-    .loginBtn {
-      width: 100%;
-      color: #FFF;
-      border-radius: 36px;
-      padding: 12px;
-      background: var(--primary-gradient);
     }
   }
 }

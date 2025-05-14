@@ -207,7 +207,7 @@ export default function Products() {
   if(loadData) return <div>กำลังโหลด...</div> 
 
   return (
-    <div className={`page`}>
+    <div className={`page products-page page-padding-btn`}>
 
       <header className="page-title">
         <h1>Products</h1>
@@ -221,15 +221,15 @@ export default function Products() {
           </div>
         </header>
 
-        <div className='col-sm-9'>
+        <div className='col-lg-9 mb-3 productsTable-col'>
           <div className="card">
             <div className="card-body">
               {
                 !showSoftDelete
                 ?
                 <div>
-                  <div className='d-flex justify-content-between align-items-center mb-3'>
-                    <div className='d-flex align-items-center'>
+                  <div className='utils-head-table'>
+                    <div className='utils-btn-group'>
                       <div>
                         <button 
                           className='btn my-btn narrow-btn red-btn me-2'
@@ -280,98 +280,100 @@ export default function Products() {
                       </InputGroup>
                     </div>
                   </div>
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th className='selectRow'></th>
-                        <th>
-                          Product
-                          <OrderByBtn 
-                            currentStatus={orderBy[0].value}
-                            handleOnClick={() => handleChangeOrderBy('name')}
-                          />
-                        </th>
-                        <th>
-                          In Stock 
-                          <OrderByBtn 
-                            currentStatus={orderBy[1].value}
-                            handleOnClick={() => handleChangeOrderBy('inStock')}
-                          />
-                        </th>
-                        <th>
-                          Price 
-                          <OrderByBtn 
-                            currentStatus={orderBy[2].value}
-                            handleOnClick={() => handleChangeOrderBy('price')}
-                          />
-                        </th>
-                        <th>
-                          Sale 
-                          <OrderByBtn 
-                            currentStatus={orderBy[3].value}
-                            handleOnClick={() => handleChangeOrderBy('sale')}
-                          />
-                        </th>
-                        <th>
-                          Total Revenue 
-                          <OrderByBtn 
-                            currentStatus={orderBy[4].value}
-                            handleOnClick={() => handleChangeOrderBy('totalSale')}
-                          />
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {
-                        productList.map((product, index) => (
-                          <tr key={`product_${product.id}`}>
-                            <td className='selectRow'>
-                              <div className='flexCenterXY'>
-                                <Form.Check
-                                  type={"checkbox"}
-                                  id={`select-product`}
-                                  label={``}
-                                  checked={(selectedDeleteProducts.filter(i => i === product.id).length > 0)}
-                                  onChange={(e) => {
-                                    const tempSelectedDeletedProducts = [...selectedDeleteProducts];
-                                    if(e.target.checked === true) {
-                                      tempSelectedDeletedProducts.push(product.id);
-                                      setSelectedDeleteProducts(tempSelectedDeletedProducts);
-                                    }
-                                    else {
-                                      const removeResult = tempSelectedDeletedProducts.filter(i => i !== product.id);
-                                      setSelectedDeleteProducts(removeResult);
-                                    }
-                                  }}
-                                />
-                              </div>
-                            </td>
-                            <td style={{width: '50%'}}>
-                              <Link to={`/product/${product.id}`} className="d-flex align-items-center">
-                                <figure className='me-2 mb-0'>
-                                  {
-                                    product.images.length > 0
-                                    ?
-                                    <img src={`${serverPath}/${product.images[0].path}`} style={{width: 60}} />
-                                    :
-                                    <img src="https://placehold.co/60x40" style={{width: 60}} />
-                                  }
-                                </figure>
-                                <div>
-                                  <p className='mb-0'>{product.name}</p>
-                                  sku: <small className='opacity-50'>{product.sku}</small>
+                  <div className='table-responsive'>
+                    <table className="table products-table">
+                      <thead>
+                        <tr>
+                          <th className='selectRow'></th>
+                          <th>
+                            Product
+                            <OrderByBtn 
+                              currentStatus={orderBy[0].value}
+                              handleOnClick={() => handleChangeOrderBy('name')}
+                            />
+                          </th>
+                          <th>
+                            In Stock 
+                            <OrderByBtn 
+                              currentStatus={orderBy[1].value}
+                              handleOnClick={() => handleChangeOrderBy('inStock')}
+                            />
+                          </th>
+                          <th>
+                            Price 
+                            <OrderByBtn 
+                              currentStatus={orderBy[2].value}
+                              handleOnClick={() => handleChangeOrderBy('price')}
+                            />
+                          </th>
+                          <th>
+                            Sale 
+                            <OrderByBtn 
+                              currentStatus={orderBy[3].value}
+                              handleOnClick={() => handleChangeOrderBy('sale')}
+                            />
+                          </th>
+                          <th>
+                            Total Revenue 
+                            <OrderByBtn 
+                              currentStatus={orderBy[4].value}
+                              handleOnClick={() => handleChangeOrderBy('totalSale')}
+                            />
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          productList.map((product, index) => (
+                            <tr key={`product_${product.id}`}>
+                              <td className='selectRow'>
+                                <div className='flexCenterXY'>
+                                  <Form.Check
+                                    type={"checkbox"}
+                                    id={`select-product`}
+                                    label={``}
+                                    checked={(selectedDeleteProducts.filter(i => i === product.id).length > 0)}
+                                    onChange={(e) => {
+                                      const tempSelectedDeletedProducts = [...selectedDeleteProducts];
+                                      if(e.target.checked === true) {
+                                        tempSelectedDeletedProducts.push(product.id);
+                                        setSelectedDeleteProducts(tempSelectedDeletedProducts);
+                                      }
+                                      else {
+                                        const removeResult = tempSelectedDeletedProducts.filter(i => i !== product.id);
+                                        setSelectedDeleteProducts(removeResult);
+                                      }
+                                    }}
+                                  />
                                 </div>
-                              </Link>
-                            </td>
-                            <td>{product.inStock.inStock}</td>
-                            <td>฿{parseFloat(product.price).toLocaleString('th-TH')}</td>
-                            <td>{product.orderItems.length === 0 ? '0' : sumTotalSale(product.orderItems).saleAmount}</td>
-                            <td>{product.orderItems.length === 0 ? '0' : sumTotalSale(product.orderItems).totalSale}</td>
-                          </tr>
-                        ))
-                      }
-                    </tbody>
-                  </table>
+                              </td>
+                              <td style={{width: '50%'}}>
+                                <Link to={`/product/${product.id}`} className="d-flex align-items-center">
+                                  <figure className='me-2 mb-0'>
+                                    {
+                                      product.images.length > 0
+                                      ?
+                                      <img src={`${serverPath}/${product.images[0].path}`} style={{width: 60}} />
+                                      :
+                                      <img src="https://placehold.co/60x40" style={{width: 60}} />
+                                    }
+                                  </figure>
+                                  <div>
+                                    <p className='mb-0'>{product.name}</p>
+                                    sku: <small className='opacity-50'>{product.sku}</small>
+                                  </div>
+                                </Link>
+                              </td>
+                              <td>{product.inStock.inStock}</td>
+                              <td>฿{parseFloat(product.price).toLocaleString('th-TH')}</td>
+                              <td>{product.orderItems.length === 0 ? '0' : sumTotalSale(product.orderItems).saleAmount}</td>
+                              <td>{product.orderItems.length === 0 ? '0' : sumTotalSale(product.orderItems).totalSale}</td>
+                            </tr>
+                          ))
+                        }
+                      </tbody>
+                    </table>
+                  </div>
                   <div className='d-flex justify-content-center'>
                     <MyPagination
                       currentPage={currentPage}
@@ -400,50 +402,52 @@ export default function Products() {
                       </InputGroup> */}
                     </div>
                   </div>
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th className='selectRow'></th>
-                        <th>Product <FontAwesomeIcon icon={faArrowUp} /></th>
-                        <th>Deleted at</th>
-                        {/* <th></th> */}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {
-                        productInTrashList.map((i, index) => (
-                          <tr key={`product_row_${index + 1}`}>
-                            <td className='selectRow'>
-                              <div className='flexCenterXY'>
-                                <Form.Check
-                                  type={"checkbox"}
-                                  id={`select-product`}
-                                  label={``}
-                                />
-                              </div>
-                            </td>
-                            <td>
-                              <div className='d-flex'>
-                                <figure className='me-2 mb-0'>
-                                  <img src="/images/dummy-product.jpg" style={{width: 60}} />
-                                </figure>
-                                <div>
-                                  <p className='mb-0'>{i.name}</p>
-                                  sku: <small className='opacity-50'>{i.sku}</small>
+                  <div className='table-responsive'>
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th className='selectRow'></th>
+                          <th>Product <FontAwesomeIcon icon={faArrowUp} /></th>
+                          <th>Deleted at</th>
+                          {/* <th></th> */}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          productInTrashList.map((i, index) => (
+                            <tr key={`product_row_${index + 1}`}>
+                              <td className='selectRow'>
+                                <div className='flexCenterXY'>
+                                  <Form.Check
+                                    type={"checkbox"}
+                                    id={`select-product`}
+                                    label={``}
+                                  />
                                 </div>
-                              </div>
-                            </td>
-                            <td>{formatTimestamp(i.deletedAt)}</td>
-                            {/* <td>
-                              <div className='d-flex'>
-                                <button className='btn btn-primary me-2'>Restore</button>
-                              </div>
-                            </td> */}
-                          </tr>
-                        ))
-                      }
-                    </tbody>
-                  </table>
+                              </td>
+                              <td>
+                                <div className='d-flex'>
+                                  <figure className='me-2 mb-0'>
+                                    <img src="/images/dummy-product.jpg" style={{width: 60}} />
+                                  </figure>
+                                  <div>
+                                    <p className='mb-0'>{i.name}</p>
+                                    sku: <small className='opacity-50'>{i.sku}</small>
+                                  </div>
+                                </div>
+                              </td>
+                              <td>{formatTimestamp(i.deletedAt)}</td>
+                              {/* <td>
+                                <div className='d-flex'>
+                                  <button className='btn btn-primary me-2'>Restore</button>
+                                </div>
+                              </td> */}
+                            </tr>
+                          ))
+                        }
+                      </tbody>
+                    </table>
+                  </div>
                   <div className='d-flex justify-content-center'>
                     <MyPagination
                       currentPage={trashCurrentPage}
@@ -458,7 +462,7 @@ export default function Products() {
           </div>
         </div>
 
-        <div className='col-sm-3'>
+        <div className='col-md-6 col-lg-3 mb-3 topProductSell-col'>
           <TopTotalSellProduct />
         </div>
         

@@ -258,7 +258,7 @@ export default function Category() {
   if(loading) return <div>กำลังโหลด...</div>
 
   return (
-    <div className={`page`}>
+    <div className={`page categories-page page-padding-btn`}>
       <header className="page-title">
         <h1>Category</h1>
         <p>All product category</p>
@@ -276,11 +276,11 @@ export default function Category() {
         </div>
         <div className="col-12">
           <div className="row">
-            <div className="col-sm-8">
-              <div className='card mb-3'>
+            <div className="col-lg-8 mb-3">
+              <div className='card'>
                 <div className='card-body'>
-                  <div className='d-flex justify-content-between align-items-center mb-3'>
-                    <div>
+                  <div className='utils-head-table'>
+                    <div className='utils-btn-group'>
                       <button 
                         className='btn my-btn narrow-btn red-btn'
                         onClick={() => {
@@ -318,89 +318,91 @@ export default function Category() {
                       </InputGroup>
                     </div>
                   </div>
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th className='selectRow'></th>
-                        <th>
-                          Category Name 
-                          <OrderByBtn 
-                            currentStatus={orderBy[0].value}
-                            handleOnClick={() => handleChangeOrderBy('name')}
-                          />
-                        </th>
-                        <th>Customer Click</th>
-                        <th>
-                          Have Products On 
-                          <OrderByBtn 
-                            currentStatus={orderBy[1].value}
-                            handleOnClick={() => handleChangeOrderBy('productAmount')}
-                          />
-                        </th>
-                        <th>
-                          Created At 
-                          <OrderByBtn 
-                            currentStatus={orderBy[2].value}
-                            handleOnClick={() => handleChangeOrderBy('createdAt')}
-                          />
-                        </th>
-                        <th>Last Updated</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {
-                        categories.map((i, index) => (
-                          <tr key={`category_row_${index + 1}`}>
-                            <td className='selectRow'>
-                              <div className='flexCenterXY'>
-                                <Form.Check
-                                  type={"checkbox"}
-                                  id={`select-category-${index + 1}`}
-                                  label={``}
-                                  name={`deleteCategoryId`}
-                                  value={i.id}
-                                  checked={checkIsSelectDelete(i.id)}
-                                  onChange={(e) => handleSelectCategory(e)}
-                                />
-                              </div>
-                            </td>
-                            <td>
-                              {i.name}<br />
-                              <small className='opacity-50'>{i.description}</small>
-                            </td>
-                            <td>coming soon...</td>
-                            <td>{i.products.length}</td>
-                            <td>
-                              {formatTimestamp(i.createdAt)}<br />
-                              <small className='opacity-50'>{i.createdBy?.displayName}</small>
-                            </td>
-                            <td>
-                              {formatTimestamp(i.updatedAt)}<br />
-                              <small className='opacity-50'>{i.updatedBy?.displayName}</small></td>
-                            <td>
-                              <div className='d-flex'>
-                                <button 
-                                  type="button"
-                                  className='btn my-btn narrow-btn blue-btn px-3'
-                                  onClick={() => handlerClickUpdate(i.id, i.name, i.description)}
-                                ><FontAwesomeIcon icon={faEdit} /></button>
-                                {/* <button 
-                                  type="button"
-                                  className='btn btn-link p-0 btn-lg text-danger'
-                                  onClick={() => {
-                                    setSelectDeleteCategory(i.id);
-                                    setDeleteType('single');
-                                    openConfirmDeleteDailog('single');
-                                  }}
-                                ><FontAwesomeIcon icon={faTrash} /></button> */}
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      }
-                    </tbody>
-                  </table>
+                  <div className='table-responsive'>
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th className='selectRow'></th>
+                          <th>
+                            Category Name 
+                            <OrderByBtn 
+                              currentStatus={orderBy[0].value}
+                              handleOnClick={() => handleChangeOrderBy('name')}
+                            />
+                          </th>
+                          <th>Customer Click</th>
+                          <th>
+                            Have Products On 
+                            <OrderByBtn 
+                              currentStatus={orderBy[1].value}
+                              handleOnClick={() => handleChangeOrderBy('productAmount')}
+                            />
+                          </th>
+                          <th>
+                            Created At 
+                            <OrderByBtn 
+                              currentStatus={orderBy[2].value}
+                              handleOnClick={() => handleChangeOrderBy('createdAt')}
+                            />
+                          </th>
+                          <th>Last Updated</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          categories.map((i, index) => (
+                            <tr key={`category_row_${index + 1}`}>
+                              <td className='selectRow'>
+                                <div className='flexCenterXY'>
+                                  <Form.Check
+                                    type={"checkbox"}
+                                    id={`select-category-${index + 1}`}
+                                    label={``}
+                                    name={`deleteCategoryId`}
+                                    value={i.id}
+                                    checked={checkIsSelectDelete(i.id)}
+                                    onChange={(e) => handleSelectCategory(e)}
+                                  />
+                                </div>
+                              </td>
+                              <td>
+                                {i.name}<br />
+                                <small className='opacity-50'>{i.description}</small>
+                              </td>
+                              <td>coming soon...</td>
+                              <td>{i.products.length}</td>
+                              <td>
+                                {formatTimestamp(i.createdAt)}<br />
+                                <small className='opacity-50'>{i.createdBy?.displayName}</small>
+                              </td>
+                              <td>
+                                {formatTimestamp(i.updatedAt)}<br />
+                                <small className='opacity-50'>{i.updatedBy?.displayName}</small></td>
+                              <td>
+                                <div className='d-flex'>
+                                  <button 
+                                    type="button"
+                                    className='btn my-btn narrow-btn blue-btn px-3'
+                                    onClick={() => handlerClickUpdate(i.id, i.name, i.description)}
+                                  ><FontAwesomeIcon icon={faEdit} /></button>
+                                  {/* <button 
+                                    type="button"
+                                    className='btn btn-link p-0 btn-lg text-danger'
+                                    onClick={() => {
+                                      setSelectDeleteCategory(i.id);
+                                      setDeleteType('single');
+                                      openConfirmDeleteDailog('single');
+                                    }}
+                                  ><FontAwesomeIcon icon={faTrash} /></button> */}
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        }
+                      </tbody>
+                    </table>
+                  </div>
                   <div className='d-flex justify-content-center'>
                     <MyPagination
                       currentPage={currentPage}
@@ -411,7 +413,7 @@ export default function Category() {
                 </div>
               </div>
             </div>
-            <div className="col-sm-4">
+            <div className="col-lg-4 mb-3">
               <div className='card'>
                 <div className='card-body'>
                   <UpsertCategory

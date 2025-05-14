@@ -56,38 +56,40 @@ export default function StockActionHistory({ refresh }) {
       stockActions.length > 0
       ?
       <>
-      <table className='table mt-2'>
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Action</th>
-            <th>Amount</th>
-            <th>Notes</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            stockActions.map((i, index) => {
-              return (
-                <tr key={`stock_action_history_row_${i.id}`}>
-                  <td>{i?.product?.name}<br /><small className='opacity-50'>SKU:{i?.product?.sku}</small></td>
-                  <td>
-                    <small className={`badge ${i?.action === 'ADD' ? 'text-bg-success' : ''} ${i?.action === 'REMOVE' ? 'text-bg-danger' : ''}`}>{i?.action}</small>
-                  </td>
-                  <td>{i?.quantity}</td>
-                  <td>{i.description ?? '-'}</td>
-                  <td>
-                    {formatTimestamp(i?.actionedAt)}
-                    <br />
-                    <small className='opacity-50'>{i?.actionedBy?.displayName}</small>
-                  </td>
-                </tr>
-              )
-            })
-          }
-        </tbody>
-      </table>
+      <div className='table-responsive'>
+        <table className='table mt-2 stock-action-history-table'>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Action</th>
+              <th>Amount</th>
+              <th>Notes</th>
+              <th>Date</th>
+              <th>By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              stockActions.map((i, index) => {
+                return (
+                  <tr key={`stock_action_history_row_${i.id}`}>
+                    <td>{i?.product?.name}<br /><small className='opacity-50'>SKU:{i?.product?.sku}</small></td>
+                    <td>
+                      <small className={`badge ${i?.action === 'ADD' ? 'text-bg-success' : ''} ${i?.action === 'REMOVE' ? 'text-bg-danger' : ''}`}>{i?.action}</small>
+                    </td>
+                    <td>{i?.quantity}</td>
+                    <td>{i.description ?? '-'}</td>
+                    <td>
+                      {formatTimestamp(i?.actionedAt)}
+                    </td>
+                    <td>{i?.actionedBy?.displayName}</td>
+                  </tr>
+                )
+              })
+            }
+          </tbody>
+        </table>
+      </div>
       <div className='d-flex justify-content-center'>
         <MyPagination
           currentPage={currentPage}

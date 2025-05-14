@@ -14,36 +14,6 @@
   color: #FFF;
   z-index: 90;
 
-  .iconBtn {
-    width: 52px;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #FFF !important;
-    border-radius: 100%;
-    color: var(--main-text) !important;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-    border: none;
-    position: relative;
-
-    .digitAlert {
-      background-color: var(--main-red);
-      color: #FFF;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 100%;
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      font-size: 0.84rem;
-      font-weight: 700;
-    }
-  }
-
   .userDropdown {
     background-color: #FFF !important;
     border-radius: 36px;
@@ -72,4 +42,101 @@
     }
   }
 
+  .menuPhone {
+    display: none;
+    
+    
+    .menuBtn {
+      background-color: #FFF;
+      border-radius: 12px;
+      padding: 8px 20px;
+      font-size: 1.2rem;
+
+      i, svg {
+        margin-right: 8px;
+        position: relative;
+        top: 2px;
+      }
+    }
+
+    .menuPhoneItem {
+      padding: 8px 12px;
+      display: block;
+
+      &.active {
+        color: #FFF;
+        background-color: var(--main-purple);
+      }
+
+      i, svg {
+        margin-right: 12px;
+      }
+    }
+  }
+
+}
+
+.iconBtn {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFF !important;
+  border-radius: 100%;
+  color: var(--main-text) !important;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  border: none;
+  position: relative;
+
+  .digitAlert {
+    background-color: var(--main-red);
+    color: #FFF;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100%;
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 0.84rem;
+    font-weight: 700;
+  }
+}
+
+@media only screen and (max-width: 1200px) {
+  .topBarMenu {
+    justify-content: space-between;
+    padding-left: 20px;
+    position: relative;
+
+    .menuPhone {
+      display: block;
+    }
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .topBarMenu {
+    padding-left: 15px;
+    padding-right: 15px;
+
+    .menuPhone {
+      .menuBtn {
+        font-size: 0.8rem;
+        padding: 12px 15px;
+      }
+    }
+  }
+  .iconBtn {
+    width: 32px;
+    height: 32px;
+    margin-top: 50px;
+    .digitAlert {
+      top: -14px;
+      right: -14px;
+    }
+  } 
 }

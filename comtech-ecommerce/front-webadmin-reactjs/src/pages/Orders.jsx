@@ -187,11 +187,10 @@ export default function Orders() {
       </header>
               
       <div className="row mt-4">
-        <div className='col-sm-8'>
+        <div className='col-lg-8 mb-3'>
           <div className="card">
             <div className="card-body">
-              
-                <div className='d-flex justify-content-between align-items-center mb-3'>
+                <div className='utils-head-table'>
                   <div>
                     {/* <div className="dropdown">
                       <button className="btn my-btn narrow-btn purple-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -237,155 +236,160 @@ export default function Orders() {
                     </InputGroup>
                   </div>
                 </div>
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th className='selectRow'></th>
-                      <th>
-                        #Order ID 
-                        <OrderByBtn 
-                          currentStatus={orderBy[0].value}
-                          handleOnClick={() => handleChangeOrderBy('orderId')}
-                        />
-                      </th>
-                      <th>
-                        Price 
-                        <OrderByBtn 
-                          currentStatus={orderBy[1].value}
-                          handleOnClick={() => handleChangeOrderBy('total')}
-                        />
-                      </th>
-                      <th>By Customer</th>
-                      <th>
-                        Created At 
-                        <OrderByBtn 
-                          currentStatus={orderBy[2].value}
-                          handleOnClick={() => handleChangeOrderBy('createdAt')}
-                        />
-                      </th>
-                      <th>
-                        <div className="dropdown">
-                          <button 
-                            className={`btn btn-link p-0 dropdown-toggle text-dark`} 
-                            style={{textDecoration: 'none'}}
-                            type="button" 
-                            data-bs-toggle="dropdown"
-                          ><strong>Status</strong></button>
-                          <ul className="dropdown-menu">
-                            {
-                              ['all', 'pending', 'paid', 'failed', 'cancel'].map((i, index) => (
-                                <button 
-                                  key={`order_status_dropdown_item_${index + 1}`}
-                                  className='dropdown-item'
-                                  type="button"
-                                  onClick={() => {
-                                    if(i !== 'all') {
-                                      const newValue = i.toUpperCase();
-                                      handleChangeOrderByStatus(newValue, 'paymentStatus');
-                                    }
-                                    else {
-                                      handleChangeOrderByStatus(null, 'paymentStatus');
-                                    }
-                                  }}
-                                >{i}</button>
-                              ))
-                            }
-                          </ul>
-                        </div>
-                      </th>
-                      {/* <th>
-                        <div className="dropdown">
-                          <button 
-                            className={`btn btn-link p-0 dropdown-toggle text-dark`} 
-                            style={{textDecoration: 'none'}}
-                            type="button" 
-                            data-bs-toggle="dropdown"
-                          ><strong>Shipping</strong></button>
-                          <ul className="dropdown-menu">
-                            {
-                              ['all', 'pending', 'delivering', 'completed'].map((i, index) => (
-                                <button 
-                                  key={`order_shipping_status_dropdown_item_${index + 1}`}
-                                  className='dropdown-item'
-                                  onClick={() => {
-                                    if(i !== 'all') {
-                                      const newValue = i.toUpperCase();
-                                      handleChangeOrderByStatus(newValue, 'deliveryStatus');
-                                    }
-                                    else {
-                                      handleChangeOrderByStatus(null, 'deliveryStatus');
-                                    }
-                                  }}
-                                >{i}</button>
-                              ))
-                            }
-                          </ul>
-                        </div>
-                      </th> */}
-                      {/* <th className='px-0'></th> */}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      orderList.length > 0
-                      ?
-                      <>
-                      {
-                        orderList.map((order, index) => (
-                          <tr key={`product_stock_row_${index + 1}`}>
-                            <td className='selectRow'>
-                              <div className='flexCenterXY'>
-                                <Form.Check
-                                  type={"checkbox"}
-                                  id={`select-product`}
-                                  label={``}
-                                />
-                              </div>
-                            </td>
-                            <td>
-                              <button
-                                className='btn btn-link p-0'
-                                style={{textDecoration: 'none'}}
-                                type="button"
-                                onClick={() => handlePreviewOrder(order.id)}
-                              >
-                                {/* {order.id} */}
-                                20250130-000001
-                              </button>
-                            </td>
-                            <td>฿{parseFloat(order.total).toLocaleString('th-TH')}</td>
-                            <td>
-                              {order?.customer?.customerDetail?.firstName} {order?.customer?.customerDetail?.lastName}
-                            </td>
-                            <td>{formatTimestamp(order.createdAt)}</td>
-                            <td>
-                              <small className='badge text-bg-success'>{order.paymentStatus}</small>
-                              {/* <br /><small>12 Jan 2025</small> */}
-                            </td>
-                            {/* <td><small className='badge text-bg-success'>{order.status}</small></td> */}
-                            {/* <td className='px-0'>
-                              <button
-                                type="button"
-                                className='btn my-btn narrow-btn purple-btn'
-                                onClick={() => {
-                                  handlePreviewOrder(order.id)
-                                }}
-                              ><small>Detail</small></button>
-                            </td> */}
-                          </tr>
-                        ))
-                      }
-                      </>
-                      :
+                <div className='table-responsive'>
+                  <table className="table orders-table">
+                    <thead>
                       <tr>
-                        <td colSpan={7}>
-                          <p className='my-5 text-center'>Not have order</p>
-                        </td>
+                        <th className='selectRow'></th>
+                        <th>
+                          #Order ID 
+                          <OrderByBtn 
+                            currentStatus={orderBy[0].value}
+                            handleOnClick={() => handleChangeOrderBy('orderId')}
+                          />
+                        </th>
+                        <th>
+                          Price 
+                          <OrderByBtn 
+                            currentStatus={orderBy[1].value}
+                            handleOnClick={() => handleChangeOrderBy('total')}
+                          />
+                        </th>
+                        <th>By Customer</th>
+                        <th>
+                          Created At 
+                          <OrderByBtn 
+                            currentStatus={orderBy[2].value}
+                            handleOnClick={() => handleChangeOrderBy('createdAt')}
+                          />
+                        </th>
+                        <th>
+                          <div className="dropdown">
+                            <button 
+                              className={`btn btn-link p-0 dropdown-toggle text-dark`} 
+                              style={{textDecoration: 'none'}}
+                              type="button" 
+                              data-bs-toggle="dropdown"
+                            ><strong>Status</strong></button>
+                            <ul className="dropdown-menu">
+                              {
+                                ['all', 'pending', 'paid', 'failed', 'cancel'].map((i, index) => (
+                                  <button 
+                                    key={`order_status_dropdown_item_${index + 1}`}
+                                    className='dropdown-item'
+                                    type="button"
+                                    onClick={() => {
+                                      if(i !== 'all') {
+                                        const newValue = i.toUpperCase();
+                                        handleChangeOrderByStatus(newValue, 'paymentStatus');
+                                      }
+                                      else {
+                                        handleChangeOrderByStatus(null, 'paymentStatus');
+                                      }
+                                    }}
+                                  >{i}</button>
+                                ))
+                              }
+                            </ul>
+                          </div>
+                        </th>
+                        {/* <th>
+                          <div className="dropdown">
+                            <button 
+                              className={`btn btn-link p-0 dropdown-toggle text-dark`} 
+                              style={{textDecoration: 'none'}}
+                              type="button" 
+                              data-bs-toggle="dropdown"
+                            ><strong>Shipping</strong></button>
+                            <ul className="dropdown-menu">
+                              {
+                                ['all', 'pending', 'delivering', 'completed'].map((i, index) => (
+                                  <button 
+                                    key={`order_shipping_status_dropdown_item_${index + 1}`}
+                                    className='dropdown-item'
+                                    onClick={() => {
+                                      if(i !== 'all') {
+                                        const newValue = i.toUpperCase();
+                                        handleChangeOrderByStatus(newValue, 'deliveryStatus');
+                                      }
+                                      else {
+                                        handleChangeOrderByStatus(null, 'deliveryStatus');
+                                      }
+                                    }}
+                                  >{i}</button>
+                                ))
+                              }
+                            </ul>
+                          </div>
+                        </th> */}
+                        {/* <th className='px-0'></th> */}
                       </tr>
-                    }
-                    
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {
+                        orderList.length > 0
+                        ?
+                        <>
+                        {
+                          orderList.map((order, index) => (
+                            <tr key={`product_stock_row_${index + 1}`}>
+                              <td className='selectRow'>
+                                <div className='flexCenterXY'>
+                                  <Form.Check
+                                    type={"checkbox"}
+                                    id={`select-product`}
+                                    label={``}
+                                  />
+                                </div>
+                              </td>
+                              <td>
+                                <button
+                                  className='btn btn-link p-0'
+                                  style={{
+                                    textDecoration: 'none', 
+                                    color: 'var(--main-purple)',
+                                    fontWeight: 600
+                                  }}
+                                  type="button"
+                                  onClick={() => handlePreviewOrder(order.id)}
+                                >
+                                  {order.orderNumber}
+                                </button>
+                              </td>
+                              <td>฿{parseFloat(order.total).toLocaleString('th-TH')}</td>
+                              <td>
+                                {order?.customer?.customerDetail?.firstName} {order?.customer?.customerDetail?.lastName}
+                              </td>
+                              <td>{formatTimestamp(order.createdAt)}</td>
+                              <td>
+                                <small className='badge text-bg-success'>{order.paymentStatus}</small>
+                                {/* <br /><small>12 Jan 2025</small> */}
+                              </td>
+                              {/* <td><small className='badge text-bg-success'>{order.status}</small></td> */}
+                              {/* <td className='px-0'>
+                                <button
+                                  type="button"
+                                  className='btn my-btn narrow-btn purple-btn'
+                                  onClick={() => {
+                                    handlePreviewOrder(order.id)
+                                  }}
+                                ><small>Detail</small></button>
+                              </td> */}
+                            </tr>
+                          ))
+                        }
+                        </>
+                        :
+                        <tr>
+                          <td colSpan={7}>
+                            <p className='my-5 text-center'>Not have order</p>
+                          </td>
+                        </tr>
+                      }
+                      
+                    </tbody>
+                  </table>
+                </div>
                 {
                   orderList.length ?
                   <div className='d-flex justify-content-center'>
@@ -405,7 +409,7 @@ export default function Orders() {
           </div>
         </div>
 
-        <div className='col-sm-4'>
+        <div className='col-lg-4 mb-3'>
           <div className='card'>
             <div className='card-body'>
               {
@@ -416,12 +420,12 @@ export default function Orders() {
                   <h5>Order Detail<span></span></h5>
                 </header>
                 <div className="mt-3" style={{fontSize: '0.9rem'}}>
-                  <p className='mb-0'><strong>#Order Id</strong> : {selectOrderData.id}</p>
+                  <p className='mb-0'><strong>#Order Id</strong> : {selectOrderData.orderNumber}</p>
                   <p className='mb-0'><strong>Created At</strong> : {formatTimestamp(selectOrderData.createdAt)}</p>
                   <p className='mb-0'><strong>Customer</strong> : {selectOrderData?.customer?.customerDetail?.firstName} {selectOrderData?.customer?.customerDetail?.lastName}</p> 
-                  <p className='mb-0'><strong>Address</strong> : n/a</p> 
-                  <p className='mb-0'><strong>Email</strong> : n/a</p> 
-                  <p><strong>Phone</strong> : n/a</p> 
+                  <p className='mb-0'><strong>Address</strong> : {selectOrderData?.address} {selectOrderData?.subDistrict} {selectOrderData?.district} {selectOrderData?.postcode} {selectOrderData?.province} {selectOrderData?.country}</p> 
+                  <p className='mb-0'><strong>Email</strong> : {selectOrderData?.email}</p> 
+                  <p><strong>Phone</strong> : {selectOrderData?.phone}</p> 
                 </div>
                 <table className='table'>
                   <thead>

@@ -220,14 +220,14 @@ export default function Stock() {
       </header>
           
       <div className="row mt-4">
-        <div className='col-sm-6'>
+        <div className='col-lg-6 mb-3'>
           <div className="card">
             <div className="card-body">
               {
                 products.length > 0
                 ?
                 <>
-                <div className='d-flex justify-content-end align-items-center mb-3'>
+                <div className='utils-head-table'>
                   <div className="search-input">
                     <InputGroup>
                       <Form.Control
@@ -257,71 +257,73 @@ export default function Stock() {
                     </InputGroup>
                   </div>
                 </div>
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>
-                        Product 
-                        <OrderByBtn 
-                          currentStatus={orderBy[0].value}
-                          handleOnClick={() => handleChangeOrderBy('name')}
-                        />
-                      </th>
-                      <th>
-                        In Stock 
-                        <OrderByBtn 
-                          currentStatus={orderBy[1].value}
-                          handleOnClick={() => handleChangeOrderBy('inStock')}
-                        />
-                      </th>
-                      <th>Last Updated</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {
-                      products.map((product, index) => (
-                        <tr key={`product_stock_row_${index + 1}`}>
-                          <td style={{width: 300}}>
-                            {product.name}<br /><small className='opacity-50'>SKU:{product.sku}</small>
-                          </td>
-                          <td>{product.inStock.inStock}</td>
-                          <td>{formatTimestamp(product.inStock.updatedAt)}</td>
-                          <td>
-                            <div className='d-flex'>
-                              <button
-                                type="button"
-                                className='btn my-btn narrow-btn green-btn px-3 me-2'
-                                onClick={() => {
-                                  setSelectedProduct({
-                                    id: product.id,
-                                    name: product.name,
-                                    sku: product.sku
-                                  });
-                                  setActionType('ADD');
-                                  setOpenManageStockDialog(true);
-                                }}
-                              ><FontAwesomeIcon icon={faAdd} /></button>
-                              <button 
-                                type="button"
-                                className='btn my-btn narrow-btn red-btn px-3'
-                                onClick={() => {
-                                  setSelectedProduct({
-                                    id: product.id,
-                                    name: product.name,
-                                    sku: product.sku
-                                  });
-                                  setActionType('REMOVE');
-                                  setOpenManageStockDialog(true);
-                                }}
-                              ><FontAwesomeIcon icon={faMinus} /></button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    }
-                  </tbody>
-                </table>
+                <div className='table-responsive'>
+                  <table className="table product-stock-table">
+                    <thead>
+                      <tr>
+                        <th>
+                          Product 
+                          <OrderByBtn 
+                            currentStatus={orderBy[0].value}
+                            handleOnClick={() => handleChangeOrderBy('name')}
+                          />
+                        </th>
+                        <th>
+                          In Stock 
+                          <OrderByBtn 
+                            currentStatus={orderBy[1].value}
+                            handleOnClick={() => handleChangeOrderBy('inStock')}
+                          />
+                        </th>
+                        <th>Last Updated</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {
+                        products.map((product, index) => (
+                          <tr key={`product_stock_row_${index + 1}`}>
+                            <td style={{width: 300}}>
+                              {product.name}<br /><small className='opacity-50'>SKU:{product.sku}</small>
+                            </td>
+                            <td>{product.inStock.inStock}</td>
+                            <td>{formatTimestamp(product.inStock.updatedAt)}</td>
+                            <td>
+                              <div className='d-flex'>
+                                <button
+                                  type="button"
+                                  className='btn my-btn narrow-btn green-btn px-3 me-2'
+                                  onClick={() => {
+                                    setSelectedProduct({
+                                      id: product.id,
+                                      name: product.name,
+                                      sku: product.sku
+                                    });
+                                    setActionType('ADD');
+                                    setOpenManageStockDialog(true);
+                                  }}
+                                ><FontAwesomeIcon icon={faAdd} /></button>
+                                <button 
+                                  type="button"
+                                  className='btn my-btn narrow-btn red-btn px-3'
+                                  onClick={() => {
+                                    setSelectedProduct({
+                                      id: product.id,
+                                      name: product.name,
+                                      sku: product.sku
+                                    });
+                                    setActionType('REMOVE');
+                                    setOpenManageStockDialog(true);
+                                  }}
+                                ><FontAwesomeIcon icon={faMinus} /></button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      }
+                    </tbody>
+                  </table>
+                </div>
                 <MyPagination
                   currentPage={currentPage}
                   totalPage={totalPage}
@@ -336,7 +338,7 @@ export default function Stock() {
           </div>
         </div>
 
-        <div className='col-sm-6'>
+        <div className='col-lg-6 mb-3'>
           <div className='card mb-3'>
             <div className='card-body'>
               <StockActionHistory refresh={refresh} />

@@ -15,7 +15,7 @@ export class StockController {
     const pagination = parseBoolean(req.query.noPagination as string) || true;
     const orderBy = req.query.orderBy as string || 'actionedAt';
     const orderDir = req.query.orderDir as string || 'desc';
-    const productId = parseInt(req.query.page as string);
+    const productId = parseInt(req.query.productId as string);
 
     try {
       const stockActions = await stockService.findAll(page, pageSize, pagination, orderBy, orderDir, productId);

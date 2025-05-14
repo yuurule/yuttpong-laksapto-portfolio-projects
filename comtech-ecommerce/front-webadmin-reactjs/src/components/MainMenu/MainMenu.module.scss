@@ -82,5 +82,40 @@
     }
   }
 
- 
+}
+
+@media only screen and (max-width: 1440px) {
+  .mainMenu {
+    width: 180px;
+
+    .menuText {
+      left: 45px;
+    }
+
+    ul {
+      margin: 30px 12px 0 12px;
+
+      li {
+        &.menuBtn {
+          button {
+            padding: 0 12px;
+          }
+        }
+
+        a {
+          padding: 8px 12px;
+        }
+
+        i, svg {
+          margin-right: 12px;
+        }
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 1200px) {
+  .mainMenu {
+    display: none;
+  }
 }

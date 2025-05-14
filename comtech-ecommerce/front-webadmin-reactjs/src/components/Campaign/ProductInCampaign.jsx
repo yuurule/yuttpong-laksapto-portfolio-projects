@@ -56,7 +56,7 @@ export default function ProductInCampaign({ selectedCampaign, data, handleRefres
         data !== undefined && Array.isArray(data)
         ?
           <>
-          <div className='mt-3 mb-2'>
+          <div className='mt-3 mb-2 edit-item-in-campaign'>
             <button 
               type="button"
               className='btn my-btn narrow-btn green-btn me-3'

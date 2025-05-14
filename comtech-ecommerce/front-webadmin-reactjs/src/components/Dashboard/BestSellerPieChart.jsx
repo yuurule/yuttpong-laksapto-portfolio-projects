@@ -84,7 +84,7 @@ export default function BestSellerPieChart() {
 
   return (
     <div className="card">
-      <div className="card-body" style={{height: 555}}>
+      <div className="card-body best-seller-card">
         <header className='d-flex justify-content-between align-items-center'>
           <h5 className='mb-0'>Best Seller Product<span></span></h5>
         </header>
@@ -95,21 +95,19 @@ export default function BestSellerPieChart() {
               {
                 chartData.labels.map((i, index) => (
                   <tr>
-                    <td style={{padding: '2px 5px 2px 0'}}><span style={{
-                      width: 175, 
-                      overflow: 'hidden',
-                      display: 'block',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}
-                    ><span style={{
-                      display: 'inline-block',
-                      width: 12,
-                      height: 12,
-                      borderRadius: 3,
-                      backgroundColor: `${chartData.datasets[0].backgroundColor[index]}`,
-                      marginRight: 8,
-                    }}></span>{i}</span></td>
+                    <td style={{padding: '2px 5px 2px 0'}}>
+                      <span className='ellipsis'>
+                        <span style={{
+                          display: 'inline-block',
+                          width: 12,
+                          height: 12,
+                          borderRadius: 3,
+                          backgroundColor: `${chartData.datasets[0].backgroundColor[index]}`,
+                          marginRight: 8,
+                        }}></span>
+                        {i}
+                      </span>
+                    </td>
                     <td style={{padding: '2px 0 2px 5px', textAlign: 'right'}}>
                       ฿{(chartData.datasets[0].data[index]).toLocaleString('th-TH')}
                     </td>
