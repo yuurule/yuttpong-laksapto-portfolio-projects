@@ -156,7 +156,7 @@ export default function CustomerDetail() {
   if(customerData === null) return <p>Something wrong...</p>
 
   return (
-    <div className={`page customer-detail`}>
+    <div className={`page detail-page customer-detail`}>
       <header className="page-title smaller">
         <h1>{`${customerData.customerDetail.firstName} ${customerData.customerDetail.lastName}`}</h1>
         <p>Customer detail</p>
@@ -171,36 +171,36 @@ export default function CustomerDetail() {
             </button> */}
           </div>
         </header>
-        <div className='col-sm-9 left-col'>
+        <div className='col-lg-9 left-col'>
           <div className='row'>
             <div className='col-12 mb-3'>
               <div className='card'>
-                <div className='card-body d-flex justify-content-around align-items-center py-4'>
+                <div className='card-body header-detail py-4'>
                   <div>
                     <figure className='userImage'>
                       <img src="/images/dummy-webadmin.jpg" />
                     </figure>
                   </div>
-                  <div className='d-flex align-items-center'>
-                    <div className='text-center me-5 px-2'>
+                  <div className='feature-detail'>
+                    <div className='feature-detail-item'>
                       <strong className='h3 d-block mb-1'>
                         ฿{formatMoney(totalExpense)}
                       </strong>
                       <p className='mb-0 opacity-50'>Total Expense</p>
                     </div>
-                    <div className='text-center me-5 px-2'>
+                    <div className='feature-detail-item'>
                       <strong className='h3 d-block mb-1'>
                         ฿{formatMoney(totalPendingExpense)}
                       </strong>
                       <p className='mb-0 opacity-50'>Pending Order</p>
                     </div>
-                    <div className='text-center me-5 px-2'>
+                    <div className='feature-detail-item'>
                       <strong className='h5 d-block mb-1'>
                         {customerData.onDelete === null ? 'Active' : 'Suspend'}
                       </strong>
                       <p className='mb-0 opacity-50'>Status</p>
                     </div>
-                    <div className='text-center me-5 px-2'>
+                    <div className='feature-detail-item'>
                       <strong className='h5 d-block mb-1'>
                         {formatTimestamp(customerData.lastActive)}
                       </strong>
@@ -219,7 +219,7 @@ export default function CustomerDetail() {
                   <table className='table'>
                     <tbody>
                       <tr>
-                        <td style={{width: '35%'}}>
+                        <td>
                           <strong>Full Name</strong>
                         </td>
                         <td>{customerData.customerDetail.firstName} {customerData.customerDetail.lastName}</td>
@@ -258,7 +258,7 @@ export default function CustomerDetail() {
                         <td>
                           <strong>Address</strong>
                         </td>
-                        <td>{customerData.customerDetail.street} {customerData.customerDetail.city} {customerData.customerDetail.region} {customerData.customerDetail.postcode}</td>
+                        <td>{customerData.customerDetail.address} {customerData.customerDetail.subDistrict} {customerData.customerDetail.district} {customerData.customerDetail.postcode} {customerData.customerDetail.province} {customerData.customerDetail.country}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -279,7 +279,7 @@ export default function CustomerDetail() {
                 </div>
               </div>
 
-              <div className='card'>
+              <div className='card mb-3'>
                 <div className='card-body'>
                   <header>
                     <h5>{customerData?.customerDetail?.firstName} {customerData.customerDetail.lastName} Wishlist<span></span></h5>
@@ -310,11 +310,71 @@ export default function CustomerDetail() {
                 </div>
               </div>
               
+              <div className='card mb-3 show-1024'>
+                <div className='card-body'>
+                  <header>
+                    <h5>Recent Orders<span></span></h5>
+                  </header>
+                  {
+                    paidOrders.length > 0
+                    ?
+                    <table className='table mt-3'>
+                      <thead>
+                        <tr>
+                          <th>Order Number</th>
+                          <th>Price</th>
+                          <th>Date/Time</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          paidOrders.map((order, index) => {
+                            if(index < 5) {
+                              return (
+                                <tr key={`order_history_${order.id}`}>
+                                  <td>#{order.id}</td>
+                                  <td>฿{formatMoney(order.total)}</td>
+                                  <td>{formatTimestamp(order.createdAt)}</td>
+                                </tr>
+                              )
+                            }
+                          })
+                        }
+                      </tbody>
+                    </table>
+                    :
+                    <p className='my-3 text-center opacity-50'>Not have order</p>
+                  }
+                </div>
+              </div>
+
+              <div className='card mb-3 show-1024'>
+                <div className='card-body'>
+                  <header className='d-flex justify-content-between align-items-center mb-3'>
+                    <h5 className='mb-0'>Latest Reviews by {customerData?.customerDetail?.firstName} {customerData.customerDetail.lastName}<span></span></h5>
+                    {/* <small>Total 20 reviews</small> */}
+                  </header>
+                  {
+                    customerData.createdReviews.map((review, index) => {
+                      if(index < 3) {
+                        return (
+                          <div key={`customer_review_${review.id}`} className='reviewItem'>
+                            <p>"{review.message}"</p>
+                            <strong>Product</strong> : {review.product.name}<br />
+                            <strong>Rating</strong> : {review.rating.toFixed(1)}<br />
+                            <strong>At</strong> : {formatTimestamp(review.createdAt)}
+                          </div>
+                        )
+                      }
+                    })
+                  }
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className='col-sm-3 right-col'>
+        <div className='col-lg-3 right-col'>
           <div className='card mb-3'>
             <div className='card-body'>
               <header>

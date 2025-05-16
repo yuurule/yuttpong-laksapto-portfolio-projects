@@ -131,7 +131,7 @@ export default function AddProductInCampaign({
       <hr />
       <DialogContent>
         <div className='row'>
-          <div className='col-3'>
+          <div className='col-lg-3'>
             <strong>Product Brand</strong>
             {
               brandList.map((brand, index) => {
@@ -172,7 +172,7 @@ export default function AddProductInCampaign({
               })
             }
           </div>
-          <div className='col-9'>
+          <div className='col-lg-9'>
             
               <div style={{maxHeight: 600, overflowY: 'auto'}}>
                 <p className='mb-0 opacity-50'>Result {productList.length} items</p>

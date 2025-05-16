@@ -194,7 +194,7 @@ export default function ProductDetail() {
   if(productData === null) return <p>Something wrong...</p>
 
   return (
-    <div className={`page product-detail`}>
+    <div className={`page detail-page product-detail`}>
       <header className="page-title smaller">
         <h1>{productData.name}</h1>
         <p>SKU: {productData.sku}</p>
@@ -211,65 +211,66 @@ export default function ProductDetail() {
             ><FontAwesomeIcon icon={faTrash} className='me-2' />Delete</button> */}
           </div>
         </div>
-        <div className='col-sm-9 left-col'>
+        <div className='col-lg-9 left-col'>
           <div className='row'>
             <div className='col-12 mb-3'>
               <div className='card'>
-                <div className='card-body d-flex justify-content-around align-items-center py-0'>
+                <div className='card-body header-detail'>
                   <div>
-                    <figure>
+                    <figure className='image'>
                     {
                       productData.images.length > 0
                       ?
-                      <img src={`${serverPath}/${productData.images[0].path}`} style={{width: 200}} />
+                      <img src={`${serverPath}/${productData.images[0].path}`} />
                       :
-                      <img src="https://placehold.co/200x160" style={{width: 200}} />
+                      <img src="https://placehold.co/200x160" />
                     }
                     </figure>
                   </div>
-                  <div className='d-flex align-items-start'>
-                    <div className='text-center px-4'>
+                  <div className='feature-detail'>
+                    <div className='feature-detail-item'>
                       <strong className='h3 d-block mb-1'>
                         ฿{formatMoney(productData.price)}
                       </strong>
                       <p className='mb-0 opacity-50'>Price</p>
                     </div>
-                    <div className='text-center px-4'>
+                    <div className='feature-detail-item'>
                       <strong className='h3 d-block mb-1'>
                         ฿{formatMoney(totalSale)}
                       </strong>
                       <p className='mb-0 opacity-50'>Total Sale</p>
                     </div>
-                    <div className='text-center px-4'>
+                    <div className='feature-detail-item'>
                       <strong className='h3 d-block mb-1'>
                         {saleAmount}
                       </strong>
                       <p className='mb-0 opacity-50'>Sale Amount</p>
                     </div>
-                    <div className='text-center px-4'>
+                    <div className='feature-detail-item'>
                       <strong className='h3 d-block mb-1'>{renderRating()}</strong>
                       <p className='mb-0 opacity-50'>Rating</p>
                     </div>
-                    <div className='text-center px-4'>
+                    <div className='feature-detail-item'>
                       <strong className='h3 d-block mb-1'>{productData.inStock.inStock}</strong>
                       <p className='mb-0 opacity-50'>In Stock</p>
                     </div>
                   </div>
+                  <div style={{clear: 'both'}}></div>
                 </div>
               </div>
             </div>
-            <div className='col-sm-6'>
+            <div className='col-sm-6 mb-3'>
               <div className='card'>
                 <div className='card-body'>
                   <header>
                     <h5>Specification<span></span></h5>
                   </header>
-                  <table className='table'>
+                  <table className='table detail-table'>
                     <tbody>
                       {
                         productSpecs.map((i, index) => (
                           <tr key={`product_specs_row_${index + 1}`}>
-                            <td style={{width: '35%'}}>
+                            <td>
                               <strong>{i.title}</strong>
                             </td>
                             <td>{i.value}</td>
@@ -316,11 +317,86 @@ export default function ProductDetail() {
                   }
                 </div>
               </div>
+
+              <div className='card mb-3 show-1024'>
+                <div className='card-body'>
+                  <header>
+                    <h5>Latest Sale History<span></span></h5>
+                  </header>
+                  {
+                    latestSale.length > 0
+                    ?
+                    <table className='table'>
+                      <thead>
+                        <tr>
+                          <th>order ID</th>
+                          <th>quantity</th>
+                          <th>date/Time</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          latestSale.map((i, index) => {
+                            if(index < 5) {
+                              return (
+                                <tr key={`sale_history_${i.orderId}`}>
+                                  <td>#{i.orderId}</td>
+                                  <td>x{i.quantity}</td>
+                                  <td>{formatTimestamp(i.datetime)}</td>
+                                </tr>
+                              )
+                            }
+                          })
+                        }
+                      </tbody>
+                    </table>
+                    :
+                    <p className='my-3 text-center opacity-50'>Not have sale</p>
+                  }
+                  
+                </div>
+              </div>
+
+              <div className='card mb-3 show-1024'>
+                <div className='card-body'>
+                  <header>
+                    <h5>Latest In Stock Action<span></span></h5>
+                  </header>
+                  <table className='table'>
+                    <thead>
+                      <tr>
+                        <th>action</th>
+                        <th>quantity</th>
+                        <th>date/Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {
+                        stockActions.map((i, index) => {
+                          if(index < 5) {
+                            return (
+                              <tr key={`stock_history_${index + 1}`}>
+                                <td>{i.action}</td>
+                                <td>x{i.quantity}</td>
+                                <td>
+                                  {formatTimestamp(i.actionedAt)}
+                                  <small className='d-block opacity-50'>{i.actionedBy.displayName}</small>
+                                </td>
+                              </tr>
+                            )
+                          }
+                        })
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
 
-        <div className='col-sm-3 right-col'>
+        <div className='col-lg-3 right-col'>
           <div className='row'>
             <div className='col-12 mb-3'>
               <div className='card'>
@@ -362,7 +438,7 @@ export default function ProductDetail() {
                 </div>
               </div>
             </div>
-            <div className='col-12'>
+            <div className='col-12 mb-3'>
               <div className='card'>
                 <div className='card-body'>
                   <header>

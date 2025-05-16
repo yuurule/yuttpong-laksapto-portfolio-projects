@@ -384,7 +384,7 @@ export default function UpsertProduct() {
   );
 
   return (
-    <div className={`page`}>
+    <div className={`page upsert-product-page`}>
       <header className="page-title">
         <h1>{submitType === 'INSERT' && 'Add New'} {submitType === 'UPDATE' && 'Edit'} Product</h1>
         {submitType === 'INSERT' && <p className='mb-0'>Add new product to your stock</p>}
@@ -393,7 +393,7 @@ export default function UpsertProduct() {
       
       <form onSubmit={handleSubmit(onSubmit)} className="row">
 
-        <header className="col-12">
+        <header className="col-12 hidden-phone">
           <div className='d-flex justify-content-end align-items-center mb-3'>
             <button 
               type="submit" 
@@ -405,7 +405,7 @@ export default function UpsertProduct() {
 
         <div className='col-sm-12'>
           <div className='row'>
-            <div className='col-sm-4'>
+            <div className='col-lg-4 mb-3'>
               <div className='card mb-3'>
                 <div className='card-body px-5'>
                   <header>
@@ -422,9 +422,6 @@ export default function UpsertProduct() {
                       <img 
                         src={previewImage} 
                         className='img-fluid'
-                        style={{
-                          height: 200
-                        }}
                       />
                     </figure>
                     <div className='row mb-4 px-2'>
@@ -433,7 +430,7 @@ export default function UpsertProduct() {
                         return (
                           <div 
                             key={`old_image_${index + 1}`} 
-                            className='col-sm-4 mb-3 px-2'
+                            className='col-6 col-md-4 mb-3 px-2'
                           >
                             <div className={`product-image-item border-soft-light ${activeImage === index ? 'active' : ''}`}>
                               <img 
@@ -477,7 +474,7 @@ export default function UpsertProduct() {
                         return (
                           <div 
                             key={`upload_image_${index + 1}`} 
-                            className='col-sm-4 mb-3 px-2'
+                            className='col-6 col-md-4 mb-3 px-2'
                           >
                             <div className={`product-image-item border-soft-light ${activeImage === (images.length + index) ? 'active' : ''}`}>
                               <img 
@@ -536,7 +533,7 @@ export default function UpsertProduct() {
                 </div>
               </div>
             </div>
-            <div className='col-sm-8'>
+            <div className='col-lg-8 mb-3'>
               <div className='col-12 mb-3'>
                 <div className='card'>
                   <div className='card-body px-5'>
@@ -918,6 +915,14 @@ export default function UpsertProduct() {
             </div>
             
           </div>
+        </div>
+
+        <div className='show-phone'>
+          <button 
+            type="submit" 
+            disabled={isSubmitting}
+            className='btn my-btn blue-btn big-btn w-100'
+          >{isSubmitting ? 'Processing...' : <><FontAwesomeIcon icon={faSave} className='me-2' />Save</> }</button>
         </div>
 
       </form>

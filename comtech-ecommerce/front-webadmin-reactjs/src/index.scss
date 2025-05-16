@@ -362,19 +362,41 @@ Utils
 /**
 Pages
 **/
-.product-detail,
-.customer-detail {
+.detail-page {
   .left-col {
     width: 70%;
   }
   .right-col {
     width: 30%;
   }
+
+  .header-detail {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 20px;
+
+    .image {
+      img {
+        width: 200px;
+        margin-top: 15px;
+      }
+    }
+    .feature-detail {
+      display: flex;
+      align-items: center;
+
+      .feature-detail-item {
+        text-align: center;
+        padding: 0 20px;
+      }
+    }
+  }
 }
 
 .product-image-item {
-  height: 110px;
-  padding: 5px;
+  height: auto;
+  padding: 5px 5px 30px 5px;
   position: relative;
   text-align: center;
 
@@ -395,7 +417,8 @@ Pages
   }
 }
 
-.show-phone {
+.show-phone,
+.show-1024 {
   display: none;
 }
 
@@ -425,6 +448,15 @@ Responsive
       padding: 90px 50px 70px 220px;
       &.menu-collapse {
         padding: 90px 50px 70px 120px;
+      }
+
+      .page {
+        .page-title.smaller {
+          h1 {
+            font-size: 1.45rem;
+            width: 100%;
+          }
+        }
       }
     }
   }
@@ -459,6 +491,38 @@ Responsive
       }
     }
   }
+  .detail-page {
+    .header-detail {
+      .image {
+        img {
+          width: 150px;
+        }
+      }
+      .feature-detail {
+        .feature-detail-item {
+          text-align: center;
+          padding: 0 15px;
+          .h3 {
+            font-size: 1.3rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 1366px) {
+  .site-wrapper {
+    .main-content {
+      .page {
+        .page-title.smaller {
+          h1 {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
 }
 
 @media only screen and (max-width: 1280px) {
@@ -489,9 +553,13 @@ Responsive
 
       .page {
         padding-top: 80px;
-
         .page-title {
           top: 10px;
+          &.smaller {
+            h1 {
+              width: 100%;
+            }
+          }
         }
       }
     }
@@ -499,6 +567,9 @@ Responsive
 }
 
 @media only screen and (max-width: 1024px) {
+  .show-1024 {
+    display: block;
+  }
   .best-seller-card {
     .ellipsis {
       width: 100px; 
@@ -517,6 +588,15 @@ Responsive
     .col-lg-8,
     .col-lg-4 {
       width: 100%;
+    }
+  }
+
+  .detail-page {
+    .left-col {
+      width: 100%;
+    }
+    .right-col {
+      display: none;
     }
   }
 }
@@ -538,7 +618,7 @@ Responsive
     display: none !important;
   }
   .show-phone {
-    display: block;
+    display: block !important;
   }
   .site-wrapper {
     .main-content {
@@ -597,5 +677,54 @@ Responsive
   .customers-table {
     width: 700px;
   }
+
+  .page.detail-page {
+    padding-top: 0 !important;
+  }
+
+  .detail-page {
+    .page-title {
+      position: relative !important;
+      top: 0 !important;
+    }
+
+    .header-detail {
+      text-align: center;
+      display: block;
+      .image {
+        img {
+          width: 90%;
+        }
+      }
+
+      .feature-detail {
+        display: block;
+
+        .feature-detail-item {
+          width: 50%;
+          float: left;
+          margin-bottom: 15px;
+          .h3 {
+            font-size: 1.4rem;
+          }
+        }
+      }
+    } 
+  }
+
+  .userImage {
+    margin-bottom: 20px;
+  }
+
+  .upsert-product-page {
+
+    &.page {
+      padding-top: 100px !important;
+    }
+    .card-body.px-5 {
+      padding: 20px !important;
+    }
+  }
+
 }
 
