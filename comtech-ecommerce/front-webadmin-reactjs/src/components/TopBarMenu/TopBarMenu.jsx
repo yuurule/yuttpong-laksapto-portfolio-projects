@@ -8,10 +8,15 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faBell, faEnvelope, faChartPie, faChartLine, faBoxes, faShop, faTags, faUsers, 
   faShoppingBag, faList, faGift, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { decodeJWT } from '../../utils/utils';
 
 export default function TopBarMenu() {
 
-  const { refreshToken } = useSelector(state => state.auth);
+  const { refreshToken, accessToken } = useSelector(state => state.auth)
+  const authUser = useSelector(state => state.auth.user)
+  const userEmail = accessToken ? decodeJWT(accessToken).email : ''
+  const userRole = accessToken ? decodeJWT(accessToken).role : ''
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -39,7 +44,13 @@ export default function TopBarMenu() {
 
   return (
     <>
-    <div className={`${styles.topBarMenu}`}>
+    {
+      userRole !== 'ADMIN' &&
+      <div className={`${styles.guestSign}`}>
+        <span>You are in "GUEST" mode, some action like add, update, delete is not authorize.</span>
+      </div>
+    }
+    <div className={`${styles.topBarMenu} ${userRole !== 'ADMIN' ? styles.isGuest : ''}`}>
       <div className={`${styles.menuPhone}`}>
         <div className="dropdown">
           <button 
@@ -89,10 +100,10 @@ export default function TopBarMenu() {
             data-bs-toggle="dropdown"
           >
             <div className='d-flex'>
-              <img src={'/images/dummy-webadmin.jpg'} className={`${styles.userImg}`} />
+              <img src={`${import.meta.env.VITE_PUBLIC_URL}/images/dummy-webadmin.jpg`} className={`${styles.userImg}`} />
               <div className={`${styles.userInfo}`}>
-                <p className='mb-0'>Luciana Swiss</p>
-                <small>webadmin@mail.com</small>
+                <p className='mb-0'>{authUser?.displayName}</p>
+                <small>{userEmail}</small>
               </div>
             </div>
           </button>

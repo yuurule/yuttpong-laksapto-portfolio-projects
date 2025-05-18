@@ -6,7 +6,7 @@ import MyPagination from '../components/MyPagination/MyPagination';
 import * as ProductService from '../services/productService';
 import * as StockService from '../services/stockService';
 import * as BrandService from '../services/brandService';
-import { formatTimestamp } from '../utils/utils';
+import { decodeJWT, formatTimestamp } from '../utils/utils';
 import StockActionHistory from '../components/Stock/StockActionHistory';
 import StockSellActionHistory from '../components/Stock/StockSellActionHistory';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
@@ -38,6 +38,8 @@ const inStockSchema = z.object({
 export default function Stock() {
 
   const authUser = useSelector(state => state.auth.user);
+  const authToken = useSelector(state => state.auth.accessToken)
+  const userRole = authToken ? decodeJWT(authToken).role : ''
 
   const [loadData, setLoadData] = useState(false);
   const setPageSize = 8;
@@ -113,27 +115,32 @@ export default function Stock() {
       description: data.description
     }
 
-    try {
-      await StockService.createStockAction(requestData)
-        .then(res => {
-          toast.success(`${actionType} in stock is successfully!`);
-          handleRefreshData();
-        })
-        .catch(error => {
-          throw new Error(`${actionType} in stock error due to: ${error}`)
-        });
+    if(userRole === 'ADMIN') {
+      try {
+        await StockService.createStockAction(requestData)
+          .then(res => {
+            toast.success(`${actionType} in stock is successfully!`);
+            handleRefreshData();
+          })
+          .catch(error => {
+            throw new Error(`${actionType} in stock error due to: ${error}`)
+          });
+      }
+      catch(error) {
+        console.log(error);
+        toast.error(`${error}`);
+      }
+      finally {
+        setOpenManageStockDialog(false);
+        setTimeout(() => {
+          setSelectedProduct(null);
+          setActionType(null);
+        }, 600);
+        reset();
+      }
     }
-    catch(error) {
-      console.log(error);
-      toast.error(error);
-    }
-    finally {
-      setOpenManageStockDialog(false);
-      setTimeout(() => {
-        setSelectedProduct(null);
-        setActionType(null);
-      }, 600);
-      reset();
+    else {
+      toast.error(`You are in "Guest" mode, this action is not authorize.`)
     }
   }
 

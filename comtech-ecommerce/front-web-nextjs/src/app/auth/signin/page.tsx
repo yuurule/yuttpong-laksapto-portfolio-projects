@@ -6,7 +6,6 @@ export default function SignInPage() {
 
   return (
     <main className="">
-      <Breadcrumbs />
       <div className='container mt-5'>
         <div className="row">
           <div className="col-sm-12 d-flex justify-content-center mb-5">

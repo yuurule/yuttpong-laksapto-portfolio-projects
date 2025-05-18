@@ -9,13 +9,16 @@ import * as ProductService from '../../services/productService';
 import { toast } from 'react-toastify';
 import OrderByBtn from '../../components/OrderByBtn/OrderByBtn';
 import TopTotalSellProduct from '../../components/Product/TopTotalSellProduct';
-import { formatTimestamp, sumTotalSale } from '../../utils/utils';
+import { decodeJWT, formatTimestamp, sumTotalSale } from '../../utils/utils';
 import { Dialog, DialogContent, DialogActions } from '@mui/material';
 
 export default function Products() {
 
   const serverPath = import.meta.env.VITE_API_URL;
   const authUser = useSelector(state => state.auth.user);
+  const authToken = useSelector(state => state.auth.accessToken)
+  const userRole = authToken ? decodeJWT(authToken).role : ''
+
   const navigate = useNavigate();
   const [loadData, setLoadData] = useState(false);
   const [onSubmit, setOnSubmit] = useState(false);
@@ -182,25 +185,30 @@ export default function Products() {
   }
 
   const handleConfirmDelete = async () => {
-    setOnDeleteProducts(true);
-    try {
-      await ProductService.moveProductsToTrash(selectedDeleteProducts, authUser.id)
-        .then(res => {
-          handleRefreshData();
-          toast.success(`Move products to trash is successfully.`);
-          setSelectedDeleteProducts([]);
-          setOpenDeleteDialog(false);
-        })
-        .catch(error => {
-          throw new Error(`Move products to trash is failed due to: ${error}`);
-        }); 
+    if(userRole === 'ADMIN') {
+      setOnDeleteProducts(true);
+      try {
+        await ProductService.moveProductsToTrash(selectedDeleteProducts, authUser.id)
+          .then(res => {
+            handleRefreshData();
+            toast.success(`Move products to trash is successfully.`);
+            setSelectedDeleteProducts([]);
+            setOpenDeleteDialog(false);
+          })
+          .catch(error => {
+            throw new Error(`Move products to trash is failed due to: ${error}`);
+          }); 
+      }
+      catch(error) {
+        console.log(error);
+        toast.error(`${error}`);
+      }
+      finally {
+        setOnDeleteProducts(false);
+      }
     }
-    catch(error) {
-      console.log(error.message);
-      toast.error(error.message);
-    }
-    finally {
-      setOnDeleteProducts(false);
+    else {
+      toast.error(`You are in "Guest" mode, this action is not authorize.`)
     }
   }
 

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import * as CategoryService from '../../services/categoryService';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { decodeJWT } from '../../utils/utils';
 
 const categorySchema = z.object({
   name: z
@@ -22,7 +23,9 @@ export default function UpsertCategory({
   handleResetToCreate
 }) {
 
-  const authUser = useSelector(state => state.auth.user);
+  const authUser = useSelector(state => state.auth.user)
+  const authToken = useSelector(state => state.auth.accessToken)
+  const userRole = decodeJWT(authToken).role
   const {
     register,
     handleSubmit,
@@ -59,41 +62,46 @@ export default function UpsertCategory({
       description: data.description
     }
 
-    if(action === 'CREATE') {
-      try {
-        await CategoryService.createCategory(requestData)
-          .then(res => {
-            //console.log(res.RESULT_DATA);
-            handleRefreshData();
-            reset(currentData);
-            toast.success(`Creating new category is successfully!`);
-          })
-          .catch(error => {
-            throw new Error(`Creating new category error due to: ${error}`)
-          });
+    if(userRole === 'ADMIN') {
+      if(action === 'CREATE') {
+        try {
+          await CategoryService.createCategory(requestData)
+            .then(res => {
+              //console.log(res.RESULT_DATA);
+              handleRefreshData();
+              reset(currentData);
+              toast.success(`Creating new category is successfully!`);
+            })
+            .catch(error => {
+              throw new Error(`Creating new category error due to: ${error}`)
+            });
+        }
+        catch(error) {
+          console.log(error);
+          toast.error(`${error}`);
+        }
       }
-      catch(error) {
-        console.log(error);
-        toast.error(error);
+      else if(action === 'UPDATE') {
+        try {
+          await CategoryService.updateCategory(currentData.id, requestData)
+            .then(res => {
+              //console.log(res.RESULT_DATA);
+              handleRefreshData();
+              handleResetToCreate();
+              toast.success(`Updating category is successfully!`);
+            })
+            .catch(error => {
+              throw new Error(`Updating category error due to: ${error}`)
+            });
+        }
+        catch(error) {
+          console.log(error);
+          toast.error(`${error}`);
+        }
       }
     }
-    else if(action === 'UPDATE') {
-      try {
-        await CategoryService.updateCategory(currentData.id, requestData)
-          .then(res => {
-            //console.log(res.RESULT_DATA);
-            handleRefreshData();
-            handleResetToCreate();
-            toast.success(`Updating category is successfully!`);
-          })
-          .catch(error => {
-            throw new Error(`Updating category error due to: ${error}`)
-          });
-      }
-      catch(error) {
-        console.log(error);
-        toast.error(error);
-      }
+    else {
+      toast.error(`You are in "Guest" mode, this action is not authorize.`)
     }
   }
 

@@ -8,7 +8,7 @@ import MyPagination from '../components/MyPagination/MyPagination';
 import { Link } from 'react-router';
 import Breadcrumbs from '../components/Breadcrumbs/Breadcrumbs';
 import * as CampaignService from '../services/campaignService';
-import { formatTimestamp } from '../utils/utils';
+import { decodeJWT, formatTimestamp } from '../utils/utils';
 import { toast } from 'react-toastify';
 import ProductInCampaign from '../components/Campaign/ProductInCampaign';
 import UpsertCampaign from '../components/Campaign/UpsertCampaign';
@@ -19,6 +19,9 @@ import OrderByBtn from '../components/OrderByBtn/OrderByBtn';
 export default function Campaign() {
 
   const authUser = useSelector(state => state.auth.user);
+  const authToken = useSelector(state => state.auth.accessToken)
+  const userRole = authToken ? decodeJWT(authToken).role : ''
+
   const [loadData, setLoadData] = useState(false);
   const [campaignList, setCampaignList] = useState([]);
   const [deletedCampaignList, setDeletedCampaignList] = useState([]);
@@ -109,26 +112,31 @@ export default function Campaign() {
   }
 
   const handleConfirmDelete = async () => {
-    setOnDeleteCampaigns(true);
-    try {
-      await CampaignService.deleteCampaigns(selectedDeleteCampaigns, authUser.id)
-        .then(res => {
-          handleRefreshData();
-          toast.success(`Delete campaigns is successfully.`);
-          setSelectedCampaign(null);
-          setSelectedDeleteCampaigns([]);
-          setOpenDeleteDialog(false);
-        })
-        .catch(error => {
-          throw new Error(`Delete campaigns is failed due to: ${error}`);
-        }); 
+    if(userRole === 'ADMIN') {
+      setOnDeleteCampaigns(true);
+      try {
+        await CampaignService.deleteCampaigns(selectedDeleteCampaigns, authUser.id)
+          .then(res => {
+            handleRefreshData();
+            toast.success(`Delete campaigns is successfully.`);
+            setSelectedCampaign(null);
+            setSelectedDeleteCampaigns([]);
+            setOpenDeleteDialog(false);
+          })
+          .catch(error => {
+            throw new Error(`Delete campaigns is failed due to: ${error}`);
+          }); 
+      }
+      catch(error) {
+        console.log(error);
+        toast.error(`${error}`);
+      }
+      finally {
+        setOnDeleteCampaigns(false);
+      }
     }
-    catch(error) {
-      console.log(error.message);
-      toast.error(error.message);
-    }
-    finally {
-      setOnDeleteCampaigns(false);
+    else {
+      toast.error(`You are in "Guest" mode, this action is not authorize.`)
     }
   }
 

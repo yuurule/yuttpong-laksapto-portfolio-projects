@@ -7,7 +7,6 @@ export default function ThankyouPage() {
 
   return (
     <main className="">
-      <Breadcrumbs />
       <div className='container'>
         <div className="row">
           <div className="col-12">

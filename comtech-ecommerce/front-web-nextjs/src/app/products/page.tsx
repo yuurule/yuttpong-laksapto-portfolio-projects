@@ -3,6 +3,7 @@ import PageHeader from "@/components/PageHeader/PageHeader";
 import ProductList from "@/components/Products/ProductList";
 import ProductListOption from "@/components/Products/ProductListOption";
 import ProductListSorting from "@/components/Products/ProductListSorting";
+import { Suspense } from "react";
 
 export default function ProductsPage() {
 
@@ -15,24 +16,26 @@ export default function ProductsPage() {
     <main className="">
       <Breadcrumbs urlList={breadcrumbsList} />
       <div className='container'>
-        <div className="row">
-          <header className="col-12">
-            <PageHeader pageTitle="Product List" />
-          </header>
+        <Suspense fallback={<>Loading...</>}>
+          <div className="row">
+            <header className="col-12">
+              <PageHeader pageTitle="Product List" />
+            </header>
 
-          {/* Show product options */}
-          <div className="col-sm-2 pe-4">
-            <ProductListOption />
-          </div>
+            {/* Show product options */}
+            <div className="col-sm-2 pe-4">
+              <ProductListOption />
+            </div>
 
-          {/* Product list */}
-          <div className="col-sm-10">
-            <div className="row">
-              <ProductListSorting />
-              <ProductList />
+            {/* Product list */}
+            <div className="col-sm-10">
+              <div className="row">
+                <ProductListSorting />
+                <ProductList />
+              </div>
             </div>
           </div>
-        </div>
+        </Suspense>
       </div>
     </main>
   )

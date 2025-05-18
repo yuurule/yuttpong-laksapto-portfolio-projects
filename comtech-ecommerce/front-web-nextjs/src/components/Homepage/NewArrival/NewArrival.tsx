@@ -1,7 +1,10 @@
+import { unstable_noStore as noStore } from 'next/cache';
 import ProductBox from '@/components/ProductBox/ProductBox';
 import { productService } from '@/services';
 
 export default async function NewArrival() {
+  noStore();
+  
   try {
     const brands = await productService.getBrands();
     const products = await productService.getProducts({

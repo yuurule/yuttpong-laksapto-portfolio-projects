@@ -5,6 +5,7 @@ import { z } from 'zod';
 import * as TagService from '../../services/tagService';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { decodeJWT } from '../../utils/utils';
 
 const categorySchema = z.object({
   name: z
@@ -20,6 +21,8 @@ export default function UpsertTag({
 }) {
 
   const authUser = useSelector(state => state.auth.user);
+  const authToken = useSelector(state => state.auth.accessToken)
+  const userRole = decodeJWT(authToken).role
   const {
     register,
     handleSubmit,
@@ -54,41 +57,46 @@ export default function UpsertTag({
       name: data.name
     }
 
-    if(action === 'CREATE') {
-      try {
-        await TagService.createTag(requestData)
-          .then(res => {
-            console.log(res.RESULT_DATA);
-            handleRefreshData();
-            reset(currentData);
-            toast.success(`Creating new tag is successfully!`);
-          })
-          .catch(error => {
-            throw new Error(`Creating new tag error due to: ${error}`)
-          });
+    if(userRole === 'ADMIN') {
+      if(action === 'CREATE') {
+        try {
+          await TagService.createTag(requestData)
+            .then(res => {
+              console.log(res.RESULT_DATA);
+              handleRefreshData();
+              reset(currentData);
+              toast.success(`Creating new tag is successfully!`);
+            })
+            .catch(error => {
+              throw new Error(`Creating new tag error due to: ${error}`)
+            });
+        }
+        catch(error) {
+          console.log(error);
+          toast.error(`${error}`);
+        }
       }
-      catch(error) {
-        console.log(error);
-        toast.error(error);
+      else if(action === 'UPDATE') {
+        try {
+          await TagService.updateTag(currentData.id, requestData)
+            .then(res => {
+              console.log(res.RESULT_DATA);
+              handleRefreshData();
+              handleResetToCreate();
+              toast.success(`Updating tag is successfully!`);
+            })
+            .catch(error => {
+              throw new Error(`Updating tag error due to: ${error}`)
+            });
+        }
+        catch(error) {
+          console.log(error);
+          toast.error(`${error}`);
+        }
       }
     }
-    else if(action === 'UPDATE') {
-      try {
-        await TagService.updateTag(currentData.id, requestData)
-          .then(res => {
-            console.log(res.RESULT_DATA);
-            handleRefreshData();
-            handleResetToCreate();
-            toast.success(`Updating tag is successfully!`);
-          })
-          .catch(error => {
-            throw new Error(`Updating tag error due to: ${error}`)
-          });
-      }
-      catch(error) {
-        console.log(error);
-        toast.error(error);
-      }
+    else {
+      toast.error(`You are in "Guest" mode, this action is not authorize.`)
     }
   }
 

@@ -1,3 +1,14 @@
+export function decodeJWT(token) {
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    throw new Error('JWT มีรูปแบบไม่ถูกต้อง');
+  }
+  
+  // ถอดรหัสเฉพาะส่วน payload (ส่วนที่ 2)
+  const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+  return payload;
+}
+
 export function formatTimestamp(timestamp) {
   const date = new Date(timestamp);
   

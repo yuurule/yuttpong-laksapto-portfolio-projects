@@ -31,7 +31,7 @@ const wishlistController = new WishlistController();
 const paymentController = new PaymentController();
 
 // Auth routes
-router.post('/auth/register', authController.register);
+router.post('/auth/register', authController.register); // Just for portfolio, not use this in real project
 router.post('/auth/login', authController.login);
 router.post('/auth/refresh', authController.refresh);
 router.post('/auth/logout', authenticate, authController.logout);
@@ -39,48 +39,48 @@ router.post('/auth/logout', authenticate, authController.logout);
 // Product Brand
 router.get('/brand', brandController.getAllBrand);
 router.get('/brand/:id', brandController.getOneBrandById);
-router.post('/brand/create', authenticate, brandController.createNewBrand);
-router.put('/brand/:id', authenticate, brandController.updateBrand);
-router.delete('/brand/delete', authenticate, brandController.deleteBrands);
+router.post('/brand/create', authenticate, authorize(['ADMIN']), brandController.createNewBrand);
+router.put('/brand/:id', authenticate, authorize(['ADMIN']), brandController.updateBrand);
+router.delete('/brand/delete', authenticate, authorize(['ADMIN']), brandController.deleteBrands);
 
 // Category
 router.get('/category', categoryController.getAllCategory);
 router.get('/category/:id', categoryController.getOneCategoryById);
-router.post('/category/create', authenticate, categoryController.createNewCategory);
-router.put('/category/:id', authenticate, categoryController.updateCategory);
-router.delete('/category/delete', authenticate, categoryController.deleteCategories);
+router.post('/category/create', authenticate, authorize(['ADMIN']), categoryController.createNewCategory);
+router.put('/category/:id', authenticate, authorize(['ADMIN']), categoryController.updateCategory);
+router.delete('/category/delete', authenticate, authorize(['ADMIN']), categoryController.deleteCategories);
 
 // Tag
 router.get('/tag', tagController.getAllTag);
 router.get('/tag/:id', tagController.getOneTagById);
-router.post('/tag/create', authenticate, tagController.createNewTag);
-router.put('/tag/:id', authenticate, tagController.updateTag);
-router.delete('/tag/delete', authenticate, tagController.deleteTags);
+router.post('/tag/create', authenticate, authorize(['ADMIN']), tagController.createNewTag);
+router.put('/tag/:id', authenticate, authorize(['ADMIN']), tagController.updateTag);
+router.delete('/tag/delete', authenticate, authorize(['ADMIN']), tagController.deleteTags);
 
 // Product
 router.get('/product', productController.getProducts);
 router.get('/trash/product', productController.getProductsInTrash);
 router.get('/product/:id', productController.getOneProduct);
-router.post('/product', authenticate, upload.array('images', 10), productController.createNewProduct);
-router.put('/product/:id', authenticate, upload.array('images', 10), productController.updateProduct);
-router.delete('/product/delete', authenticate, productController.moveProductToTrash);
+router.post('/product', authenticate, authorize(['ADMIN']), upload.array('images', 10), productController.createNewProduct);
+router.put('/product/:id', authenticate, authorize(['ADMIN']), upload.array('images', 10), productController.updateProduct);
+router.delete('/product/delete', authenticate, authorize(['ADMIN']), productController.moveProductToTrash);
 
 // Stock
 router.get('/stock-action', authenticate, stockController.getAllStockAction);
 router.get('/stock-action/:id', authenticate, stockController.getOneStockActionById);
-router.post('/stock-action', authenticate, stockController.createNewStockAction);
+router.post('/stock-action', authenticate, authorize(['ADMIN']), stockController.createNewStockAction);
 router.get('/stock-sell-action', authenticate, stockController.getAllStockSellAction);
 
 // Campaign
 router.get('/campaign', campaignController.getCampaigns);
 router.get('/campaign/:id', campaignController.getOneCampaignById);
-router.post('/campaign', authenticate, campaignController.createCampaign);
-router.put('/campaign/update/:id', authenticate, campaignController.updateCampaign);
-router.put('/campaign/activate/:id', authenticate, campaignController.activateCampaign);
-router.delete('/campaign', authenticate, campaignController.moveCampaignsToTrash);
-router.post('/campaign/history', authenticate, campaignController.createCampaignHistory);
-router.post('/campaign/:id/add-product', authenticate, campaignController.addProductsToCampaign);
-router.delete('/campaign/:id/remove-product', authenticate, campaignController.removeProductsToCampaign);
+router.post('/campaign', authenticate, authorize(['ADMIN']), campaignController.createCampaign);
+router.put('/campaign/update/:id', authenticate, authorize(['ADMIN']), campaignController.updateCampaign);
+router.put('/campaign/activate/:id', authenticate, authorize(['ADMIN']), campaignController.activateCampaign);
+router.delete('/campaign', authenticate, authorize(['ADMIN']), campaignController.moveCampaignsToTrash);
+router.post('/campaign/history', authenticate, authorize(['ADMIN']), campaignController.createCampaignHistory);
+router.post('/campaign/:id/add-product', authenticate, authorize(['ADMIN']), campaignController.addProductsToCampaign);
+router.delete('/campaign/:id/remove-product', authenticate, authorize(['ADMIN']), campaignController.removeProductsToCampaign);
 
 // Customer
 router.post('/customer/auth/register', customerController.register);
@@ -91,7 +91,7 @@ router.get('/customer', authenticate, customerController.getCustomers);
 router.get('/customer/:id', authenticate, customerController.getOneCustomer);
 router.put('/customer/:id/update-detail', authenticate, customerController.updateOneCustomer);
 router.get('/suspense/customer', authenticate, customerController.getSuspenseCustomers);
-router.delete('/suspense/customer', authenticate, customerController.suspenseCustomers);
+router.delete('/suspense/customer', authenticate, authorize(['ADMIN']), customerController.suspenseCustomers);
 
 // Review
 router.get('/review', reviewController.getReviews);
@@ -99,7 +99,7 @@ router.get('/review/:id', reviewController.getOneReview);
 router.get('/reviewByProduct/:id', reviewController.getReviewByProduct);
 router.post('/review/create', authenticate, reviewController.createReview);
 router.put('/review/update/:id', authenticate, reviewController.updateReview);
-router.put('/review/approve/:id', authenticate, reviewController.approveReview);
+router.put('/review/approve/:id', authenticate, authorize(['ADMIN']), reviewController.approveReview);
 router.delete('/review/delete/:id', authenticate, reviewController.deleteReview);
 
 // Cart
@@ -135,10 +135,10 @@ router.post('/wishlist/add', authenticate, wishlistController.addWishlist);
 router.delete('/wishlist/:id', authenticate, wishlistController.removeWishlist);
 
 // Data for webadmin
-router.get('/statistic/products', authenticate, productController.getStatisticProducts);
-router.get('/statistic/categories', authenticate, categoryController.getStatisticCategories);
-router.get('/statistic/tags', authenticate, tagController.getStatisticTags);
-router.get('/statistic/customers', authenticate, customerController.getStatisticCustomers);
+router.get('/statistic/products', authenticate, authorize(['ADMIN', 'EDITOR', 'GUEST']), productController.getStatisticProducts);
+router.get('/statistic/categories', authenticate, authorize(['ADMIN', 'EDITOR', 'GUEST']), categoryController.getStatisticCategories);
+router.get('/statistic/tags', authenticate, authorize(['ADMIN', 'EDITOR', 'GUEST']), tagController.getStatisticTags);
+router.get('/statistic/customers', authenticate, authorize(['ADMIN', 'EDITOR', 'GUEST']), customerController.getStatisticCustomers);
 
 // Protected route example
 // router.get(

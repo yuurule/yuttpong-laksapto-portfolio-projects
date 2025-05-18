@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
+import { decodeJWT } from '../../utils/utils';
 
 const formSchema = z.object({
   brandId: z.coerce.number().min(1, {message: 'Required'}),
@@ -43,6 +44,8 @@ export default function UpsertProduct() {
 
   const { id } = useParams();
   const authUser = useSelector(state => state.auth.user);
+  const authToken = useSelector(state => state.auth.accessToken)
+  const userRole = authToken ? decodeJWT(authToken).role : ''
   const navigate = useNavigate();
   
   const [loadData, setLoadData] = useState(false);
@@ -73,7 +76,7 @@ export default function UpsertProduct() {
         const tags = await TagService.getTags();
 
         const productData = findProduct.data.RESULT_DATA;
-        console.log(productData);
+        //console.log(productData);
 
         setProduct(productData);
         const dimension = (productData.specs.dimension).split('x');
@@ -237,141 +240,146 @@ export default function UpsertProduct() {
     let tagsData;
     let imagesData;
 
-    if(submitType === 'INSERT') {
-      categoriesData = updateCategoies.map(i => ({ categoryId: i.id }));
-      tagsData = updateTags.map(i => ({ tagId: i.id }));
-      imagesData = [
-        //{ url_path: "http://www.testimage.com/test_image_1.jpg" }
-      ];
-    }
-    else if(submitType === 'UPDATE') {
-      categoriesData = {
-        connect: [],
-        disconnect: []
-      };
-      tagsData = {
-        connect: [],
-        disconnect: []
-      };
-      imagesData = {
-        create: [
-            // { 
-            //     "url_path": "http://www.testimage.com/test_image_3.jpg",
-            //     "sequence_order": 3
-            // }
-        ],
-        delete: [
-          // { "id": 5 }
-        ],
-        update: [
-            // { 
-            //     "id": 5,
-            //     "url_path": "http://www.testimage.com/test_image_3.jpg",
-            //     "sequence_order": 3
-            // }
-        ]
-      };
+    if(userRole === 'ADMIN') {
+      if(submitType === 'INSERT') {
+        categoriesData = updateCategoies.map(i => ({ categoryId: i.id }));
+        tagsData = updateTags.map(i => ({ tagId: i.id }));
+        imagesData = [
+          //{ url_path: "http://www.testimage.com/test_image_1.jpg" }
+        ];
+      }
+      else if(submitType === 'UPDATE') {
+        categoriesData = {
+          connect: [],
+          disconnect: []
+        };
+        tagsData = {
+          connect: [],
+          disconnect: []
+        };
+        imagesData = {
+          create: [
+              // { 
+              //     "url_path": "http://www.testimage.com/test_image_3.jpg",
+              //     "sequence_order": 3
+              // }
+          ],
+          delete: [
+            // { "id": 5 }
+          ],
+          update: [
+              // { 
+              //     "id": 5,
+              //     "url_path": "http://www.testimage.com/test_image_3.jpg",
+              //     "sequence_order": 3
+              // }
+          ]
+        };
 
-      updateCategoies.filter(i => {
-        const newCategory = cacheCategories.find(x => x.id === i.id);
-        if(!newCategory) { // not found in cache categories that's mean it's new
-          categoriesData.connect.push({ categoryId: i.id });
-        }
+        updateCategoies.filter(i => {
+          const newCategory = cacheCategories.find(x => x.id === i.id);
+          if(!newCategory) { // not found in cache categories that's mean it's new
+            categoriesData.connect.push({ categoryId: i.id });
+          }
+        });
+        cacheCategories.filter(i => {
+          const removeCategory = updateCategoies.find(x => x.id === i.id);
+          if(!removeCategory) { // not found in updateCategoies that's mean it's must remove
+            categoriesData.disconnect.push({ categoryId: i.id });
+          }
+        });
+        updateTags.filter(i => {
+          const newTag = cacheTags.find(x => x.id === i.id);
+          if(!newTag) { // not found in cache tags that's mean it's new
+            tagsData.connect.push({ tagId: i.id });
+          }
+        });
+        cacheTags.filter(i => {
+          const removeTag = updateTags.find(x => x.id === i.id);
+          if(!removeTag) { // not found in updateTags that's mean it's must remove
+            tagsData.disconnect.push({ tagId: i.id });
+          }
+        })
+      }
+
+      const requestData = {
+        userId: authUser.id,
+        name: data.name,
+        description: data.description,
+        brandId: data.brandId,
+        price: data.price,
+        publish: true,
+        categories: categoriesData,
+        tags: tagsData,
+        specs: {
+          screen_size: data.screen_size,
+          processor: data.processor,
+          display: data.display,
+          memory: data.memory,
+          storage: data.storage,
+          graphic: data.graphic,
+          operating_system: data.operating_system,
+          camera: data.camera,
+          optical_drive: data.optical_drive,
+          connection_ports: data.connection_ports,
+          wireless: data.wireless,
+          battery: data.battery,
+          color: data.color,
+          dimension: `${data.width}x${data.height}x${data.depth}`,
+          weight: data.weight,
+          warranty: data.warranty,
+          option: data.option
+        },
+        images: imagesData
+      }
+
+      const formData = new FormData();
+
+      formData.append('userId', authUser.id);
+      formData.append('name', data.name);
+      formData.append('description', data.description);
+      formData.append('brandId', data.brandId);
+      formData.append('price', data.price);
+      formData.append('categories', JSON.stringify(categoriesData));
+      formData.append('tags', JSON.stringify(tagsData));
+      formData.append('specs', JSON.stringify(requestData.specs));
+      uploadedImages.map(i => {
+        formData.append('images', i);
       });
-      cacheCategories.filter(i => {
-        const removeCategory = updateCategoies.find(x => x.id === i.id);
-        if(!removeCategory) { // not found in updateCategoies that's mean it's must remove
-          categoriesData.disconnect.push({ categoryId: i.id });
+
+      //console.log(requestData)
+
+      if(submitType === 'INSERT') {
+
+        formData.append('publish', true);
+
+        try {
+          await ProductService.addNewProduct(formData)
+          toast.success(`Add new product is successfully!`);
+          navigate('/product', { replace: true });
         }
-      });
-      updateTags.filter(i => {
-        const newTag = cacheTags.find(x => x.id === i.id);
-        if(!newTag) { // not found in cache tags that's mean it's new
-          tagsData.connect.push({ tagId: i.id });
+        catch(error) {
+          console.log(error.message);
+          toast.error(`Add new product is failed due to: ${error.message}`);
         }
-      });
-      cacheTags.filter(i => {
-        const removeTag = updateTags.find(x => x.id === i.id);
-        if(!removeTag) { // not found in updateTags that's mean it's must remove
-          tagsData.disconnect.push({ tagId: i.id });
-        }
-      })
-    }
-
-    const requestData = {
-      userId: authUser.id,
-      name: data.name,
-      description: data.description,
-      brandId: data.brandId,
-      price: data.price,
-      publish: true,
-      categories: categoriesData,
-      tags: tagsData,
-      specs: {
-        screen_size: data.screen_size,
-        processor: data.processor,
-        display: data.display,
-        memory: data.memory,
-        storage: data.storage,
-        graphic: data.graphic,
-        operating_system: data.operating_system,
-        camera: data.camera,
-        optical_drive: data.optical_drive,
-        connection_ports: data.connection_ports,
-        wireless: data.wireless,
-        battery: data.battery,
-        color: data.color,
-        dimension: `${data.width}x${data.height}x${data.depth}`,
-        weight: data.weight,
-        warranty: data.warranty,
-        option: data.option
-      },
-      images: imagesData
-    }
-
-    const formData = new FormData();
-
-    formData.append('userId', authUser.id);
-    formData.append('name', data.name);
-    formData.append('description', data.description);
-    formData.append('brandId', data.brandId);
-    formData.append('price', data.price);
-    formData.append('categories', JSON.stringify(categoriesData));
-    formData.append('tags', JSON.stringify(tagsData));
-    formData.append('specs', JSON.stringify(requestData.specs));
-    uploadedImages.map(i => {
-      formData.append('images', i);
-    });
-
-    //console.log(requestData)
-
-    if(submitType === 'INSERT') {
-
-      formData.append('publish', true);
-
-      try {
-        await ProductService.addNewProduct(formData)
-        toast.success(`Add new product is successfully!`);
-        navigate('/product', { replace: true });
       }
-      catch(error) {
-        console.log(error.message);
-        toast.error(`Add new product is failed due to: ${error.message}`);
+      else if(submitType === 'UPDATE') {
+
+        formData.append('imagesUpdate', JSON.stringify({"delete": deleteImages}));
+
+        try {
+          await ProductService.updateProduct(id, formData)
+          toast.success(`Update product is successfully!`);
+          navigate('/product', { replace: true });
+        }
+        catch(error) {
+          console.log(error.message);
+          toast.error(`Update product is failed due to: ${error.message}`);
+        }
       }
     }
-    else if(submitType === 'UPDATE') {
-
-      formData.append('imagesUpdate', JSON.stringify({"delete": deleteImages}));
-
-      try {
-        await ProductService.updateProduct(id, formData)
-        toast.success(`Update product is successfully!`);
-        navigate('/product', { replace: true });
-      }
-      catch(error) {
-        console.log(error.message);
-        toast.error(`Update product is failed due to: ${error.message}`);
-      }
+    else {
+      toast.error(`You are in "Guest" mode, this action is not authorize.`)
     }
   }
 

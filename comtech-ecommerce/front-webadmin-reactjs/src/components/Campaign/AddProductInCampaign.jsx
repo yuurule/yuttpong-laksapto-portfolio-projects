@@ -9,6 +9,7 @@ import * as BrandService from '../../services/brandService';
 import * as CategoryService from '../../services/categoryService';
 import * as ProductService from '../../services/productService';
 import * as CampaignService from '../../services/campaignService';
+import { decodeJWT } from '../../utils/utils';
 
 export default function AddProductInCampaign({
   selectedCampaign,
@@ -18,6 +19,8 @@ export default function AddProductInCampaign({
 }) {
 
   const authUser = useSelector(state => state.auth.user);
+  const authToken = useSelector(state => state.auth.accessToken)
+  const userRole = authToken ? decodeJWT(authToken).role : ''
 
   const [loadData, setLoadData] = useState(false);
   const [brandList, setBrandList] = useState([]);
@@ -98,24 +101,29 @@ export default function AddProductInCampaign({
   }
 
   const handleConfirmAdd = async () => {
-    setOnSubmit(true);
-    try {
-      await CampaignService.addProductsToCampaign(selectedCampaign?.id, selectedProducts, authUser.id)
-        .then(res => {
-          handleRefreshData(selectedCampaign?.id, selectedCampaign?.name);
-          toast.success(`Add products to campaign is successfully.`);
-          handleCloseDialog();
-        })
-        .catch(error => {
-          throw new Error(`Add products to campaign is failed due to: ${error}`);
-        });
+    if(userRole === 'ADMIN') {
+      setOnSubmit(true);
+      try {
+        await CampaignService.addProductsToCampaign(selectedCampaign?.id, selectedProducts, authUser.id)
+          .then(res => {
+            handleRefreshData(selectedCampaign?.id, selectedCampaign?.name);
+            toast.success(`Add products to campaign is successfully.`);
+            handleCloseDialog();
+          })
+          .catch(error => {
+            throw new Error(`Add products to campaign is failed due to: ${error}`);
+          });
+      }
+      catch(error) {
+        console.log(error);
+        toast.error(`${error}`);
+      }
+      finally {
+        setOnSubmit(false);
+      }
     }
-    catch(error) {
-      console.log(error.message);
-      toast.error(error.message);
-    }
-    finally {
-      setOnSubmit(false);
+    else {
+      toast.error(`You are in "Guest" mode, this action is not authorize.`)
     }
   }
 

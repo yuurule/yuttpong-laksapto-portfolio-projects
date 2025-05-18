@@ -26,6 +26,8 @@ function App() {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
+        {/* "homepage": "https://www.devgamemaker.com/portfolio/comtech/frontend-webadmin-react", */}
+        {/* <Router basename="/portfolio/comtech/frontend-webadmin-react"> */}
         <Router>
           <Routes>
 
@@ -34,22 +36,22 @@ function App() {
             <Route path="/" element={<MainLayout />}>
 
               <Route index element={<PrivateRoute><IndexPage /></PrivateRoute>}></Route>
-              <Route path="dashboard" element={<PrivateRoute allowedRoles={['ADMIN']}><Dashboard /></PrivateRoute>}></Route>
+              <Route path="dashboard" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'GUEST']}><Dashboard /></PrivateRoute>}></Route>
               {/* <Route path="report" element={<PrivateRoute allowedRoles={['ADMIN']}><Report /></PrivateRoute>}></Route> */}
-              <Route path="category" element={<PrivateRoute allowedRoles={['ADMIN']}><Category /></PrivateRoute>}></Route>
-              <Route path="tag" element={<PrivateRoute allowedRoles={['ADMIN']}><Tag /></PrivateRoute>}></Route>
-              <Route path="product" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR']}><Products /></PrivateRoute>}></Route>
-              <Route path="product/:id" element={<PrivateRoute allowedRoles={['ADMIN']}><ProductDetail /></PrivateRoute>}></Route>
-              <Route path="product/create" element={<PrivateRoute allowedRoles={['ADMIN']}><UpsertProduct /></PrivateRoute>}></Route>
-              <Route path="product/edit/:id" element={<PrivateRoute allowedRoles={['ADMIN']}><UpsertProduct /></PrivateRoute>}></Route>
-              <Route path="stock" element={<PrivateRoute allowedRoles={['ADMIN']}><Stock /></PrivateRoute>}></Route>
-              <Route path="order" element={<PrivateRoute allowedRoles={['ADMIN']}><Orders /></PrivateRoute>}></Route>
-              <Route path="customer" element={<PrivateRoute allowedRoles={['ADMIN']}><Customers /></PrivateRoute>}></Route>
-              <Route path="customer/:id" element={<PrivateRoute allowedRoles={['ADMIN']}><CustomerDetail /></PrivateRoute>}></Route>
-              <Route path="campaign" element={<PrivateRoute allowedRoles={['ADMIN', 'AUTHOR']}><Campaign /></PrivateRoute>}></Route>
+              <Route path="category" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'GUEST']}><Category /></PrivateRoute>}></Route>
+              <Route path="tag" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'GUEST']}><Tag /></PrivateRoute>}></Route>
+              <Route path="product" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'GUEST']}><Products /></PrivateRoute>}></Route>
+              <Route path="product/:id" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'GUEST']}><ProductDetail /></PrivateRoute>}></Route>
+              <Route path="product/create" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'GUEST']}><UpsertProduct /></PrivateRoute>}></Route>
+              <Route path="product/edit/:id" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'GUEST']}><UpsertProduct /></PrivateRoute>}></Route>
+              <Route path="stock" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'GUEST']}><Stock /></PrivateRoute>}></Route>
+              <Route path="order" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'GUEST']}><Orders /></PrivateRoute>}></Route>
+              <Route path="customer" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'GUEST']}><Customers /></PrivateRoute>}></Route>
+              <Route path="customer/:id" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'GUEST']}><CustomerDetail /></PrivateRoute>}></Route>
+              <Route path="campaign" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'GUEST']}><Campaign /></PrivateRoute>}></Route>
 
-              <Route path="unauthorized" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'AUTHOR']}><UnAuthorized /></PrivateRoute>}></Route>
-              <Route path="*" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'AUTHOR']}><NotFound /></PrivateRoute>}></Route>
+              <Route path="unauthorized" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'GUEST']}><UnAuthorized /></PrivateRoute>}></Route>
+              <Route path="*" element={<PrivateRoute allowedRoles={['ADMIN', 'EDITOR', 'GUEST']}><NotFound /></PrivateRoute>}></Route>
 
             </Route>
           </Routes>

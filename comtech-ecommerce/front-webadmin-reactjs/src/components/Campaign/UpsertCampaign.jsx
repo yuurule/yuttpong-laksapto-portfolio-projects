@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import * as CampaignService from '../../services/campaignService';
+import { decodeJWT } from '../../utils/utils';
 
 const campaignSchema = z.object({
   name: z
@@ -32,6 +33,8 @@ export default function UpsertCampaign({
 }) {
 
   const authUser = useSelector(state => state.auth.user);
+  const authToken = useSelector(state => state.auth.accessToken)
+  const userRole = authToken ? decodeJWT(authToken).role : ''
 
   const {
     register,
@@ -65,43 +68,47 @@ export default function UpsertCampaign({
       description: data.description
     }
 
-    if(upsertAction === 'CREATE') {
-      try {
-        await CampaignService.createCampaign(requestData)
-          .then(res => {
-            handleRefreshData();
-            reset(selectedEditCampaign);
-            toast.success(`Creating new campaign is successfully!`);
-            handleCloseDialog();
-          })
-          .catch(error => {
-            throw new Error(`Creating new campaign error due to: ${error}`)
-          });
+    if(userRole === 'ADMIN') {
+      if(upsertAction === 'CREATE') {
+        try {
+          await CampaignService.createCampaign(requestData)
+            .then(res => {
+              handleRefreshData();
+              reset(selectedEditCampaign);
+              toast.success(`Creating new campaign is successfully!`);
+              handleCloseDialog();
+            })
+            .catch(error => {
+              throw new Error(`Creating new campaign error due to: ${error}`)
+            });
+        }
+        catch(error) {
+          console.log(error);
+          toast.error(`${error}`);
+        }
       }
-      catch(error) {
-        console.log(error);
-        toast.error(error);
+      else if(upsertAction === 'EDIT') {
+        try {
+          await CampaignService.updateCampaign(selectedEditCampaign.id, requestData)
+            .then(res => {
+              handleRefreshData();
+              handleResetToCreate();
+              toast.success(`Update campaign is successfully!`);
+              handleCloseDialog();
+            })
+            .catch(error => {
+              throw new Error(`Update new campaign error due to: ${error}`)
+            });
+        }
+        catch(error) {
+          console.log(error);
+          toast.error(`${error}`);
+        }
       }
     }
-    else if(upsertAction === 'EDIT') {
-      try {
-        await CampaignService.updateCampaign(selectedEditCampaign.id, requestData)
-          .then(res => {
-            handleRefreshData();
-            handleResetToCreate();
-            toast.success(`Update campaign is successfully!`);
-            handleCloseDialog();
-          })
-          .catch(error => {
-            throw new Error(`Update new campaign error due to: ${error}`)
-          });
-      }
-      catch(error) {
-        console.log(error);
-        toast.error(error);
-      }
+    else {
+      toast.error(`You are in "Guest" mode, this action is not authorize.`)
     }
-
   }
 
   return (

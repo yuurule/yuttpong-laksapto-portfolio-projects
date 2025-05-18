@@ -123,7 +123,11 @@ const setupServer = () => {
 
 // Run with cluster
 if (cluster.isPrimary) {
-  const numCPUs = os.cpus().length;
+
+  // const numCPUs = os.cpus().length;
+  let numCPUs = 0;
+  if(process.env.NODE_ENV === 'development') numCPUs = os.cpus().length;
+  if(process.env.NODE_ENV === 'production') numCPUs = 10;
   
   logger.info(`Master process ${process.pid} is running`);
   logger.info(`Starting ${numCPUs} workers...`);
@@ -147,20 +151,22 @@ if (cluster.isPrimary) {
   const app = setupServer();
   const PORT = process.env.PORT || 5000;
 
-  app.listen(PORT, () => {
-    logger.info(`Worker ${cluster.worker?.id} running on port ${PORT} (PID: ${process.pid})`);
-  });
+  if(process.env.NODE_ENV === 'development') {
+    app.listen(PORT, () => {
+      logger.info(`Worker ${cluster.worker?.id} running on port ${PORT} (PID: ${process.pid})`);
+    });
+  }
 
-  /* 
-  For run on production 
-  */
-  // const sslOptions = {
-  //   key: fs.readFileSync('/etc/letsencrypt/live/devgamemaker.com/privkey.pem'),
-  //   cert: fs.readFileSync('/etc/letsencrypt/live/devgamemaker.com/fullchain.pem')
-  // };
-  // https.createServer(sslOptions, app).listen(PORT, () => {
-  //   console.log(`Server running on port ${PORT}`);
-  // });
+  if(process.env.NODE_ENV === 'production') {
+    const sslOptions = {
+      key: fs.readFileSync('/etc/letsencrypt/live/devgamemaker.com/privkey.pem'),
+      cert: fs.readFileSync('/etc/letsencrypt/live/devgamemaker.com/fullchain.pem')
+    };
+    https.createServer(sslOptions, app).listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      logger.info(`Worker ${cluster.worker?.id} running on port ${PORT} (PID: ${process.pid})`);
+    });
+  }
 
   // Handle uncaught exceptions
   process.on('uncaughtException', (err) => {

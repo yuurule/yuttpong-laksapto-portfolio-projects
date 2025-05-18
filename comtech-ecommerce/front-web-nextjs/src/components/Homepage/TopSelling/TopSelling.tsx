@@ -1,9 +1,11 @@
+import { unstable_noStore as noStore } from 'next/cache';
 import styles from './TopSelling.module.scss';
 import ProductBox from '@/components/ProductBox/ProductBox';
 import Link from 'next/link';
 import { productService } from '@/services';
 
 export default async function TopSelling() {
+  noStore();
 
   try {
     const brands = await productService.getBrands();

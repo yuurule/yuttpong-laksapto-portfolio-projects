@@ -10,10 +10,13 @@ import * as CampaignService from '../../services/campaignService';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import MyPagination from '../MyPagination/MyPagination';
+import { decodeJWT } from '../../utils/utils';
 
 export default function ProductInCampaign({ selectedCampaign, data, handleRefreshData }) {
 
   const authUser = useSelector(state => state.auth.user);
+  const authToken = useSelector(state => state.auth.accessToken)
+  const userRole = authToken ? decodeJWT(authToken).role : ''
 
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -21,25 +24,30 @@ export default function ProductInCampaign({ selectedCampaign, data, handleRefres
   const [onSubmit, setOnSubmit] = useState(false);
 
   const handleConfirmDelete = async () => {
-    setOnSubmit(true);
-    try {
-      await CampaignService.removeProductsFromCampaign(selectedCampaign?.id, selectedDeleteProducts, authUser.id)
-        .then(res => {
-          handleRefreshData(selectedCampaign?.id, selectedCampaign?.name);
-          toast.success(`Remove products from campaign is successfully.`);
-          setSelectedDeleteProducts([]);
-          setOpenDeleteDialog(false);
-        })
-        .catch(error => {
-          throw new Error(`Remove products from campaign is failed due to: ${error}`);
-        });
+    if(userRole === 'ADMIN') {
+      setOnSubmit(true);
+      try {
+        await CampaignService.removeProductsFromCampaign(selectedCampaign?.id, selectedDeleteProducts, authUser.id)
+          .then(res => {
+            handleRefreshData(selectedCampaign?.id, selectedCampaign?.name);
+            toast.success(`Remove products from campaign is successfully.`);
+            setSelectedDeleteProducts([]);
+            setOpenDeleteDialog(false);
+          })
+          .catch(error => {
+            throw new Error(`Remove products from campaign is failed due to: ${error}`);
+          });
+      }
+      catch(error) {
+        console.log(error.message);
+        toast.error(error.message);
+      }
+      finally {
+        setOnSubmit(false);
+      }
     }
-    catch(error) {
-      console.log(error.message);
-      toast.error(error.message);
-    }
-    finally {
-      setOnSubmit(false);
+    else {
+      toast.error(`You are in "Guest" mode, this action is not authorize.`)
     }
   }
 

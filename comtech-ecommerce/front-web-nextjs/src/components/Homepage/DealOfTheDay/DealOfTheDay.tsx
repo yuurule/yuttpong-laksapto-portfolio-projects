@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from 'next/cache';
 import styles from './DealOfTheDay.module.scss';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from '@fortawesome/free-solid-svg-icons';
@@ -9,6 +10,8 @@ import TimeCountDown from './TimeCountDown';
 import Link from 'next/link';
 
 export default async function DealOfTheDay() {
+  noStore();
+  
   try {
     const product = await productService.getOneProduct('3');
     const result = product.RESULT_DATA;

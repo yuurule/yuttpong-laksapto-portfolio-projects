@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from 'next/cache';
 import Breadcrumbs from "@/components/Breadcrumbs/Breadcrumbs";
 import PageHeader from "@/components/PageHeader/PageHeader";
 import ProductImageThumbnail from "@/components/ProductDetail/ProductImageThumbnail/ProductImageThumbnail";
@@ -19,6 +20,7 @@ export default async function ProductDetailPage({
 }: {
   params: Promise<{ id: string }>
 }) {
+  noStore();
 
   const breadcrumbsList = [
     { text: 'Home', url: '/' },

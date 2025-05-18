@@ -7,13 +7,16 @@ import * as CategoryService from '../services/categoryService';
 import UpsertCategory from '../components/Category/UpsetCategory';
 import { Dialog, DialogContent, DialogActions } from '@mui/material';
 import { useSelector } from 'react-redux';
-import { formatTimestamp } from '../utils/utils';
+import { decodeJWT, formatTimestamp } from '../utils/utils';
 import { toast } from 'react-toastify';
 import OrderByBtn from '../components/OrderByBtn/OrderByBtn';
 
 export default function Category() {
 
-  const authUser = useSelector(state => state.auth.user);
+  const authUser = useSelector(state => state.auth.user)
+  const authToken = useSelector(state => state.auth.accessToken)
+  const userRole = authToken ? decodeJWT(authToken).role : ''
+  
   const [loading, setLoading] = useState(false);
   const [onSubmit, setOnSubmit] = useState(false);
   const [refresh, setRefresh] = useState(0);
@@ -223,35 +226,40 @@ export default function Category() {
     return result;
   }
   const handleDeleteCategories = async () => {
-    setOnSubmit(true);
-    try {
-      const categoriesId = deleteCategoriesId.map(i => parseInt(i));
-      const requestData = {
-        userId: authUser.id,
-        categoriesId: deleteType === 'multiple' ? categoriesId : [parseInt(selectDeleteCategory)]
-      }
+    if(userRole === 'ADMIN') {
+      setOnSubmit(true);
+      try {
+        const categoriesId = deleteCategoriesId.map(i => parseInt(i));
+        const requestData = {
+          userId: authUser.id,
+          categoriesId: deleteType === 'multiple' ? categoriesId : [parseInt(selectDeleteCategory)]
+        }
 
-      await CategoryService.deleteCategories(requestData)
-        .then(res => {
-          console.log(`Delete categories is successfully! : ${res.RESULT_DATA}`);
-          handleRefreshData();
-          setOnSubmit(false);
-          setConfirmDeletesDialog(false);
-          setSelectDeleteCategory(null);
-          setDeleteCategoriesId([]);
-          handleResetToCreate();
-          toast.success(`Delete categories is successfully!`);
-        })
-        .catch(error => {
-          throw new Error(`Delete categories failed due to: ${error.response.data}`);
-        })
+        await CategoryService.deleteCategories(requestData)
+          .then(res => {
+            console.log(`Delete categories is successfully! : ${res.RESULT_DATA}`);
+            handleRefreshData();
+            setOnSubmit(false);
+            setConfirmDeletesDialog(false);
+            setSelectDeleteCategory(null);
+            setDeleteCategoriesId([]);
+            handleResetToCreate();
+            toast.success(`Delete categories is successfully!`);
+          })
+          .catch(error => {
+            throw new Error(`Delete categories failed due to: ${error.response.data}`);
+          })
+      }
+      catch(error) {
+        console.log(error);
+        toast.error(`${error}`);
+      }
+      finally {
+        setOnSubmit(false);
+      }
     }
-    catch(error) {
-      console.log(error);
-      toast.error(error);
-    }
-    finally {
-      setOnSubmit(false);
+    else {
+      toast.error(`You are in "Guest" mode, this action is not authorize.`)
     }
   }
 
