@@ -178,7 +178,7 @@ export default function CustomerDetail() {
                 <div className='card-body header-detail py-4'>
                   <div>
                     <figure className='userImage'>
-                      <img src="/images/dummy-webadmin.jpg" />
+                      <img src={`${import.meta.env.VITE_PUBLIC_URL}/images/dummy-customer.jpg`} />
                     </figure>
                   </div>
                   <div className='feature-detail'>

@@ -45,7 +45,12 @@ const setupServer = () => {
 
   // กำหนด cors origin
   app.use(cors({
-    origin: "*",
+    /*
+     * !important, In production, add only website domain name to allow use your api 
+     * Use * here is just for demo code for dev
+     */
+    origin: "*", 
+    /**====================================**/
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
   }));
