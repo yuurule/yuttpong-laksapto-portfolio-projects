@@ -20,7 +20,7 @@ export default async function TopSelling() {
       <section id="top-selling" className={`topSelling ${styles.topSelling}`}>
       
         <div className='d-flex justify-content-end'>
-          <Link href="/products?brands=all&categories=all&topSale=desc" className='btn design-btn px-4 mb-3'>
+          <Link href="/products?brands=all&categories=all" className='btn design-btn px-4 mb-3'>
             See all top sell notebooks
           </Link>
         </div>

@@ -599,6 +599,13 @@ export default function CheckoutForm() {
           <section className="mb-4">
             <h6>Payment Method</h6>
             <hr />
+            <small className='alert alert-warning d-block'>
+              This is just demo portfolio website, not use real credit card but use this instead<br />
+              <strong>Name on card</strong>: Tester<br />
+              <strong>Credit card</strong>: 4242 4242 4242 4242<br />
+              <strong>Expired</strong>: 12/70<br />
+              <strong>CVC</strong>: 123
+            </small>
             <div className='row form-design form-float-label'>
               <div className='col-sm-6 pt-4 mb-3'>
                 <div className="form-group position-relative">

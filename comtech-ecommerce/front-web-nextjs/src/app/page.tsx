@@ -5,6 +5,7 @@ import TopSelling from '@/components/Homepage/TopSelling/TopSelling';
 import DealOfTheDay from '@/components/Homepage/DealOfTheDay/DealOfTheDay';
 import NewArrival from '@/components/Homepage/NewArrival/NewArrival';
 import HeroSlide from '@/components/Homepage/HeroSlide/HeroSlide';
+import Link from 'next/link';
 
 export default function HomePage() {
 
@@ -36,14 +37,6 @@ export default function HomePage() {
       <div className='container'>
         
         <section id="recommendCampaign">
-          {/* <img src="/images/dummy-hero-slide.jpg" className='img-fluid' /> */}
-          {
-            /*
-            - Best deal of the week (ไปที่สินค้า 1 ตัวที่น่าสนใจที่สุดที่กำลังลดราคา)
-            - MSI gaming nootbook (ไปที่สินค้าล่าสุดใน brand msi หมวดหมู่ gaming)
-            - Discount 50% on working dell (ไปที่ campaign dell, working ลด 50%)
-            */
-          }
           <HeroSlide />
         </section>
 
@@ -67,40 +60,33 @@ export default function HomePage() {
 
         <div className='row mb-5'>
           <div className='col-sm-4 mb-3'>
-            <div className={`demo-box ${styles.campaignBox}`}>
+            <Link href="/products?brands=4&categories=all" className={`demo-box ${styles.campaignBox} demo-hero-4`}>
               <div>
-                <span className='badge text-bg-danger mb-2'>Gamaing Notebook</span>
-                <strong className='h4 d-block'>Top Gaming Notebook</strong>
-                <p>Super Hi-end We Offer</p>
+                <span className='badge text-bg-danger mb-2'>Lenovo</span>
+                <strong className='h4 d-block'>Lenovo Notebooks</strong>
+                <p>Performance & Hi-end</p>
               </div>
-            </div>
+            </Link>
           </div>
           <div className='col-sm-4 mb-3'>
-            <div className={`demo-box ${styles.campaignBox}`}>
+            <Link href="/products?brands=1&categories=all" className={`demo-box ${styles.campaignBox} demo-hero-5`}>
               <div>
-                <span className='badge text-bg-danger mb-2'>Gamaing Notebook</span>
-                <strong className='h4 d-block'>Top Gaming Notebook</strong>
-                <p>Super Hi-end We Offer</p>
+                <span className='badge text-bg-danger mb-2'>Asus</span>
+                <strong className='h4 d-block'>New Asus Gaming Laptop</strong>
+                <p>Game is life</p>
               </div>
-            </div>
+            </Link>
           </div>
           <div className='col-sm-4 mb-3'>
-            <div className={`demo-box ${styles.campaignBox}`}>
+            <Link href="/products?brands=2&categories=all" className={`demo-box ${styles.campaignBox} demo-hero-6`}>
               <div>
-                <span className='badge text-bg-danger mb-2'>Gamaing Notebook</span>
-                <strong className='h4 d-block'>Top Gaming Notebook</strong>
-                <p>Super Hi-end We Offer</p>
+                <span className='badge text-bg-danger mb-2'>Acer</span>
+                <strong className='h4 d-block'>Acer Notebook</strong>
+                <p>Stand your work</p>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
-        {
-          /*
-          - ไปที่สินค้าล่าสุดในหมวดหมู่ Working ราคาเบา
-          - ไปที่สินค้าล่าสุดในหมวดหมู่ Gaming ระดับ hi-end
-          - ไปที่สินค้าล่าสุดในหมวดหมู่ Student บางเบา ราคาย่อมเยาว์
-          */
-        }
 
         <section id="new-arrival" className={`${styles.newArrival}`}>
           <div className='row'>
@@ -109,9 +95,6 @@ export default function HomePage() {
                 <h3 className={`${styles.heading}`}>Deals of the Week</h3>
               </header>
               <DealOfTheDay />
-              {
-                /* ไปที่สินค้า 1 ตัวที่น่าสนใจและกำลังลดราคา */
-              }
             </div>
             <div className='col-sm-8'>
               <header>
@@ -122,20 +105,16 @@ export default function HomePage() {
           </div>
         </section>
 
-        <div 
-          className={`demo-box d-flex align-items-center ${styles.campaignBox}`} 
+        <Link href="/products?brands=all&categories=2,4" 
+          className={`demo-box d-flex align-items-center ${styles.campaignBox} demo-hero-7`} 
           style={{height: 250, paddingLeft: '5%'}}
         >
           <div>
-            <span className='badge text-bg-danger mb-2'>Gamaing Notebook</span>
-            <strong className='h3 d-block'>Top Gaming Notebook</strong>
-            <p>Super Hi-end We Offer</p>
+            <span className='badge text-bg-danger mb-2'>Hi-end</span>
+            <strong className='h3 d-block'>SUPER HI-END TECHNOLOGY</strong>
+            <p>Powered Your Notebook with AI of The Future</p>
           </div>
-        </div>
-        {
-          /* ไปที่สินค้าทั้งหมดที่กำลังลดราคาจากมากไปน้อย */
-        }
-
+        </Link>
       </div>
     </main>
   );
