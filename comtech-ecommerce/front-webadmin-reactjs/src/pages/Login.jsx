@@ -47,6 +47,16 @@ export default function Login() {
     }
   };
 
+  const handleLoginWithGuestMode = async () => {
+    try {
+      await dispatch(login('guest@example.com', 'guest123'));
+      navigate('/');
+    } catch (error) {
+      setError('Your credential is not correct')
+      console.error('เกิดข้อผิดพลาดในการเข้าสู่ระบบ:', error);
+    }
+  }
+
   return (
     <div className={`${styles.loginPage}`}>
       
@@ -91,8 +101,15 @@ export default function Login() {
               {errors.password && <small className="invalid-feedback">{errors.password.message}</small>}
             </div>
 
-            <button type="submit" disabled={isSubmitting} className={`btn ${styles.loginBtn}`}>
+            <button type="submit" disabled={isSubmitting} className={`btn ${styles.loginBtn} mb-3`}>
               {isSubmitting ? 'กำลังดำเนินการ...' : 'เข้าสู่ระบบ'}
+            </button>
+            <button 
+              type="button" 
+              className={`btn ${styles.loginBtn}`}
+              onClick={handleLoginWithGuestMode}
+            >
+              เข้าสู่ระบบด้วยโหมดผู้เยี่ยมชม
             </button>
           </form>
 
